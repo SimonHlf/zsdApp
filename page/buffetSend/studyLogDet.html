@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/viewBuffetDet.css"/>
+		<title>做题记录详情</title>
+	</head>
+	<body class="paddingTop">
+		<div class="comHeader hasBor">
+			<a id="backBtn" class="posL" href="javascript:mui.back()"><i class="iconfont icon-fanhui"></i></a>
+			<span id="headerTit" class="headerTit"></span>
+			<span id="tongjiBtn" class="tongjiBtn"><i class="iconfont icon-tongji"></i></span>
+		</div>
+		<div id="studyLogDet" class="studyLogDet"></div>
+		
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../studyOnline/js/comStudy.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			mui.plusReady(function(){ 
+				var bsId = plus.webview.currentWebview().bsId,
+					loreName = plus.webview.currentWebview().loreName,
+					stuName = plus.webview.currentWebview().stuName;
+				var page = {
+					init : function(){
+						app.getId('headerTit').innerHTML = stuName + '同学针对' + loreName + '的学习记录';
+						this.loadStudyLogList();
+						this.bindEvent();
+					},
+					bindEvent : function(){
+						app.getId('tongjiBtn').addEventListener('tap',function(){
+							app.openwin('studyLogTongji.html',{bsId:bsId,loreName:loreName,stuName:stuName});
+						});
+					},
+					//加载做题记录
+					loadStudyLogList : function(){
+						var _this = this;
+						app.showToast(1);
+						mui.ajax(http_ + '/studyRecord.do?action=sendBuffetDetil',{
+							data:{bsId:bsId},
+							dataType:'json',
+							type:'post',
+							timeout:10000,
+							success:function(json){
+								//console.log( JSON.stringify( json ) )
+								app.showToast(2);
+								_this.renderList(json.buffetList);
+							},
+							error:function(xhr,type,errorThrown){
+								app.showToast(2);
+							} 
+						});
+					},
+					renderList : function(list){
+						if(list.length > 0){
+							var str = '';
+							for(var i=0;i<list.length;i++){
+								var j=0, answerA = "",answerB = "",answerC = "",answerD = "",answerE = "",answerF = "",answerOptionArray = new Array();
+								answerOptionArray = assignToArray(list[i].A,list[i].B,list[i].C,list[i].D,list[i].E,list[i].F);
+								str += '<div class="listTabCon"><label>';
+								<!-- 标题 -->
+								str += '<div class="detTitPart">';
+									str += '<div class="typeTit clearfix">';
+									str += '<strong class="fl">'+ list[i].queType +'</strong>';
+									str += '<p class="fl">'+ list[i].quetitle +'</p>';
+									str += '</div>';
+									str += '<p class="smTitPart">';
+									str += '<span>思维类型：</span>';
+									str += '<strong>'+ list[i].mindName +'</strong></p>';
+									str += '<p class="smTitPart">';
+									str += '<span>能力类型：</span>';
+									str += '<strong>'+ list[i].abilityName +'</strong></p>';
+								str += '</div>';
+								<!-- 题干 -->
+								str += '<div class="queSub"><p class="subTit">题干：</p>';
+								str += '<div class="queSubCon">'+ list[i].subject +'</div>';
+								str += '</div>';
+								<!-- quesOpt -->
+								str += '<div class="quesOptBox">';
+								if(list[i].A != "" && list[i].A != undefined){
+									if(checkAnswerImg(list[i].A)){
+										answerA = "<img src='"+ answerOptionArray[j++] +"'/>";
+									}else{
+										answerA = answerOptionArray[j++];
+									}
+									str += '<div class="quesOpt"><span class="optionsWord">A</span><div class="optionsCon">'+ answerA +'</div></div>';
+								}
+								if(list[i].B != "" && list[i].B != undefined){
+									if(checkAnswerImg(list[i].B)){
+										answerB = "<img src='"+ answerOptionArray[j++] +"'/>";
+									}else{
+										answerB = answerOptionArray[j++];
+									}
+									str += '<div class="quesOpt"><span class="optionsWord">B</span><div class="optionsCon">'+ answerB +'</div></div>';
+								}
+								if(list[i].C != "" && list[i].C != undefined){
+									if(checkAnswerImg(list[i].C)){
+										answerC = "<img src='"+ answerOptionArray[j++] +"'/>";
+									}else{
+										answerC = answerOptionArray[j++];
+									}
+									str += '<div class="quesOpt"><span class="optionsWord">C</span><div class="optionsCon">'+ answerC +'</div></div>';
+								}
+								if(list[i].D != "" && list[i].D != undefined){
+									if(checkAnswerImg(list[i].D)){
+										answerD = "<img src='"+ answerOptionArray[j++] +"'/>";
+									}else{
+										answerD = answerOptionArray[j++];
+									}
+									str += '<div class="quesOpt"><span class="optionsWord">D</span><div class="optionsCon">'+ answerD +'</div></div>';
+								}
+								if(list[i].E != "" && list[i].E != undefined){
+									if(checkAnswerImg(list[i].E)){
+										answerE = "<img src='"+ answerOptionArray[j++] +"'/>";
+									}else{
+										answerE = answerOptionArray[j++];
+									}
+									str += '<div class="quesOpt"><span class="optionsWord">E</span><div class="optionsCon">'+ answerE +'</div></div>';
+								}
+								if(list[i].F != "" && list[i].F != undefined){
+									if(checkAnswerImg(list[i].F)){
+										answerF = "<img src='"+ answerOptionArray[j++] +"'/>";
+									}else{
+										answerF = answerOptionArray[j++];
+									}
+									str += '<div class="quesOpt"><span class="optionsWord">F</span><div class="optionsCon">'+ answerF +'</div></div>';
+								}
+								str += '</div>';
+								<!-- 答案 -->
+								str += '<div class="myAnsRealAns clearfix">';
+								if(list[i].myAnswer == ''){
+									str += '<p>'+ stuName +'的答案：<span class="noAnsTxt">该题暂未做！</span></p>';
+								}else{
+									if(list[i].myAnswer != list[i].realAnswer){
+										str += '<p>'+ stuName +'的答案：<span class="queFailTxt">'+ list[i].myAnswer +'</span></p>';
+									}else{
+										str += '<p>'+ stuName +'的答案：<span class="quesSuccTxt">'+ list[i].myAnswer +'</span></p>';
+									}
+								}
+								str += '<p>正确答案：<span class="quesSuccTxt">'+ list[i].realAnswer +'</span></p>';
+								str += '</div>';
+								str += '</label></div>';
+							}
+							app.getId('studyLogDet').innerHTML = str;
+							var hasImgLen = $("#studyLogDet").find('img').length;
+							if(hasImgLen > 0){
+								$('#studyLogDet').find('img').each(function(k){
+									$('#studyLogDet').find('img').eq(k).attr('src', http_ + '/' + $('#studyLogDet').find('img').eq(k).attr('src'));
+								});
+							}
+						}else{
+							app.getId('studyLogDet').innerHTML = '<div class="noData"><img src="../../images/noData.png" /><p>暂无试题记录！</p></div>'
+						}
+					}
+					
+				};
+				page.init();
+			});
+		</script>
+	</body>
+</html>

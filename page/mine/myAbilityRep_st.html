@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/abillityRep.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/swiper.min.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/mobileSelect.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/filterNav.css"/>
+		<title>能力报告</title>
+	</head>
+	<body class="paddingTop">
+		<div class="comHeader otherBg">
+			<a id="backBtn" class="posL"><i class="iconfont icon-fanhui"></i></a>
+			<span class="headerTit">能力报告</span>
+			<input type="hidden" id="currSubId" />
+			<p id="subject" class="subject">
+				<span id="subTxt" class="comSelTxtCon">数学</span>
+				<i class="iconfont icon-xiala"></i>
+			</p>
+		</div>
+		<!-- 筛选条件 -->
+		<div class="filter"> 
+			<div class="timeInp">
+				<div class="innerTimeInp">
+					<input id="stDate" type="text"  readonly placeholder="起始日期"/>
+					<i class="iconfont icon-rili"></i>
+				</div>
+				<span class="tilTxt">至</span>
+				<div class="innerTimeInp">
+					<input id="edDate" type="text"  readonly placeholder="结束日期"/>
+					<i class="iconfont icon-rili"></i>
+				</div>
+			</div>
+			<div id="searchBtn" class="search">
+				<i class="iconfont icon-sousuo"></i>
+			</div>
+		</div>
+		<div class="totalTxt ellip">最新<span id="diffDays"></span>天，<span id="currRole">你在</span><span id="subjectNameTxt"></span>各方面的能力如下:</div>
+		
+		<!-- swiper轮播 -->
+		<div class="swiperBox">
+			<div class="swiper-container banner">
+				<div class="swiper-wrapper">
+					<!-- 了解能力 -->
+					<div class="swiper-slide">
+						<div id="liaojieBox" class="slideBox"></div>
+					</div>
+					<!-- 理解能力 -->
+					<div class="swiper-slide">
+						<div id="lijieBox" class="slideBox"></div>
+					</div>
+					<!-- 应用能力 -->
+					<div class="swiper-slide">
+						<div id="yingyongBox" class="slideBox"></div>
+					</div>
+				</div>
+				<div class="swiper-pagination"></div>
+			</div>
+		</div>
+		 
+		
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/swiper.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/comMethod.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/mobileSelect.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			document.addEventListener('plusready',onPlusReady,false);
+			function onPlusReady(){
+				var _self = plus.webview.currentWebview();
+				if(_self.roleId == 6){
+					app.getId('currRole').innerHTML = '您孩子在';
+				}
+				var page = {
+					init : function(){
+						app.backFun();
+						this.bindEvent();
+						comMet.loadSubject();
+						this.loadAbilityInfo();
+					},
+					loadAbilityInfo : function(){
+						var subId = app.getId('currSubId').value,
+							stDateVal = app.getId('stDate').value,
+							edDataVal = app.getId('edDate').value,_this = this;
+						var field = {userId:_self.userId,roleId:_self.roleId,subjectId:subId,startTime:stDateVal,endTime:edDataVal};
+						mui.ajax(http_ + '/reportCenter.do?action=getNLData',{
+							data:field, 
+							dataType:'json',
+							type:'post',
+							timeout:10000,
+							beforeSend : function(){ 
+								app.showToast(1);
+							},
+							success:function(json){
+								app.showToast(2);
+								app.getId('stDate').value = json.sDate;
+								app.getId('edDate').value = json.eDate;
+								app.getId('diffDays').innerHTML = json.diffDays;
+								app.getId('subjectNameTxt').innerHTML = app.getId('subTxt').innerText;
+								_this.renderNlHtml(json.nlReport);
+							},
+							error:function(xhr,type,errorThrown){
+								app.showToast(2);
+								plus.nativeUI.toast('服务器异常');
+							}
+						}); 
+					},
+					//加载对应的DOM
+					renderNlHtml : function(list){
+						var liaojieStr='',lijieStr='',yingyongStr='';
+						//了解能力
+						liaojieStr += '<div class="topDec"><strong>了解能力</strong><img src="../../images/abilityBg.jpg" alt="能力报告"/></div>';
+						liaojieStr += '<div class="botCon">';
+						liaojieStr += '<p class="points">'+ list[0].score_liaojie +'分</p>';
+						liaojieStr += '<p class="anlyTxt hasMargTop">了解辨析题答题数：'+ list[0].number_liaojie +'道</p>';
+						liaojieStr += '<p class="anlyTxt">解答知识点正确率：'+ list[0].success_scale_liaojie +'%</p>';
+						liaojieStr += '<p class="anlyTxt">全网平均正确率：'+ list[0].all_success_scale_liaojie +'%</p>';
+						liaojieStr += '<strong class="globalComTxt">'+ list[0].step_liaojie +'</strong>';
+						liaojieStr += '<p class="sysTxt">'+ list[0].explain_liaojie +'</p></div>';
+						//理解能力
+						lijieStr += '<div class="topDec"><strong>理解能力</strong><img src="../../images/abilityBg.jpg" alt="能力报告"/></div>';
+						lijieStr += '<div class="botCon">';
+						lijieStr += '<p class="points">'+ list[0].score_lijie +'分</p>';
+						lijieStr += '<p class="anlyTxt hasMargTop">理解辨析题答题数：'+ list[0].number_lijie +'道</p>';
+						lijieStr += '<p class="anlyTxt">解答知识点正确率：'+ list[0].success_scale_lijie +'%</p>';
+						lijieStr += '<p class="anlyTxt">全网平均正确率：'+ list[0].all_success_scale_lijie +'%</p>';
+						lijieStr += '<strong class="globalComTxt">'+ list[0].step_lijie +'</strong>';
+						lijieStr += '<p class="sysTxt">'+ list[0].explain_lijie +'</p></div>';
+						//应用能力
+						yingyongStr += '<div class="topDec"><strong>应用能力</strong><img src="../../images/abilityBg.jpg" alt="能力报告"/></div>';
+						yingyongStr += '<div class="botCon">';
+						yingyongStr += '<p class="points">'+ list[0].score_yy +'分</p>';
+						yingyongStr += '<p class="anlyTxt hasMargTop">应用辨析题答题数：'+ list[0].number_yy +'道</p>';
+						yingyongStr += '<p class="anlyTxt">解答知识点正确率：'+ list[0].success_scale_yy +'%</p>';
+						yingyongStr += '<p class="anlyTxt">全网平均正确率：'+ list[0].all_success_scale_yy +'%</p>';
+						yingyongStr += '<strong class="globalComTxt">'+ list[0].step_yy +'</strong>';
+						yingyongStr += '<p class="sysTxt">'+ list[0].explain_yy +'</p></div>';
+						app.getId('liaojieBox').innerHTML = liaojieStr;
+						app.getId('lijieBox').innerHTML = lijieStr;
+						app.getId('yingyongBox').innerHTML = yingyongStr;
+					},
+					bindEvent : function(){ 
+						var _this = this;
+						//查询
+						app.getId('searchBtn').ontouchend = function(){
+							var subId = app.getId('currSubId').value,
+								stDateVal = app.getId('stDate').value,
+								edDataVal = app.getId('edDate').value;
+							if(stDateVal == '' && edDataVal != ''){
+								plus.nativeUI.toast('请选择开始日期');
+								return;
+							}
+							if(stDateVal != '' && edDataVal == ''){
+								plus.nativeUI.toast('请选择结束日期');
+								return;
+							}
+							if(stDateVal > edDataVal){
+								plus.nativeUI.toast('开始日期不能大于结束日期');
+								return;
+							}
+							_this.loadAbilityInfo();
+						},
+						//起始日期
+						app.getId('stDate').ontouchend = function(){
+							comMet.showPickDate('stDate');
+						}
+						//结束日期
+						app.getId('edDate').ontouchend = function(){
+							comMet.showPickDate('edDate');
+						}
+					}
+				}; 
+				new Swiper ('.banner', {
+					direction: 'horizontal',
+					loop: false,
+					autoplay: false,
+					pagination: {
+						el: '.swiper-pagination'
+					}
+				});
+				page.init();
+			}
+		</script>
+	</body>
+</html>

@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+	<head> 
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/doHwMainList.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/hwAnswerList.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/mui.min.css"/> 
+		<title>学生做家庭作业</title>
+	</head>
+	<body id="hwBody" class="paddingTop">
+		<div class="comHeader hasBor">
+			<a id="backBtn" class="posL" href="javascript:void(0)"><i class="iconfont icon-fanhui"></i></a>
+			<span class="headerTit">家庭作业</span>
+		</div>
+		<!-- 今日家庭作业 -->
+		<div class="todayHw">
+			<strong class="titStrong">今日家庭作业</strong>
+			<div class="listHw">
+				<ul id="listHwUl"></ul>
+			</div>
+		</div>
+		<!-- 历次家庭作业记录 -->
+		<div class="historyHwList">
+			<strong id="titStrong" class="titStrong hasBorBot">历次家庭作业</strong>
+			<div id="hwRecContainer">
+				<div class="mui-scroll">
+					<!-- 按时完成 补做完成 未完成 --> 
+					<ul id="listRec" class="listRecUl"></ul>
+				</div>
+				<div id="noData" class="noData" style="display: none;margin-top: 0;"><img src="../../images/noData.png" /><p>暂无历史作业记录！</p></div>
+			</div>
+		</div>
+		
+		
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var userId = 0,pageNum = 1,globalOpt=0,isPullLoadFlag = false,noDataPage = 0,option=0;//option用于分页
+			var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+			window.onscroll  = function(){
+				var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+				if(scrollTop >= 168){
+					app.getId('titStrong').className = 'titStrong hasBorBot hasFixed';
+				}else{
+					app.getId('titStrong').className = 'titStrong hasBorBot';
+				}
+			}
+			mui.init({
+				pullRefresh : {
+					container : "#hwRecContainer",
+					up : {
+						height:50,
+						auto:false,
+						contentrefresh : "正在加载...",
+						contentnomore:'没有更多数据了',
+						callback : getHwRecordList_more
+					}
+				}
+			});
+			mui.plusReady(function(){
+				userId = plus.webview.currentWebview().userId;
+				var page = {
+					init : function(){
+						//今日家庭作业以及历次家庭作业
+						this.loadHwList();
+						this.bindEvent();
+					},
+					loadHwList : function(){
+						getHwRecordListData(null,'initLoad');
+					},
+					bindEvent : function(){
+						mui('body').on('tap','#backBtn',function(){
+							plus.webview.currentWebview().close();
+						});
+						mui('#hwBody').on('tap','li',function(){
+							var tjId = this.getAttribute('tjId'),
+								hwType = this.getAttribute('hwType'),
+								loreName = this.getAttribute('loreName'),
+								comStatus = this.getAttribute('comStatus');
+							var field = {userId:userId,tjId:tjId};
+							if(userInfo.roleId == stu_role_id){
+								if(comStatus == '1' || comStatus == '2'){//完成当前家庭作业 直接进入做题记录
+									app.openwin('hwStudyQueList.html',{field:field,currPage:pageNum,studyRes:1,currPos:'byList'});
+								}else{
+									app.openwin('studyMap.html',{field:field,loreName:loreName,currPage:pageNum,currPos:'byList'});
+								}
+							}else if(userInfo.roleId == stuPar_role_id){
+								app.openwin('hwStudyQueList.html',{field:field,currPage:1,studyRes:1,currPos:'byList'});
+							}
+						});
+					}
+				};
+				page.init();
+				//从题库列表返回来时 success时
+				document.addEventListener('upDateHwList',function(e){
+					if(isPullLoadFlag){//上拉加载了并且加载至返回noInfo
+						pageNum = noDataPage;
+					}else{
+						pageNum = e.detail.currPage;
+					} 
+					option = e.detail.option;//1
+					getHwRecordListData(null,'initLoad');
+				});
+				//二次登录进来刷新当前页面
+				document.addEventListener('upDatePageData',function(e){
+					if(e.detail.isLoginFlag){
+						location.reload();
+					}
+				});
+			});
+			function getHwRecordListData(currObj,loadType){
+				var field = {userId:userInfo.userId,roleId:userInfo.roleId,loginStatus:userInfo.loginStatus,opt:globalOpt,pageNo:pageNum,option:option,showLsStatus:0};
+				mui.ajax(http_ + '/hw.do?action=getSelfHwData',{
+					data:field,
+					dataType:'json',
+					type:'post',
+					timeout:10000,  
+					success:function(json){ 
+						app.showToast(2);
+						if(json.result == 'success'){ 
+							app.getId('noData').style.display = 'none';
+							if(globalOpt == 0){
+								renderCurrHwList(json.currHwList);
+							}
+							renderHisHwList(json.preHwList,currObj);
+						}else if(json.result == 'error'){ 
+							plus.nativeUI.toast('服务器错误');
+						}else{
+							app.checkLoginStaInfo(json.result,userInfo.roleId);
+						}
+					},
+					error:function(xhr,type,errorThrown){
+						app.showToast(2);
+						plus.nativeUI.toast('服务器错误');
+					} 
+				});
+			}
+			//生成历次家庭作业记录
+			function renderHisHwList(list,currObj){
+				var str = '';
+				if(list.length > 0){
+					for(var i=0;i<list.length;i++){
+						str += '<li tjId="'+ list[i].tjId +'" hwType="'+ list[i].hwType +'" comStatus="'+ list[i].comStatus +'" loreName="'+ list[i].loreName +'" class="viewDetBtn">';
+							str += '<div class="subImg"><i class="iconfont '+ app.switchIconBySubName(list[i].subName) +'"></i></div>';
+							str += '<div class="detCon">';
+							str += '<div class="detConTit"><p class="loreName ellip"><span class="subNameTxt">['+ list[i].subName +']</span>'+ list[i].loreName +'</p>';
+							if(list[i].comStatus == 0 || list[i].comStatus == -1){//未完成
+								str += '<p class="currSta"><span class="compTxt noCompCol">未完成</span><span class="staBg noCompBg"></span></p></div>';
+							}else if(list[i].comStatus == 1){//按时完成
+								str += '<p class="currSta"><span class="compTxt compCol">已完成</span><span class="staBg compBg"></span></p></div>';
+							}else if(list[i].comStatus == 2){//补做完成
+								str += '<p class="currSta"><span class="compTxt buzuoCompCol">补做完成</span><span class="staBg buzuoCompBg"></span></p></div>';
+							}
+							str += '<div class="detConBot clearfix">';
+							str += '<div class="innerDetConBot">';
+							str += '<p class="timePub">发布：'+ list[i].sendDate +'</p>';
+							str += '<p class="timeTill">截止：'+ list[i].endDate +'</p></div>';
+							str += '<div class="innerDetConBot">';
+							str += '<p class="hwType">'+ list[i].hwTitle +'</p>';
+							if(list[i].comDate != ''){
+								str += '<p class="timeComp">完成：'+ list[i].comDate +'</p>';
+							}
+							str += '</div></div></div>';
+						str += '</li>';
+					}
+					if(currObj != null){
+						$('#listRec').append(str);
+						currObj.endPullupToRefresh(false);
+					}else{
+						$('#listRec').html(str);
+					}
+				}else{
+					if(currObj != null){//上滑
+						isPullLoadFlag = true;
+						noDataPage = pageNum-1;
+						currObj.endPullupToRefresh(true);
+					}else{
+						$('#listRec').html('');
+						app.getId('noData').style.display = 'block';
+					}
+				}
+			}
+			//生成今日家庭作业
+			function renderCurrHwList(list){
+				var str = '';
+				//hwTypeChi
+				if(list.length > 0){
+					for(var i=0;i<list.length;i++){
+						str += '<li hwType="'+ list[i].hwType +'" comStatus="'+ list[i].comStatus +'" loreName="'+ list[i].loreName +'" tjId="'+ list[i].tjId +'">';
+						if(list[i].comStatus == 0){
+							str += '<span class="comStaSpan noCompSta"></span>';
+						}else if(list[i].comStatus == 1){
+							str += '<span class="comStaSpan compSta"></span>';
+						}
+						str += '<p class="hwTypeName">'+ list[i].hwTitle +'</p>';
+						str += '<p class="loreName multiEllip">'+ list[i].loreName +'</p>';
+						str += '<div class="teaName">';
+						str += '<p>'+ list[i].subName +'老师</p>';
+						str += '<p>'+ list[i].teaName +'</p>';
+						str += '</div></li>';
+					}
+					app.getId('listHwUl').innerHTML = str;
+				}else{
+					$('#listHwUl').addClass('hasAlign').html('<img src="../../images/noHwRec.png" alt="暂无家庭作业记录"/>');
+				}
+			}
+			function getHwRecordList_more(){
+				pageNum++;
+				globalOpt = 1;
+				option = 0;//重置下option 只有当从题库列表最后做完返回当当前列表时option才会为1
+				getHwRecordListData(this,'pullLoad');
+			}
+		</script>
+	</body>
+</html>

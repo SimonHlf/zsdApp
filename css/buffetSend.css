@@ -1,0 +1,160 @@
+body{
+	background: #f2f2f2;
+}
+.comHeader p.sellAllBtn{
+	width: 10%;
+	height: 100%;
+	position: absolute;
+	right: .2667rem;
+	top:0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.comHeader p.sellAllBtn input{
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	left: 0;
+	top:0;
+	z-index: 5;
+}
+.comHeader span.headerTit{
+	width: 75%;
+	max-width: 75%;
+}
+.sendList{
+	position: absolute;
+	left: .2667rem;
+	right: .2667rem;
+	top: 1.55rem;
+	bottom:1.5rem;
+	overflow: hidden;
+	overflow-y:auto ;
+	-webkit-overflow-scrolling: touch;
+}
+.sendList li{
+	margin-bottom: .3rem;
+}
+.sendList li label{
+	width: 100%;
+	height: 2.2rem;
+	display: block;
+	position: relative;
+	background: #fff;
+	border-radius:6px;
+	box-shadow: 0 0 10px #ccc;
+}
+.sendList li label input{
+	width: 100%;
+    height: 100%;
+    position: absolute;
+    left: 0px;
+    top: 0px;
+}
+.sendList li label span.currSelSpan,
+.sellAllBtn em{
+	width: .45rem;
+	height: .45rem;
+	border:2px solid #e6e6e6;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.sendList li label span.currSelSpan{
+	position: absolute;
+	right: .23rem;
+	top:.15rem;
+}
+.sendList li label span.currSelSpan.hasSelect,
+.sellAllBtn em.hasSelect{
+	background: #4d47f1;
+	border:2px solid #4d47f1;
+}
+.sendList li label span.currSelSpan i,
+.sellAllBtn em i{
+	font-size: .4rem;
+	color: #fff;
+	display: none;
+}
+.sendList li label span.currSelSpan.hasSelect i,
+.sellAllBtn em.hasSelect i {
+	display: block;
+}
+.buffetTit{
+	width: 2rem;
+	height: 2.2rem;
+	float: left;
+	background: #4d47f1;
+	border-radius: 6px 0 0 6px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.buffetTit p{
+	font-size: .48rem;
+	color: #fff;
+	text-align: center;
+}
+.sendDetCon{
+	float: left;
+	width: 7.2rem;
+	height: 1.7333rem;
+	margin-left: .2rem;
+}
+.sendDetCon p.titP{
+	height: .8rem;
+	line-height: .8rem;
+}
+.sendDetCon p.titP span,
+.sendDetCon .smTit p span{
+	font-size: .38rem;
+	color: #999999;
+	display: block;
+	float: left;
+}
+.sendDetCon p.titP strong,
+.sendDetCon .smTit p strong{
+	font-size: .43rem;
+	margin-left: .2rem;
+	color: #333;
+	display: block;
+	float: left;
+}
+.sendDetCon .smTit{
+	margin-bottom: .15rem;
+}
+.sendDetCon .smTit:last-child{
+	margin-bottom: 0;
+}
+.sendDetCon .smTit p strong{
+	width: 80%;
+	font-size: .38rem;
+	font-weight: normal;
+}
+.btnGroup{
+	height: 1.5rem;
+	position: fixed;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	box-shadow:0 -2px 5px #ccc;
+}
+.btnGroup p{
+	width: 48%;
+	float: left;
+	height: 1.2rem;
+	line-height: 1.2rem;
+	background: #4d47f1;
+	color: #fff;
+	font-size: .48rem;
+	text-align: center;
+	margin-top: .15rem;
+}
+.innerBtnGroup{
+	padding: 0 .2667rem;
+}
+.btnGroup p:last-child{
+	float: right;
+}

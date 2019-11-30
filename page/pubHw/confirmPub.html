@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/confirmPub.css"/>
+		<title>布置作业</title>
+	</head>
+	<body class="paddingTop">
+		<div class="comHeader otherBg">
+			<a id="backBtn" class="posL"  href="javascript:mui.back();"><i class="iconfont icon-fanhui"></i></a>
+			<span class="headerTit">布置作业</span>
+		</div>
+		<div class="hasSelClass">
+			<strong>班级</strong>
+			<div class="classesList clearfix"></div>
+		</div>
+		<!-- 截至日期 -->
+		<div class="tillDate">
+			<strong>截至日期</strong>
+			<p class="selDate">
+				<span id="nowDate"></span>
+				<span id="nowWeek"></span>
+				<i class="iconfont icon-more"></i>
+				<span id="dateLayer" class="dateLayer"></span>
+			</p>
+		</div>
+		
+		<div class="openSuyuan">
+			<strong>是否溯源</strong>
+			<input type="hidden" id="isTraceInp" value="1" />
+			<div class="switchWrap">
+				<em>是</em>
+				<label class="switch" onclick="isCompleteFun(this)">
+				  <input type="checkbox" checked />
+				  <div class="slider round"></div>
+				</label>
+			</div>
+		</div>
+		
+		<span id="saveBtn" class="saveBtn">确认布置</span>
+		
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var weekDay = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"]
+			mui.plusReady(function(){
+				var currField = plus.webview.currentWebview().currField,
+					classNameStr = plus.webview.currentWebview().classNameStr.split(','),
+					endDate = plus.webview.currentWebview().endDate;
+				var page = {
+					init : function(){
+						this.initHtmlTxt();
+						this.bindEvent();
+					},
+					bindEvent : function(){
+						app.getId('saveBtn').addEventListener('tap',function(){
+							var selHwTypeView = plus.webview.getWebviewById('pubHw/selHwType.html'),
+								selGradeView = plus.webview.getWebviewById('selGrade.html'),
+								selChaptView = plus.webview.getWebviewById('selChaptList.html'),
+								selQueView = plus.webview.getWebviewById('selQueList.html'),
+								currView = plus.webview.currentWebview();
+							var traceVal = $('#isTraceInp').val();
+							var field = {traceStatus:traceVal,endDate:$('#nowDate').html()};
+							mui.extend(field,currField);
+							//console.log(JSON.stringify( field ))
+							var btnArray = ['确定','取消'];
+							mui.confirm('确认发布当前所布置作业?', '布置作业提示', btnArray, function(e) {
+								if (e.index == 0){
+									app.showToast(1);
+									var _this = this;
+									mui.ajax(http_ + '/hw.do?action=sendHw',{
+										data:field,
+										dataType:'json',
+										type:'post',
+										timeout:10000,
+										success:function(json){
+											app.showToast(2);
+											//console.log(JSON.stringify( json ))
+											if(json.result == 'success'){
+												plus.nativeUI.toast('布置作业成功')
+												app.openwin('../hwRecord/hwRecordList.html',{isSendFlag:true});
+												setTimeout(function(){
+													selHwTypeView.close('none');
+													selGradeView.close('none');
+													selChaptView.close('none');
+													selQueView.close('none');
+													currView.close('none');
+												},500);
+											}else if(json.result == 'error'){
+												plus.nativeUI.toast('服务器异常');
+											}
+										},
+										error:function(xhr,type,errorThrown){
+											app.showToast(2);
+											plus.nativeUI.toast('服务器错误');
+										} 
+									});
+								}
+							});
+						});
+						app.getId('dateLayer').addEventListener('tap',function(){
+							var dDate = new Date();
+							var todyDate = dDate.getFullYear() + "-" + app.appendZero((dDate.getMonth() + 1)) + "-" + app.appendZero(dDate.getDate());
+							if($('#nowDate').html() != ''){
+								var curr = $('#nowDate').html().split('-');
+								dDate.setFullYear(curr[0],(curr[1]-1),curr[2]);
+							}
+							plus.nativeUI.pickDate(function(e) { 
+								var d = e.date,currDate=''; 
+								currDate = d.getFullYear() + "-" + app.appendZero( (d.getMonth() + 1) ) + "-" + app.appendZero( d.getDate() );
+								if(currDate < todyDate){
+									plus.nativeUI.toast('截至日期必须大于等于当天日期');
+									return;
+								}
+								$('#nowDate').html(currDate);
+								var myDate = new Date(Date.parse(currDate.replace(/-/g, "/")));
+								$('#nowWeek').html( weekDay[myDate.getDay()] );
+							}, function(e) {
+							}, {  
+								title: "请选择日期",
+								date : dDate
+							});
+						});
+					},
+					initHtmlTxt : function(){
+						//计算星期几
+						var myDate = new Date(Date.parse(endDate.replace(/-/g, "/"))),str='';
+						$('#nowDate').html(endDate);
+						$('#nowWeek').html( weekDay[myDate.getDay()] );
+						for(var i=0;i<classNameStr.length;i++){
+							str += '<p>'+ classNameStr[i] +'</p>';
+						}
+						$('.classesList').html(str);
+					}
+				};
+				page.init();
+			});
+			function isCompleteFun(obj){
+				var checkStatus = $(obj).find("input").prop("checked");
+				if(checkStatus){
+					$(obj).prev().html('是');
+					$('#isTraceInp').val(1);
+				}else{
+					$(obj).prev().html('否');
+					$('#isTraceInp').val(0);
+				}
+			}
+		</script>
+	</body>
+</html>

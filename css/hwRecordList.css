@@ -1,0 +1,144 @@
+body{
+	background: #f2f2f2;
+	margin-bottom: 1.2rem;
+}
+.listHomeWork{
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 1.6rem;
+	bottom: 1.2rem;
+	padding: 0 .2667rem;
+	overflow: hidden;
+	overflow-y:auto;
+	-webkit-overflow-scrolling: touch;
+}
+.listHomeWork li{
+	background:#fff;
+	padding:.2rem .3rem;
+	margin-bottom: .3rem;
+	position: relative;
+}
+.listHomeWork li span.lineSpan{
+	width: 2px;
+	height: 100%;
+	position: absolute;
+	left: 0;
+	top:0;
+}
+.listHomeWork li span.lineSpan.hasCheck{
+	background: #4d47f1;
+}
+.listHomeWork li span.lineSpan.waitCheck{
+	background: #e73098;
+}
+.listTit{
+	height: .8rem;
+	line-height: .8rem;
+	color: #333;
+}
+.listTit strong{
+	float: left;
+	font-size: .45rem;
+}
+.listTit .timeHomeWork{
+	float: left;
+	margin-left: .2rem;
+	color: #4d47f1;
+	font-weight: bold;
+	font-size: .4rem;
+}
+.listTit p{
+	float: right;
+	font-size: .38rem;
+	color: #999;
+}
+.currTit{
+	margin:.05rem 0;
+}
+.currTit,
+.completeStatus{
+	height: .8rem;
+	line-height: .8rem;
+	color: #666;
+}
+.currTit span,
+.currTit p{
+	float: left;
+	font-size: .4rem;
+}
+.currTit span{
+	color: #999;
+}
+.currTit p{
+	width: 76%;
+	color: #333;
+}
+.completeStatus p{
+	width: 33.33%;
+	float: left;
+	font-size: .4rem;
+}
+.completeStatus p strong{
+	font-weight: normal;
+	color: #4d47f1;
+}
+.completeStatus p:nth-of-type(3n),
+.completeStatus p:nth-of-type(3n-1){
+	text-align: center;
+}
+.completeStatus p:nth-of-type(3n-1) strong{
+	color: #29c7c6;
+}
+.completeStatus p:nth-of-type(3n) strong{
+	color: #e73098;
+}
+.botColrSta{
+	width: 100%;
+	height: 1.2rem;
+	background: #fff;
+	position: fixed;
+	left: 0;
+	bottom: 0;
+	box-shadow: 0 -2px 3px rgba(0,0,0,.1);
+}
+.botColrSta p{
+	width: 50%;
+	height: 100%;
+	float: left;
+	font-size: .4rem;
+	color: #333;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+.botColrSta p span:first-child{
+	width: .3rem;
+	height: .3rem;
+	background: yellowgreen;
+	display: block;
+	margin:.05rem .1rem 0 0;
+}
+.botColrSta p:first-child span:first-child{
+	background: #e73098;
+}
+.botColrSta p:last-child span:first-child{
+	background: #4d47f1;
+}
+.checkSta{
+	height: .8rem;
+	line-height: .8rem;
+	font-size: .4rem;
+}
+.checkSta p span{
+	color: #666;
+}
+.checkSta p strong{
+	font-weight: normal;
+}
+.checkSta p strong.hasCheckTxt{
+	color: #4d47f1;
+}
+.checkSta p strong.noCheckTxt{
+	color: #e73098;
+}

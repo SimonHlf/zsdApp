@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/myStudio.css"/>
+		<title>家长群</title>
+	</head>
+	<body class="paddingTop">
+		<div class="comHeader otherBg">
+			<a id="backBtn" class="posL"  href="javascript:mui.back();"><i class="iconfont icon-fanhui"></i></a>
+			<span class="headerTit">家长群</span>
+			<span id="editStudioBtn" class="bindNtBtn"><i class="iconfont icon-xiugai1"></i></span>
+		</div>
+		<div id="noData" class="noData" style="display: none;"><img src="../../images/noData.png" /><p>暂无信息</p></div>
+		<!-- 家长群 -->
+		<div id="myStudioInfo" class="myStudioInfo">
+			<div class="innerInfo">
+				<div class="item">
+					<span>家长群名称</span>
+					<p id="studioName"></p>
+				</div>
+				<div class="item_spec">
+					<span>家长群介绍</span>
+					<p id="studioProfile"></p>
+				</div>
+				<div class="item noBorBot">
+					<span>家长群邀请码</span>
+					<p id="inviteCodeWrap" class="inviteCode inviteCodeWrap" data-clipboard-action="copy">
+						<i class="iconfont icon-fuzhi"></i>
+						<em id="inviteCode"></em>
+					</p>
+				</div>
+			</div>
+		</div>
+		<!--家长群成员 -->
+		<div id="memberList" class="memberList">
+			<strong class="titStrong">家长群成员</strong>
+			<ul id="listMember" class="listMember clearfix"></ul>
+		</div>
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var userInfo = JSON.parse( localStorage.getItem('userInfo') ),parGroupId = 0;
+			mui.plusReady(function(){
+				var clipboard = new ClipboardJS('.inviteCodeWrap');
+				clipboard.on('success', function(e) {
+					mui.toast("家长邀请码已复制到剪贴板中~");
+				});
+				var page = {
+					init : function(){
+						this.bindEvent();
+						this.loadMyStudioInfo();
+					},
+					bindEvent : function(){
+						var _this = this;
+						app.getId('editStudioBtn').addEventListener('tap',function(){
+							var studioName = app.getId('studioName').innerHTML,
+								studioProfile = app.getId('studioProfile').innerHTML;
+							app.openwin('editMyParGroup.html',{parGroupId:parGroupId,studioName:studioName,studioPro:studioProfile,isUpFlag:false});
+						});
+					},
+					//加载我的工作室信息
+					loadMyStudioInfo : function(){
+						var _this = this;
+						app.showToast(1);
+						mui.ajax(http_ + '/parentClub.do?action=getParentClub',{
+							data:{userId:userInfo.userId},
+							dataType:'json',
+							type:'post',
+							timeout:10000,  
+							success:function(json){ 
+								app.showToast(2);
+								if(json.msg == 'success'){
+									//console.log(JSON.stringify( json ))
+									parGroupId = json.id;
+									app.getId('studioName').innerHTML = json.clubName;
+									app.getId('studioProfile').innerHTML = json.clubProfile;
+									app.getId('inviteCode').innerHTML = json.clubCode;
+									app.getId('inviteCodeWrap').setAttribute('data-clipboard-text','家长您好，我的家长群【' + json.clubName +'】已建立,邀请码为'+ json.clubCode +',欢迎您的加入！【知识典】下载链接：'+ http_ +'/baseInfo.do?action=downApp');
+									if(json.pClubInfo.length > 0){
+										_this.renderStudioMember(json.pClubInfo);
+									}else{
+										app.getId('listMember').innerHTML = '<div id="noData" class="noData" style="margin-top:0rem;"><img src="../../images/noData.png" /><p>暂无成员！</p></div>';
+									}
+								}else if(json.msg == 'noInfo'){
+									app.getId('editStudioBtn').style.display = 'none';
+									app.getId('myStudioInfo').innerHTML = '';
+									app.getId('memberList').innerHTML = '';
+									app.getId('noData').style.display = 'block';
+								}
+							},
+							error:function(xhr,type,errorThrown){
+								app.showToast(2);
+								plus.nativeUI.toast('服务器错误');
+							} 
+						});
+					},
+					renderStudioMember : function(list){
+						var str = '';
+						for(var i=0;i<list.length;i++){
+							str += '<li ntName="'+ list[i].jzName +'">';
+							str += '<div class="headPic"><img src="'+ http_ +'/'+ list[i].jzPortrait +'"/></div>';
+							str += '<p class="ellip">'+ list[i].jzName +'</p>';
+							str += '</li>';
+						}
+						app.getId('listMember').innerHTML = str;
+					}
+				};
+				page.init();
+				document.addEventListener('updateStudioInfo',function(e){
+					var isUpFlag = e.detail.isUpFlag;
+					if(isUpFlag){
+						page.loadMyStudioInfo();
+					}
+				});
+			});
+		</script>
+	</body>
+</html>

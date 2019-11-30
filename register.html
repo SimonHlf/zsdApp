@@ -1,0 +1,573 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="utf-8"> 
+		<title>知识典注册</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="css/login.css"/>
+		<link rel="stylesheet" type="text/css" href="css/mui.min.css"/>
+		<link rel="stylesheet" type="text/css" href="css/common/mui.picker.css"/>
+		<link rel="stylesheet" type="text/css" href="css/common/mui.poppicker.css"/>
+	</head> 
+	<body>
+		<div class="comHeader">
+			<a id="backBtn" class="posL backBtn" href="javascript:void(0)"><i class="iconfont icon-fanhui"></i></a>
+		</div> 
+		<!-- 选择角色 --> 
+		<div class="contentWrap paddingTop selRoleBox" style="display: block;">
+			<strong class="titStrong">请选择您的身份</strong>
+			<input type="hidden" id="roleInp" value="学生" />
+			<div class="role active" role="学生">
+				<span class="cirSpan"></span>
+				<span>我<span class="oneBlank"></span>是<span class="oneBlank"></span>学<span class="oneBlank"></span>生</span>
+			</div>
+			<div class="role marginTop" role="家长">
+				<span class="cirSpan"></span>
+				<span>我<span class="oneBlank"></span>是<span class="oneBlank"></span>家<span class="oneBlank"></span>长</span>
+			</div>
+			<div class="role marginTop" role="网络导师">
+				<span class="cirSpan"></span>
+				<span>我是网络导师</span>
+			</div>
+			<a class="nextStepOne regBtn">下一步</a>
+		</div>
+		<!-- 基本字段 -->
+		<div class="contentWrap paddingTop basicBox">
+			<div class="regForm stuPart clearfix">
+				<span class="iconSpan"><i class="iconfont icon-yaoqing"></i></span>
+				<input id="yaoqingInp" type="text" name="basicInp" placeholder="请输入网络导师邀请码" autocomplete="off" />
+				<em id="teaInfoBtn" class="teaInfoBtn"><i class="iconfont icon-laoshiInfo"></i></em>
+			</div>
+			<div class="regForm clearfix">
+				<span class="iconSpan"><i class="iconfont icon-zhanghao"></i></span>
+				<input id="accInp" type="text" name="basicInp" maxlength="16" placeholder="请输入账号" autocomplete="off" />
+				<span class="mustSpan">*</span>
+			</div>
+			<div class="regForm clearfix">
+				<span class="iconSpan"><i class="iconfont icon-ziyuan"></i></span>
+				<input id="passInp" type="password" value="" name="basicInp" maxlength="16" placeholder="请输入密码" autocomplete="off" />
+				<span class="mustSpan">*</span>
+			</div>
+			<div class="regForm clearfix">
+				<span class="iconSpan"><i class="iconfont icon-ziyuan"></i></span>
+				<input id="confirmInp" type="password" value="" name="basicInp" maxlength="16" placeholder="请输入确认密码" autocomplete="off" />
+				<span class="mustSpan">*</span>
+			</div>
+			<div class="regForm clearfix">
+				<span class="iconSpan"><i class="iconfont icon-shoujihao"></i></span>
+				<input id="phoneInp" type="number" value="" name="basicInp" placeholder="请输入手机号码" autocomplete="off" />
+				<span class="mustSpan">*</span>
+			</div>
+			<div class="regForm clearfix">
+				<span class="iconSpan"><i class="iconfont icon-zhanghao"></i></span>
+				<input id="realNameInp" type="text" value="" name="basicInp" maxlength="6" placeholder="请输入真实姓名" autocomplete="off" />
+				<span class="mustSpan">*</span>
+			</div>
+			<!-- 家长部分增加输入孩子信息 -->
+			<div class="jzPartForm">
+				<div class="regForm clearfix">
+					<span class="iconSpan"><i class="iconfont icon-duozhanghao"></i></span>
+					<input id="accInp_child" type="text" value="" name="basicInp"  maxlength="16" placeholder="请输入孩子账号" autocomplete="off" />
+					<span class="mustSpan">*</span>
+				</div>
+				<div class="regForm clearfix">
+					<span class="iconSpan"><i class="iconfont icon-duozhanghao"></i></span>
+					<input id="realNameInp_child" type="text" name="basicInp" maxlength="6" placeholder="请输入孩子姓名" autocomplete="off" />
+					<span class="mustSpan">*</span>
+				</div>
+				<div class="regForm clearfix">
+					<span class="iconSpan"><i class="iconfont icon-ziyuan"></i></span>
+					<input id="passInp_child" type="password" name="basicInp"  maxlength="16" placeholder="请输入孩子登录密码" autocomplete="off" />
+					<span class="mustSpan">*</span>
+				</div>
+			</div>
+			
+			<div class="regForm ntPart selForm clearfix">
+				<input type="hidden" id="schTypeInp_nt" />
+				<p id="selSchPicker_nt" class="noSel">
+					<span id="selSchTypeTxt_nt">请选择学段</span>
+					<i class="iconfont icon-xiala"></i>
+				</p>
+				<span class="mustSpan">*</span>
+			</div>
+			<div class="regForm ntPart selForm clearfix">
+				<input type="hidden" id="subInp" />
+				<p id="selSubPicker" class="noSel">
+					<span id="selSubTxt">请选择学科</span>
+					<i class="iconfont icon-xiala"></i>
+				</p>
+				<span class="mustSpan">*</span>
+			</div>
+			<p class="note">注：</p>
+			<p class="note">1、*为必填项</p>
+			<p class="note stuPart">2、通过网络导师邀请码可快速绑定辅导老师，若没有可不填</p>
+			<a class="prev_btn_one regBtn_st" href="javascript:void(0)">上一步</a>
+			<a class="stnBtn regBtn_st" href="javascript:void(0)">下一步</a>
+			<a class="ntRegSubBtn regBtn_st" href="javascript:void(0)">注册</a>
+		</div>
+		<!-- 选择学校(家长/学生身份下) -->
+		<div class="contentWrap paddingTop selBox">
+			<div class="regForm selForm clearfix">
+				<p id="showCityPicker3"  class="noSel">
+					<span id="selTxt">请选择省/市/县</span>
+					<i class="iconfont icon-xiala"></i>
+				</p>
+				<span class="mustSpan">*</span>
+			</div>
+			<div class="regForm selForm clearfix">
+				<p id="showTownPicker" class="noSel">
+					<span id="selTownTxt">请选择乡/镇/街道</span>
+					<i class="iconfont icon-xiala"></i>
+				</p>
+				<span class="mustSpan">*</span>
+			</div>
+			<div class="regForm selForm clearfix" >
+				<p id="schTypePicker" class="noSel">
+					<span id="schoolTypeTxt">请选择学段</span>
+					<i class="iconfont icon-xiala"></i>
+				</p>
+				<span class="mustSpan">*</span>
+			</div>
+			<div class="regForm selForm clearfix">
+				<input type="hidden" id="schoolIdInp" />
+				<p id="showSchoolPicker" class="noSel">
+					<span id="selSchoolTxt">请选择学校</span>
+					<i class="iconfont icon-xiala"></i>
+				</p>
+				<span class="mustSpan">*</span>
+			</div>
+			<div class="regForm selForm clearfix">
+				<input type="hidden" id="gradeNum" />
+				<p id="gradePicker" class="noSel">
+					<span id="gradeTxt">请选择年级</span>
+					<i class="iconfont icon-xiala"></i>
+				</p>
+				<span class="mustSpan">*</span>
+			</div>
+			<div class="regForm selForm clearfix">
+				<input type="hidden" id="classInp" />
+				<p id="classPicker" class="noSel">
+					<span id="classTxt">请选择班级</span>
+					<i class="iconfont icon-xiala"></i>
+				</p>
+				<span class="mustSpan">*</span> 
+			</div>
+			<a class="prev_btn_two regBtn_st" href="javascript:void(0)">上一步</a>
+			<a class="compBtn regBtn_st" href="javascript:void(0)">注册</a>
+		</div>
+		<div id="layer" class="layer"></div>
+		<!-- 根据导师邀请码查看导师信息 -->
+		<div id="viewNtInfo" class="viewNtInfo">
+			<div class="ntHeadPic">
+				<img id="ntPic" src=""/>
+			</div>
+			<div class="ntInfoCon">
+				<p id="ntNameTxt" class="ntNameTxt"></p>
+				<p class="ntNameSub">学段：<span id="xueduanTxt"></span></p>
+				<p class="ntNameSub">学科：<span id="xuekeTxt"></span></p>
+				<span id="sureNtInfoBtn" class="sureNtInfoBtn">确定</span>
+			</div>
+		</div>
+		
+		<script src="js/mui.min.js"></script>
+		<script src="plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="libs/cityData.js" type="text/javascript" charset="utf-8"></script>
+		<script src="plugins/mui.picker.js" type="text/javascript" charset="utf-8"></script>
+		<script src="plugins/mui.poppicker.js" type="text/javascript" charset="utf-8"></script>
+		<script src="plugins/picker.js" type="text/javascript" charset="utf-8"></script>
+		<script src="plugins/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var str_prov='',str_city='',str_county='',str_town='',str_schType='',str_yearSys='',field=null,proveCode=0,cityCode=0;
+			mui.init();  
+			mui.plusReady(function () {
+			    var page = {
+					init : function(){
+						this.bindEvent(); 
+						this.getLocation();
+						app.backFun();
+					},
+					bindEvent : function(){
+						var _this = this;
+						//根据导师邀请码查看导师信息
+						app.getId('teaInfoBtn').addEventListener('tap',function(){
+							var yaoqingInp = app.getId('yaoqingInp').value;
+							if(yaoqingInp == ''){
+								mui.toast('请输入网络导师邀请码');
+							}else if(app.isEmojiCharacter(yaoqingInp)){
+								mui.toast('导师邀请码不能含有特殊表情字符');
+							}else{
+								/*
+									地址：common.do?action=getTeaInfoByCode
+									参数:inviteCode(邀请码)
+									返回：json--msg (noInfo(通过邀请码没有获取到信息),success),realName(真实姓名),schoolType(学段名),subName(学科名)
+								
+								*/
+							    app.showToast(1);
+								mui.ajax(http_ + '/common.do?action=getTeaInfoByCode',{
+									data:{inviteCode:yaoqingInp},
+									dataType:'json',
+									type:'post',
+									timeout:10000,
+									success:function(json){
+										app.showToast(2);
+										if(json.msg == 'success'){
+											app.getId('layer').style.display = 'block';
+											app.getId('viewNtInfo').style.display = 'block';
+											app.getId('ntNameTxt').innerHTML = json.realName;
+											app.getId('xueduanTxt').innerHTML = json.schoolType;
+											app.getId('xuekeTxt').innerHTML = json.subName;
+											app.getId('ntPic').src = http_ + '/' + json.portrait;
+										}else if(json.msg == 'noInfo'){
+											mui.toast('暂无该网络导师信息或该导师信息审核未通过');
+										}
+									},
+									error:function(xhr,type,errorThrown){
+										app.showToast(2);
+										console.log(errorThrown)
+									} 
+							    })
+							   
+							}
+						});
+						app.getId('sureNtInfoBtn').addEventListener('tap',function(){
+							app.getId('layer').style.display = 'none';
+							app.getId('viewNtInfo').style.display = 'none';
+						});
+						//切换角色
+						mui('.selRoleBox').on('tap','.role',function(){
+							$('.role').removeClass('active');
+							$(this).addClass('active');
+							$('#roleInp').val($(this).attr('role'));
+						}); 
+						//下一步转至基本账户表单
+						document.querySelector('.nextStepOne').addEventListener('tap',function(){
+							var basicInp = app.getName('basicInp');
+							$('.selRoleBox').hide();
+							$('.basicBox').show();
+							app.focuBlurFun(basicInp);
+							if($('#roleInp').val() == '网络导师'){
+								$('.ntPart').show();
+								$('.stuPart').hide();
+								$('.stnBtn').hide();
+								$('.ntRegSubBtn').show();
+							}else{
+								$('.stuPart').show();
+								$('.ntPart').hide();
+								$('.ntRegSubBtn').hide();
+								$('.stnBtn').show();
+								if($('#roleInp').val() == '家长'){
+									$('.jzPartForm').show();
+								}
+							}
+						},false);
+						//上一步返回身份选择(网络导师 学生)
+						document.querySelector('.prev_btn_one').addEventListener('tap',function(){
+							$('.selRoleBox').show();
+							$('.basicBox').hide();
+						});
+						//上一步返回基本表单(学生身份)
+						document.querySelector('.prev_btn_two').addEventListener('tap',function(){
+							$('.basicBox').show();
+							$('.selBox').hide();
+							$('.stuPart').show();
+							$('.ntPart').hide(); 
+							$('.ntRegSubBtn').hide();
+						});
+						//下一步转至选择表单(学生身份)
+						document.querySelector('.stnBtn').addEventListener('tap',function(){
+							_this.validateBasicForm();
+						},false);
+						document.querySelector('.ntRegSubBtn').addEventListener('tap',function(){
+							_this.validateBasicForm();
+						},false);
+						//提交注册
+						document.querySelector('.compBtn').addEventListener('tap',function(){
+							var	accInp = app.trim(app.getId('accInp').value),
+								passInp = app.trim(app.getId('passInp').value),
+								confirmInp = app.trim(app.getId('confirmInp').value),
+								realNameInp = app.trim(app.getId('realNameInp').value),
+								accInp_childInp = app.trim(app.getId('accInp_child').value),
+								realNameInp_child = app.trim(app.getId('realNameInp_child').value),
+								passInp_child = app.trim(app.getId('passInp_child').value),
+								roleInp = app.getId('roleInp').value,
+								phoneInp = app.trim(app.getId('phoneInp').value),
+								yaoqingInp = app.trim(app.getId('yaoqingInp').value),
+								schoolIdInp = app.getId('schoolIdInp'),
+								gradeNum=app.getId('gradeNum'),
+								classInp=app.getId('classInp');
+							if(str_prov == ''){
+								mui.toast('请选择省市县'); 
+							}else if(isHasTownFalg && str_town == ''){
+								mui.toast('请选择乡/镇/街道');  
+							}else if(str_schType == ''){
+								mui.toast('请选择学段');
+							}else if(schoolIdInp.value == ''){
+								mui.toast('请选择学校');
+							}else if(gradeNum.value == ''){
+								mui.toast('请选择年级');
+							}else if(classInp.value == ''){
+								mui.toast('请选择班级'); 
+							}else{ 
+								field = {userAccount:accInp,roleName:escape(roleInp),realName:escape(realNameInp),
+									password:escape(passInp),mobile:phoneInp,inviteCode:yaoqingInp,schoolId:schoolIdInp.value,gradeNo:gradeNum.value,className:escape(classInp.value)};
+								if(roleInp == '家长'){
+									var jzField = {xsAccount:accInp_childInp,stuName:escape( realNameInp_child ),xspassword:passInp_child};
+									mui.extend(field,jzField);
+									console.log( JSON.stringify(field) )
+								}
+								_this.goRegister();
+							}
+						}); 
+					},
+					//获取定位
+					getLocation : function(){
+						mui.ajax(http_ + '/baseInfo.do?action=getAreaJson',{   
+							dataType:'json',
+							type:'get',
+							timeout:10000,   
+							beforeSend : function(){ 
+								plus.nativeUI.showWaiting();
+							}, 
+							success:function(json){   
+								plus.nativeUI.closeWaiting();
+								proveCode = json.provName;
+								cityCode = json.cityName;
+							},  
+							error:function(xhr,type,errorThrown){  
+								plus.nativeUI.closeWaiting();
+								console.log(errorThrown);  
+							}  
+						});
+					},
+					//验证基本表单
+					validateBasicForm : function(){
+						var accInp = app.trim(app.getId('accInp').value),
+							passInp = app.trim(app.getId('passInp').value),
+							confirmInp = app.trim(app.getId('confirmInp').value),
+							realNameInp = app.trim(app.getId('realNameInp').value),
+							accInp_childInp = app.trim(app.getId('accInp_child').value),
+							realNameInp_child = app.trim(app.getId('realNameInp_child').value),
+							passInp_child = app.trim(app.getId('passInp_child').value),
+							phoneInp = app.trim(app.getId('phoneInp').value),
+							yaoqingInp = app.trim(app.getId('yaoqingInp').value),
+							roleInp = app.getId('roleInp').value,
+							schTypeInp_nt = app.getId('schTypeInp_nt').value,
+							subInp = app.getId('subInp').value,
+							reg = /[\u4e00-\u9fa5]+/,
+							regSpec = /^[a-zA-z0-9\u4E00-\u9FA5]*$/,
+							regPhone = /^1[3|4|5|7|8][0-9]\d{4,8}$/,
+							regRealName = /^[a-zA-Z\u4e00-\u9fa5]+$/;
+						
+						if(accInp == ''){
+							mui.toast('请输入账号');
+						}else if(!this.checkExistUserName(accInp)){
+							mui.toast('当前账号已存在'); 
+						}else if(reg.test(accInp)){
+							mui.toast('注册账号不能为中文');
+						}else if(!regSpec.test(accInp)){
+							mui.toast('注册账号不能有特殊字符、标点、或空格');
+						}else if(accInp.length < 4 || accInp.length > 16){
+							mui.toast('注册账号长度不能小于4个字符或不能大于16个字符');
+						}else if(app.isEmojiCharacter(accInp)){
+							mui.toast('注册账号不能含有特殊表情字符');
+						}else if(passInp == ''){
+							mui.toast('请输入密码');
+						}else if(passInp.length < 6){
+							mui.toast('密码长度不能小于6位');
+						}else if(passInp.length > 16){
+							mui.toast('密码长度不能大于16位');
+						}else if(app.isEmojiCharacter(passInp)){
+							mui.toast('密码不能含有特殊表情字符');
+						}else if(confirmInp == ''){
+							mui.toast('请输入确认密码');
+						}else if(confirmInp != passInp){
+							mui.toast('密码和确认密码不相同，请重新输入');
+						}else if(app.isEmojiCharacter(confirmInp)){
+							mui.toast('确认密码不能含有特殊表情字符');
+						}else if(phoneInp == ''){
+							mui.toast('请输入手机号码');
+						}else if(phoneInp.length != 11){
+							mui.toast('手机号码格式不正确');
+						}else if(!regPhone.test(phoneInp)){
+							mui.toast('手机号码格式不正确');
+						}else if(!this.checkExistPhone(phoneInp)){
+							mui.toast('该手机号码已被注册');
+						}else if(realNameInp == ''){
+							mui.toast('请输入真实姓名');
+						}else if(app.isEmojiCharacter(realNameInp)){
+							mui.toast('真实姓名不能含有特殊表情字符');
+						}else if(!regRealName.test(realNameInp)){
+							mui.toast('真实姓名应由汉字或英文字母组成');
+						}else if(roleInp == '家长' && accInp_childInp == ''){
+							mui.toast('请输入孩子账号');
+						}else if(roleInp == '家长' && accInp == accInp_childInp){
+							mui.toast('孩子账号不能和家长账号相同');
+						}else if(roleInp == '家长' && reg.test(accInp_childInp)){
+							mui.toast('孩子账号不能为中文');
+						}else if(roleInp == '家长' && !this.checkExistUserName(accInp_childInp)){
+							mui.toast('当前孩子账号已存在'); 
+						}else if(app.isEmojiCharacter(accInp_childInp)){
+							mui.toast('孩子账号不能含有特殊表情字符');
+						}else if(roleInp == '家长' && realNameInp_child == ''){
+							mui.toast('请输入孩子姓名');
+						}else if(roleInp == '家长' && realNameInp_child == realNameInp){
+							mui.toast('孩子姓名不能和家长家长姓名相同');
+						}else if(app.isEmojiCharacter(realNameInp_child)){
+							mui.toast('孩子姓名不能含有特殊表情字符');
+						}else if(roleInp == '家长' && !regRealName.test(realNameInp_child)){
+							mui.toast('孩子姓名应由汉字或英文字母组成');
+						}else if(roleInp == '家长' && passInp_child == ''){
+							mui.toast('请输入孩子登录密码');
+						}else if(roleInp == '家长' && passInp_child.length < 6){
+							mui.toast('孩子登录密码长度不能小于6位');
+						}else if(roleInp == '家长' && passInp_child.length > 16){
+							mui.toast('孩子登录密码长度不能大于16位');
+						}else if(app.isEmojiCharacter(passInp_child)){
+							mui.toast('孩子登录密码不能含有特殊表情字符');
+						}else if(roleInp == '网络导师' && schTypeInp_nt == ''){
+							mui.toast('请选择学段');
+						}else if(roleInp == '网络导师' && subInp == ''){
+							mui.toast('请选择学科');
+						}else{  
+							if(roleInp == '学生' || roleInp == '家长'){
+								$('.basicBox').hide();
+								$('.selBox').show();
+							}else if(roleInp == '网络导师'){//网络导师 执行注册动作
+								field = {userAccount:accInp,roleName:escape(roleInp),realName:escape(realNameInp),password:escape(passInp),mobile:phoneInp,schoolType:schTypeInp_nt,subId:subInp};
+								this.goRegister();
+							}
+						}
+					},
+					goRegister : function(){ 
+						mui.ajax(http_ + '/login.do?action=regUserInfo',{
+							data:field,
+							dataType:'json',//服务器返回json格式数据
+							type:'post',//HTTP请求类型
+							timeout:10000,//超时时间设置为10秒；
+							beforeSend : function(){
+								//plus.nativeUI.showWaiting();
+								plus.nativeUI.showWaiting("注册中,请稍等...",{size:"12px",background:"rgba(0,0,0,0.6)"});
+							},
+							success:function(json){
+								plus.nativeUI.closeWaiting();
+								//console.log(JSON.stringify(json))
+								if(json.result == 'success'){
+									var userInfo={};
+									userInfo.userName=json.userAcc; //用户名
+									userInfo.userId=json.userId;//用户ID
+									userInfo.roleId = json.roleId;
+									userInfo.portrait = json.portrait;
+									userInfo.portrait=http_ + '/' + json.portrait;//用户头像
+									userInfo.loginStatus = json.loginStatus;
+									if(json.roleId == ntTea_role_id || json.roleId == tea_role_id){//网络导师 班内老师增加科目
+										userInfo.subName = json.subName;
+									}
+									if(json.roleId == ntTea_role_id){
+										userInfo.ntInviteCode = json.ntInviteCode;
+									}
+									localStorage.setItem("userInfo",JSON.stringify(userInfo)); //保存用户信息
+									mui.toast("注册成功!"); 
+									var loginView=plus.webview.getWebviewById("login");
+										loginView.hide("none");//隐藏登录页面
+									setTimeout(function(){	 
+										var regView=plus.webview.currentWebview();
+									    regView.close("pop-out"); //隐藏当前注册页面
+										var launchView = plus.webview.getLaunchWebview();
+										mui.fire(launchView,'showRoleCon');
+										var wvs = plus.webview.all(); 　　//所有窗口对象
+										for(var i = 0, len = wvs.length; i < len; i++) { 
+									　　　// 首页以及当前窗口对象，不关闭； 
+									　　　　if(wvs[i].id === launchView.id || wvs[i].id == 'login') {  　　 
+									　　　　　　continue; 
+									　　　　}else { 
+											  //关闭中间的窗口对象，为防止闪屏，不使用动画效果； 
+									　　　　　　wvs[i].close('none'); 　　
+									　　　　} 
+									　　} 
+									},300);	
+								}else if(json.result == 'fail'){
+									mui.toast("注册失败!");
+								}else if(json.result == 'exist'){
+									mui.toast("当前账号已被注册,请更账号");
+								}else if(json.result == 'identical'){
+									mui.toast("孩子和家长账号不能一致");
+								}else if(json.result == 'xs_exist'){
+									mui.toast("当前孩子账号已存在");
+								}else if(json.result == 'jz_exist'){
+									mui.toast("当前家长账号已存在");
+								}else if(json.result == 'paraDiff'){
+									mui.toast("学生选择学段和导师所在学段不一致");
+								}else if(json.result == 'checkFail'){
+									mui.toast("该网络导师未审核通过");
+								}else if(json.result == 'noInfo'){
+									mui.toast("暂无此网络导师信息");
+								}
+							},
+							error:function(xhr,type,errorThrown){
+								plus.nativeUI.closeWaiting();
+								mui.toast('服务器连接失败');
+								console.log(errorThrown)
+							} 
+						});
+					},
+					//检测用户名是否存在
+					checkExistUserName : function(userName){
+						var flag = false;
+						mui.ajax(http_ + '/login.do?action=checkUserName',{   
+							dataType:'json',
+							data:{userAccount:userName},
+							async:false,
+							type:'post',//HTTP请求类型  
+							timeout:10000,//超时时间设置为10秒；  
+							success:function(json){   
+								if(json.msg == true){//不存在 过
+									flag = true;
+								}else if(json.msg == false){//存在
+									flag = false;
+								}
+							},  
+							error:function(xhr,type,errorThrown){  
+								console.log(type);  
+							}  
+						})
+						return flag;
+					},
+					//检测手机号是否存在
+					checkExistPhone : function(phoneNum){
+						var flag = false;
+						mui.ajax(http_ + '/login.do?action=checkMobile',{   
+							dataType:'json',//服务器返回json格式数据  
+							data:{mobile:phoneNum},
+							async:false,
+							type:'get',//HTTP请求类型  
+							timeout:10000,//超时时间设置为10秒；  
+							beforeSend : function(){
+								plus.nativeUI.showWaiting();
+							},
+							success:function(json){   
+								plus.nativeUI.closeWaiting();
+								//console.log(JSON.stringify( json ))
+								if(json.msg == true){
+									flag = true;
+								}else if(json.msg == false){
+									flag = false;
+								}
+							},  
+							error:function(xhr,type,errorThrown){  
+								plus.nativeUI.closeWaiting();
+								console.log(type);  
+							}  
+						})
+						return flag;
+					}
+				};
+				page.init();
+			})
+		</script>
+	</body>
+
+</html>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/stuList.css"/>
+		<title>学生列表</title>
+	</head>
+	<body class="paddingTop hasBg">
+		<div class="comHeader otherBg">
+			<a id="backBtn" class="posL" href="javascript:mui.back();"><i class="iconfont icon-fanhui"></i></a>
+			<span class="headerTit">学生列表</span>
+		</div>
+		<div id="allStuPart" class="stuPart">
+			<p class="stuModTit"><span></span>全部</p>
+			<div class="stuList" style="background: #fff;padding:.2667rem .2667rem 0;">
+				<ul id="allUlSt" class="clearfix">
+					<li stuId="0" onclick="selCurrStu(0,'全部学生')"><div class="imgBox">ALL</div><p>全部</p></li>
+				</ul>
+			</div>
+		</div>
+		<div class="stuPart">
+			<p class="stuModTit"><span></span>绑定中</p>
+			<div class="stuList" style="background: #fff;padding:.2667rem .2667rem 0;">
+				<ul id="stuList_bind"  class="clearfix"></ul>
+			</div>
+		</div>
+		<div class="stuPart">
+			<p class="stuModTit"><span></span>已取消/到期/升学</p>
+			<div class="stuList" style="background: #fff;padding:.2667rem .2667rem 0;">
+				<ul id="stuList_unbind" class="clearfix"></ul>
+			</div>
+		</div>
+		
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			mui.plusReady(function () {
+				var userId = plus.webview.currentWebview().userId,
+					jumpPos = plus.webview.currentWebview().jumpPos;
+				if(jumpPos == 'byAnsList'){
+					app.getId('allStuPart').style.display = 'block';
+				}
+				var page = {
+					init : function(){
+						this.loadStuList();
+					},
+					loadStuList : function(){
+						app.showToast(1);
+						var _this = this;
+						mui.ajax(http_ + '/common.do?action=getBindStu',{
+							data:{userId:userId},
+							dataType:'json',
+							type:'post',
+							timeout:10000,
+							success:function(json){
+								if(json.result == 'success'){
+									_this.renderStuList_bind(json.bindStu,'bind');
+									_this.renderStuList_unBind(json.unbindStu,'unBind');
+								}else if(json.result == 'noInfo'){
+									app.getId('allUlSt').innerHTML = '<p class="noStuTxt">暂无学生！</p>';
+									app.getId('stuList_bind').innerHTML = '<p class="noStuTxt">暂无学生！</p>';
+									app.getId('stuList_unbind').innerHTML = '<p class="noStuTxt">暂无学生！</p>';
+								}
+							},
+							error:function(xhr,type,errorThrown){
+								app.showToast(2);
+								console.log(errorThrown)
+							} 
+						})
+					},
+					renderStuList_bind : function(list,opt){
+						this.createDOM(list,opt);
+					},
+					renderStuList_unBind : function(list,opt){
+						this.createDOM(list,opt);
+					},
+					createDOM : function(list,opt){
+						if(list.length > 0){
+							var str = '';
+							for(var i=0;i<list.length;i++){
+								str += '<li onclick=selCurrStu('+ list[i].stuId +',"'+ list[i].stuName +'")><img src="'+ http_ +'/'+ list[i].portrait +'"/><p>'+ list[i].stuName +'</p>';
+								str += '</li>';
+							}
+							if(opt == 'bind'){
+								app.getId('stuList_bind').innerHTML = str;
+							}else{
+								app.getId('stuList_unbind').innerHTML = str;
+							}
+						}else{
+							if(opt == 'bind'){
+								app.getId('stuList_bind').innerHTML = '<p class="noStuTxt">暂无学生！</p>';
+							}else{
+								app.getId('stuList_unbind').innerHTML = '<p class="noStuTxt">暂无学生！';
+							}
+						}
+					}
+				};
+				page.init();
+			});
+			function selCurrStu(stuId,stuName){
+				var stuStr = stuName + ',' + stuId;
+				var opener = plus.webview.currentWebview().opener();
+				mui.fire(opener,'switchStudent',{stuField:stuStr});
+				plus.webview.currentWebview().close();
+			}
+		</script>
+	</body>
+</html>

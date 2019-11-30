@@ -1,0 +1,225 @@
+body{
+	background: #f2f2f2;
+}
+.filter{
+	width: 100%;
+	height: 1.2rem;
+	line-height: 1.2rem;
+	background: #fff;
+	position: fixed;
+	left: 0;
+	box-shadow: 0 3px 5px rgba(0,0,0,.05);
+	top:1.32rem;
+	z-index: 10;
+}
+.bindStaWrap{
+	height: 100%;
+	float: left;
+	font-size: .4rem;
+	color: #333;
+}
+.bindStaWrap p{
+	float: left;
+	padding: 0 .2rem 0 .5rem;
+}
+.bindStaWrap i{
+	color: #333;
+}
+.stuName{
+	float: left;
+	width: 52%;
+	height: 100%;
+	margin-left: .45rem;
+}
+.stuName input{
+	width: 96%;
+	height: 100%;
+	border:none;
+	margin-left: 2%;
+	font-size: .4rem;
+	color: #333;
+	display: block;
+}
+.stuName input::-webkit-input-placeholder{
+	color: #999;
+}
+.search{
+	width: 11%;
+	height: .75rem;
+	line-height: .75rem;
+	float: right;
+	margin-top: .2rem;
+	text-align: center;
+	background: #4d47f1;
+	border-radius: 4px;
+	margin-right: .2667rem;
+}
+.search i{
+	font-size: .5rem;
+	display: block;
+	color: #fff;
+}
+.stuList{
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 2.52rem;
+	bottom: 0;
+	z-index: 1;
+}
+.stuList li{
+	position: relative;
+	background: #fff;
+	margin-bottom: .25rem;
+	padding: .2rem .2667rem 0;
+	box-shadow: 0 3px 5px rgba(0,0,0,.05);
+}
+.stuList li .headPic{
+	width:20%;
+	height: 60%;
+	position: absolute;
+	left:0;
+	top: 0;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+.stuList li .headPic img{
+	width: 1.2rem;
+	height: 1.2rem;
+	border-radius: 50%;
+}
+.stuList li .stuInfoCon{
+	width: 79%;
+	margin-left: 21%;
+	position: relative;
+}
+.stuList li .stuInfoCon .stuNameInfo{
+	height: .8rem;
+	line-height: .8rem;
+	font-size: .45rem;
+	font-weight: 620;
+	color: #333;
+}
+.stuNameInfo span.bindStaTxt{
+	float: right;
+	font-size: .4rem;
+	font-weight: normal;
+	margin-right: .2667rem;
+}
+.stuNameInfo span.bindStaTxt.freeSta{
+	color:#29c7c6 ;
+}
+.stuNameInfo span.bindStaTxt.overTimeSta,
+.stuNameInfo span.bindStaTxt.shengxueSta{
+	color:#e10080 ;
+}
+.stuNameInfo span.bindStaTxt.timeEnd{
+	color:#f18347 ;
+}
+.stuNameInfo span.bindStaTxt.ingSta{
+	color:#4d47f1;
+}
+.useTime{
+	font-size: .38rem;
+	color: #666;
+}
+.infoBtn{
+	width: 100%;
+	height: 1.1rem;
+	line-height: 1.1rem;
+	font-size: .38rem;
+	color: #4d47f1;
+	border-top: 1px solid #e6e6e6;
+	margin-top: .2rem;
+}
+.infoBtn .btnGroup{
+	width: 50%;
+	height: 100%;
+	display: block;
+	float: left;
+	position: relative;
+	text-align: center;
+}
+.infoBtn em{
+	width: 1px;
+	height: .5rem;
+	background: #e6e6e6;
+	position: absolute;
+	right: 1px;
+	top: .3rem;
+}
+.tillTxt{
+	margin:0 .2rem;
+}
+.editItem{
+	height: 1.2rem;
+	line-height: 1.2rem;
+	border-bottom: 1px solid #e6e6e6;
+	padding: 0 .2667rem;
+	background: #fff;
+}
+.editItem span{
+	float: left;
+	width: 2rem;
+	font-size: .4rem;
+	color: #666;
+	text-align: right;
+}
+.editItem input,
+.editItem p{
+	width: 7.2rem;
+	float: left;
+	margin-left: .25rem;
+	height: 100%;
+	border:none;
+	font-size: .4rem;
+	color: #333;
+}
+.editItem input::-webkit-input-placeholder,
+.proTxt textarea::-webkit-input-placeholder{
+	color: #999;
+}
+.editItem_spec{
+	position: relative;
+	padding: 0 .2667rem;
+	border-bottom: 1px solid #e6e6e6;
+	background: #fff;
+	padding: .2rem 0;
+}
+.editItem_spec span{
+	width: 2rem;
+	height: 100%;
+	font-size: .4rem;
+	color: #666;
+	position: absolute;
+	left: .2667rem;
+	top:0;
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+}
+.proTxt{
+	width: 7.2rem;
+	margin-left: 2.625rem;
+}
+.proTxt textarea{
+	width: 100%;
+	height: 3rem;
+	border:none;
+	font-size: .4rem;
+	color: #333;
+	display: block;
+}
+.saveBtn{
+	width: 60%;
+	height: 1rem;
+	line-height: 1rem;
+	background: #4d47f1;
+	font-size: .45rem;
+	color: #fff;
+	text-align: center;
+	display: block;
+	margin:.5rem auto 0;
+	border-radius: 4px;
+}

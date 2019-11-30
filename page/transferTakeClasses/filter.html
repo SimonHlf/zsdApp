@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/hwRecordFilter.css"/>
+		<title>筛选</title>
+	</head>
+	<body class="paddingTop">
+		<div class="comHeader otherBg">
+			<span class="headerTit">筛选</span>
+		</div>
+		<div id="moreFilter" class="moreFilter">
+			<div class="comFilter">
+				<input type="hidden" id="dealOptInp" value="2" />
+				<strong class="smTit">我的申请/处理</strong>
+				<ul id="dealOptUl" class="clearfix">
+					<li id="dealOptLi2" currAttr='2'>我的处理</li>
+					<li id="dealOptLi1" currAttr='1'>我的申请</li>
+				</ul>
+			</div>
+			<div class="comFilter">
+				<input type="hidden" id="dealStaInp" value="0"/>
+				<strong class="smTit">处理状态</strong>
+				<ul id="dealStaUl" class="clearfix">
+					<li id="dealStaLi0" currAttr='0'>未处理</li>
+					<li id="dealStaLi1" currAttr='1'>已同意</li>
+					<li id="dealStaLi2" currAttr='2'>已拒绝</li>
+				</ul>
+			</div>
+			<div id="timePart" class="comFilter" style="display: block;">
+				<strong class="smTit">时间段</strong>
+				<div class="timeBox">
+					<i class="iconfont icon-qingjia"></i>
+					<i class="iconfont icon-qingjia lastChild"></i>
+					<input id="stDate" type="text" placeholder="请选择起始时间" readonly>
+					<span class="tillTxt">至</span>
+					<input id="edDate" type="text" placeholder="请选择结束时间" readonly>
+				</div>
+			</div>
+		</div>
+		<div class="filterBot">
+			<span id="cancelFilterBtn" class="cancelFilterBtn">重置</span>
+			<span id="loadHwRecBtn">确定</span>
+		</div>
+	
+	
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			mui.init({
+				beforeback : function(){
+					var opener = plus.webview.currentWebview().opener();
+					mui.fire(opener,'closeLayer',{});
+					return true;
+				}
+			});
+			mui.plusReady(function(){
+				var sDate = plus.webview.currentWebview().sDate,
+					eDate = plus.webview.currentWebview().eDate;
+					globalOpt = plus.webview.currentWebview().globalOpt,
+					checkStatus = plus.webview.currentWebview().checkStatus;
+				var page = {
+					init : function(){
+						app.getId('stDate').value = sDate;
+						app.getId('edDate').value = eDate;
+						if(globalOpt == 2){//我的处理
+							app.getId('dealOptLi2').className = 'active';
+						}else{
+							app.getId('dealOptLi1').className = 'active';
+						}
+						if(checkStatus == 0){
+							app.getId('dealStaLi0').className = 'active';
+						}else if(checkStatus == 1){
+							app.getId('dealStaLi1').className = 'active';
+						}else if(checkStatus == 2){
+							app.getId('dealStaLi2').className = 'active';
+						}
+						app.getId('dealOptInp').value = globalOpt;
+						app.getId('dealStaInp').value = checkStatus;
+						this.bindEvent();
+						this.getVal('dealOptUl','li','dealOptInp');
+						this.getVal('dealStaUl','li','dealStaInp');
+					},
+					bindEvent : function(){
+						var _this = this;
+						//确定
+						app.getId('loadHwRecBtn').addEventListener('tap',function(){
+							var dealOptInpVal = app.getId('dealOptInp').value,
+								dealStaInpVal = app.getId('dealStaInp').value,
+								stDateVal = app.getId('stDate').value,
+								edDateVal = app.getId('edDate').value;
+							
+							if(stDateVal == '' && edDateVal != ''){
+								plus.nativeUI.toast('请选择起始时间');
+							}else if(stDateVal != '' && edDateVal == ''){
+								plus.nativeUI.toast('请选择结束时间');
+							}else if(stDateVal > edDateVal){
+								plus.nativeUI.toast('起始时间不能大于结束时间');
+							}else{
+								var opener = plus.webview.currentWebview().opener();
+								var field = {checkStatus:dealStaInpVal,globalOpt:dealOptInpVal,sDate:stDateVal,eDate:edDateVal,tapOpt:'sureBtn'}
+								plus.webview.currentWebview().close('pop-out');
+								mui.fire(opener,'upTakeClassesList',{currField:field});
+							}
+						});
+						//重置
+						app.getId('cancelFilterBtn').addEventListener('tap',function(){
+							var aLi = app.getId('moreFilter').getElementsByTagName('li');
+							var field = {classId:0,hwType:'',checkStatus:-1,sDate:'',eDate:'',tapOpt:'resetBtn'};
+							for(var i=0;i<aLi.length;i++ ){
+								aLi[i].className = '';
+							}
+							app.getId('dealOptInp').value = 2;
+							app.getId('dealStaInp').value = 0;
+							app.getId('stDate').value = sDate;
+							app.getId('edDate').value = eDate;
+							
+							app.getId('dealOptLi2').className = 'active';
+							app.getId('dealStaLi0').className = 'active';
+						});
+						app.getId('stDate').addEventListener('tap',function(){
+							_this.showDate('stDate');
+						});
+						app.getId('edDate').addEventListener('tap',function(){
+							_this.showDate('edDate');
+						});
+					},
+					showDate : function(obj){
+						var dDate = new Date(),_this = this;
+						if(app.getId(obj).value != ''){
+							var curr = app.getId(obj).value.split('-');
+							dDate.setFullYear(curr[0],(curr[1]-1),curr[2]);
+						}
+						plus.nativeUI.pickDate(function(e) { 
+							var d = e.date,currDate=''; 
+							currDate = d.getFullYear() + "-" + app.appendZero( (d.getMonth() + 1) ) + "-" + app.appendZero( d.getDate() );
+							app.getId(obj).value = currDate;
+						}, function(e) {
+						}, {  
+							title: "请选择日期",
+							date : dDate
+						});
+					},
+					getVal : function(parObj,obj,inpObj){
+						var _this = this;
+						mui('#' + parObj).on('tap',obj,function(){
+							var currAttr = this.getAttribute('currAttr');
+							var aEle = app.getId(parObj).getElementsByTagName('li');
+							app.getId(inpObj).value = currAttr;
+							if(parObj == 'gradeUl'){
+								clName = this.innerText;
+							}
+							for(var i=0;i<aEle.length;i++){
+								aEle[i].className = '';
+							}
+							this.className = 'active';
+						});
+					}
+				};
+				page.init();
+			});
+		</script>
+	</body>
+</html>

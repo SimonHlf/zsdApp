@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/myAnsQueList.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/mobileSelect.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/mui.min.css"/>
+		<title>我的提问</title>
+	</head>
+	<body class="paddingTop"> 
+		<div class="comHeader otherBg">
+			<a id="backBtn" class="posL" href="javascript:mui.back();"><i class="iconfont icon-fanhui"></i></a>
+			<span class="headerTit">我的提问</span>
+			<span id="addQueBtn" class="addQueBtn"><i class="iconfont icon-tianjia"></i></span>
+		</div>
+		<input type="hidden" id="currSubId" value="0" />
+		<input type="hidden" id="readStatusInp" value="-1" />
+		<div class="filter">
+			<p class="stuName hasPosRea">
+				<span id="subTxt" class="comSelTxtCon">全部学科</span>
+				<i class="iconfont icon-xiala"></i>
+			</p> 
+			<p class="ansSta hasPosRea">
+				<span id="ansStaTxt" class="comSelTxtCon">全部</span>
+				<i class="iconfont icon-xiala"></i>
+			</p>
+			<span id="searchBtn" class="searchBtn"><i class="iconfont icon-sousuo"></i></span>
+		</div>
+		<div id="myQueContainer" class="myAnsList">
+			<div class="mui-scroll">
+				<ul id="myAnsListUl"></ul>
+			</div>
+			<div id="noData" class="noData" style="display: none;"><img src="../../images/noData.png" /><p>暂无提问记录！</p></div>
+		</div>
+		
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/mobileSelect.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/comMethod.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var pageNum = 1,isPullLoadFlag = false,noDataPage = 0,userId = 0;
+			var ansStatus = [
+				{"type":-1,"value":"全部"},
+				{"type":0,"value":"未回答"},
+				{"type":1,"value":"已回答"}
+			];
+			mui.init({
+				pullRefresh : {
+					container : "#myQueContainer",
+					up : {
+						height:50,
+						auto:false,
+						contentrefresh : "正在加载...",
+						contentnomore:'没有更多数据了',
+						callback : getQueList_more
+					}
+				}
+			});
+			mui.plusReady(function(){
+				userId = plus.webview.currentWebview().userId;
+				var page = {
+					init : function(){
+						comMet.loadSubject();//获取学科
+						this.bindEvent();
+						this.loadQueList();
+					},
+					bindEvent : function(){
+						var _this = this;
+						//创建回答状态sel
+						var ansStaSel = new MobileSelect({
+							trigger: '#ansStaTxt',
+							title: '请选择回复状态',
+							wheels: [ 
+								{data: ansStatus}
+							],
+							position:[0], //初始化定位 打开时默认选中的哪个 如果不填默认为0
+							transitionEnd:function(indexArr, data){},
+							callback:function(indexArr, data){
+								app.getId('readStatusInp').value = data[0].type;
+							}
+						});
+						//添加我的提问
+						app.getId('addQueBtn').addEventListener('tap',function(){
+							app.openwin('addQue.html',{isAddFlag:false});
+						});
+						//查询
+						app.getId('searchBtn').ontouchend = function(){
+							pageNum = 1;
+							getQueList(null,'query');
+						}
+					},
+					loadQueList : function(){
+						getQueList(null,'initLoad');
+					}
+				};
+				page.init();
+				//添加提问后刷新当前我的提问列表
+				document.addEventListener('upDateMyQueList',function(e){
+					var isAddFlag = e.detail.isAddFlag;
+					if(isAddFlag){
+						console.log("jinlaile")
+						getQueList(null,'initLoad')
+					}
+				});
+			});
+			function getQueList(currObj,loadType){
+				var subIdInp = app.getId('currSubId').value,
+					readStatusInp = app.getId('readStatusInp').value;
+				var field = {userId:userId,subId:subIdInp,readStatus:readStatusInp,limit:10,page:pageNum};
+				//console.log(JSON.stringify( field ))
+				app.showToast(1);
+				mui.ajax(http_ + '/questionInfo.do?action=getQuestionList',{
+					data:field,
+					dataType:'json',
+					type:'post',
+					timeout:10000,  
+					success:function(json){ 
+						app.showToast(2);
+						//console.log(JSON.stringify(json))
+						if(json.msg == 'success'){ 
+							if(json.data.length > 0){
+								app.getId('noData').style.display = 'none';
+								renderQueList(json.data,currObj);
+								if(loadType == 'query'){
+									$('.mui-pull').show();
+									mui('#myQueContainer').pullRefresh().refresh(true);
+								}
+							}else{
+								currObj.endPullupToRefresh(true);
+							}
+						}else if(json.msg == '暂无记录'){ 
+							if(currObj != null){
+								isPullLoadFlag = true;
+								noDataPage = pageNum-1;
+								currObj.endPullupToRefresh(true);
+							}else{
+								$('.mui-pull').hide();
+								$('#myAnsListUl').html('');
+								app.getId('noData').style.display = 'block';
+							}
+						}
+					},
+					error:function(xhr,type,errorThrown){
+						app.showToast(2);
+						plus.nativeUI.toast('服务器错误');
+					} 
+				});
+			}
+			function renderQueList(list,currObj){
+				var str = '';
+				for(var i=0;i<list.length;i++){
+					str += '<li class="ansQueLi" qId="'+ list[i].qId +'">';
+					//str += '<div class="headPic"><img src="../../images/head.png"/></div>';
+					str += '<div class="ansCon noImg">';
+					str += '<p class="ansConTxt">'+ list[i].queTitle +'</p>';
+					str += '<p class="ansState">';
+					if(list[i].readSta == '未回复'){//未回答
+						str += '<span class="noAnsSta">未回复</span>';
+					}else if(list[i].readSta == '已回复'){//已回答
+						str += '<span class="hasAnsSta">已回复</span>';
+					}
+					str += '<span>'+ list[i].queTime +'</span>';
+					str += '</p>';
+					str += '</div>';
+					str += '</li>';
+				}
+				if(currObj != null){
+					$('#myAnsListUl').append(str);
+					currObj.endPullupToRefresh(false);
+				}else{
+					$('#myAnsListUl').html(str);
+				} 
+				mui('#myAnsListUl').on('tap','.ansQueLi',function(){
+					var qId = this.getAttribute('qId'),
+						readSta = this.getAttribute('readSta');
+					app.openwin('quesDet.html',{qId:qId});
+				});
+			}
+			function getQueList_more(){
+				pageNum++;
+				getQueList(this,'pullLoad');
+			}
+		</script>
+		
+	</body>
+</html>

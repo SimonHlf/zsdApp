@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/chapterList.css"/>
+		<title>章节列表选择章节</title>
+	</head>
+	<body>
+		<div class="comHeader hasBor">
+			<a id="backBtn" class="posL"><i class="iconfont icon-fanhui"></i></a>
+			<span class="headerTit">在线学习</span>
+		</div>
+		<!-- 章节列表 -->
+		<div class="chapterWrap">
+			<!-- 当前章节注释 -->
+			<div class="currChapNote">
+				<div class="currChapBox">
+					<p id="currChap" class="currChap"></p>
+					<p id="currEdit"></p>
+				</div>
+				<div class="chapterNote">
+					<p class="clearfix">
+						<i class="iconfont icon-wujiaoxing hasZhangwo"></i>
+						<span>表示课后诊断已掌握</span>
+					</p>
+					<p class="clearfix">
+						<i class="iconfont icon-wujiaoxing noZhangwo"></i>
+						<span>表示课后诊断未掌握</span>
+					</p>
+					<p class="clearfix">
+						<i class="iconfont icon-wujiaoxing noLearn"></i>
+						<span>表示课后诊断未学习</span>
+					</p>
+				</div>
+			</div>
+			<!-- 章节列表 -->
+			<div id="chapterList" class="chapterList"></div>
+			<!-- 暂无章节 -->
+		</div>
+		
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/h.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			document.addEventListener('plusready',plusReady,false);
+			function plusReady(){
+				var _self = plus.webview.currentWebview().field;
+				var page = {
+					init : function(){
+						app.backFun();  
+						this.initDOMTxt();
+						this.loadChapterList();
+					},
+					initDOMTxt : function(){ 
+						app.getId('currChap').innerHTML = _self.gradeTxt + _self.subTxt + _self.eduVol;
+						app.getId('currEdit').innerHTML = _self.editTxt;
+					},
+					loadChapterList : function(){
+						var field = {userId:_self.userId,eduId:_self.educId},_this = this;
+						//console.log( JSON.stringify( field ))
+						app.showToast(1);
+						mui.ajax(http_ + '/onlineStudy.do?action=getStudyCptData',{
+							data:field, 
+							dataType:'json',
+							type:'post',
+							timeout:10000,
+							success:function(json){
+								app.showToast(2);
+								if(json.result == 'success'){
+									var cptList = json.cptList;
+									_this.renderChapterHtml(cptList);
+								}else if(json.result == 'noInfo'){
+									app.getId('chapterList').innerHTML = '<div class="noData"><img src="../../images/noData.png"/><p>暂无章节</p></div>';
+								}
+							},
+							error:function(xhr,type,errorThrown){
+								app.showToast(2);
+								plus.nativeUI.toast('服务器异常');
+							}
+						}); 
+					},
+					renderChapterHtml : function(list){
+						var str = '';
+						//console.log( JSON.stringify( list ) )
+						for(var i=0;i<list.length;i++){
+							str += '<div class="chapt"><h3 class="chaptH3" cptId="'+ list[i].cptId +'">';
+							str += '<span class="chaptName ellip">'+ list[i].cptName +'</span>';
+							if(i == 0){
+								str += '<span id="tri_'+ list[i].cptId +'" class="tri hasSel"></span>';
+							}else{
+								str += '<span id="tri_'+ list[i].cptId +'" class="tri noSel"></span>';
+							}
+							str += '</h3>';
+							if(i == 0){ 
+								str += '<ul id="loreListUl_'+ list[0].cptId +'" class="loreListUl" isLoad="true" style="display:block;">';
+								for(var j=0;j<list[0].loreList.length;j++){
+									str += '<li onclick="goToStudyMapPage(this)" currCptId='+ list[0].cptId +' loreName="'+ list[0].loreList[j].loreName +'" loreId="'+ list[0].loreList[j].loreId +'" studyStatus="'+ list[0].loreList[j].studyStatus +'" studyLogId="'+ list[0].loreList[j].studyLogId +'">';
+									str += '<span class="loreName ellip">'+ list[0].loreList[j].loreName +'</span>';
+									if(list[0].loreList[j].studyStatus == 0){//0:未学习 1未通过 2:已经掌握
+										str += '<span class="currSta"><i class="iconfont icon-wujiaoxing noLearn"></i></span>';
+									}else if(list[0].loreList[j].studyStatus == 1){
+										str += '<span class="currSta"><i class="iconfont icon-wujiaoxing noZhangwo"></i></span>';
+									}else{
+										str += '<span class="currSta"><i class="iconfont icon-wujiaoxing hasZhangwo"></i></span>';
+									}
+									str += '</li>'
+								}
+								str += '</ul>';
+							}else{
+								str += '<ul id="loreListUl_'+ list[i].cptId +'" class="loreListUl" isLoad="false"></ul>';
+							}
+							str += '</div>';
+						}
+						app.getId('chapterList').innerHTML = str;
+						this.getLoreList();
+					},
+					getLoreList : function(){
+						var chaptEle = document.querySelectorAll('.chaptH3'),_this = this;
+						for(var i=0;i<chaptEle.length;i++){
+							chaptEle[i].addEventListener('click',function(){
+								var cptId = this.getAttribute('cptId'),
+									isLoad = app.getId('loreListUl_' + cptId).getAttribute('isLoad');
+								h('.loreListUl').hide();
+								h('.tri').removeClass('hasSel').addClass('noSel');
+								h('#tri_' + cptId).addClass('hasSel').removeClass('noSel');
+								h('#loreListUl_' + cptId).show();
+								if(isLoad == 'false'){//还未点击 加载对应lorelist
+									var field = {userId:_self.userId,cptId:cptId};
+									_this.getLoreListAjax(field,cptId);
+								}
+								app.getId('loreListUl_' + cptId).setAttribute('isLoad','true');
+							},false);
+						}
+					},
+					getLoreListAjax : function(field,cptId){
+						var _this = this;
+						mui.ajax(http_ + '/onlineStudy.do?action=getLoreData',{
+							data:field, 
+							dataType:'json',
+							type:'post',
+							beforeSend : function(){
+								app.showToast(1);
+							},
+							timeout:10000,
+							success:function(json){
+								app.showToast(2);
+								if(json.result == 'success'){
+									var loreList = json.loreList;
+									_this.renderLoreList(cptId,loreList);
+								}else if(json.result == 'noInfo'){
+									plus.nativeUI.toast('该章节下暂无知识点');
+								}
+							},
+							error:function(xhr,type,errorThrown){
+								app.showToast(2);
+								plus.nativeUI.toast('服务器异常');
+							}
+						}); 
+					},
+					//根据章节加载知识点列表
+					renderLoreList : function(cptId,list){
+						var str = ''; 
+						for(var i=0;i<list.length;i++){
+							str += '<li onclick="goToStudyMapPage(this)" currCptId='+ cptId +' loreName="'+ list[i].loreName +'" studyStatus="'+ list[i].studyStatus +'" loreId="'+ list[i].loreId +'" studyLogId="'+ list[i].studyLogId +'">';
+							str += '<span class="loreName ellip">'+ list[i].loreName +'</span>';
+							if(list[i].studyStatus == 0){//0:未学习 1未通过 2:已经掌握
+								str += '<span class="currSta"><i class="iconfont icon-wujiaoxing noLearn"></i></span>';
+							}else if(list[i].studyStatus == 1){
+								str += '<span class="currSta"><i class="iconfont icon-wujiaoxing noZhangwo"></i></span>';
+							}else{
+								str += '<span class="currSta"><i class="iconfont icon-wujiaoxing hasZhangwo"></i></span>';
+							}
+							str += '</li>';
+						}
+						h('#loreListUl_' + cptId).html(str);
+					}
+				};   
+				
+				page.init(); 
+				document.addEventListener('upDateChapterList',function(e){
+					var currCptId = e.detail.currCptId;
+					var field = {userId:_self.userId,cptId:currCptId};
+					page.getLoreListAjax(field,currCptId);
+				});
+			}
+			//检测知识点完成次数 一天只能完成一次
+			function checkCurrentLore(studyLogId){
+				var flag = false;
+				mui.ajax(http_ + '/onlineStudy.do?action=checkCurrentLore',{
+					data:{studyLogId:studyLogId}, 
+					dataType:'json',
+					type:'post',
+					async:false,
+					timeout:10000,
+					beforeSend : function(){
+						app.showToast(1);
+					},
+					success:function(json){
+						app.showToast(2);
+						if(json.studyFlag == true){
+							flag = true;
+						}else if(json.studyFlag == false){
+							flag = false;
+						}
+					},
+					error:function(xhr,type,errorThrown){
+						app.showToast(2);
+						plus.nativeUI.toast('服务器异常');
+					}
+				});
+				return flag;
+			}
+			function goToStudyMapPage(obj){
+				var loreId = h(obj).attr('loreId'),
+					loreName = h(obj).attr('loreName'),
+					studyLogId = h(obj).attr('studyLogId'),
+					studyStatus = h(obj).attr('studyStatus'),
+					currCptId = h(obj).attr('currCptId'),
+					flag = false;
+				var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+				//var currStatus = app.checkLoginStatus(userInfo.userId,userInfo.loginStatus);
+				if(studyStatus == 2){//该知识点完成
+					if( !checkCurrentLore(studyLogId) ){//当天已经完成，不能再做
+						plus.nativeUI.toast('一个知识点一天只能完成一次');
+						flag = false;
+					}else{
+						flag = true;
+					}
+				}else{
+					flag = true;	
+				}
+				if(flag){ 
+					app.openwin('studyMap.html',{loreId:loreId,userId:userInfo.userId,loreName:loreName,studyLogId:studyLogId,currCptId:currCptId,byComPos:'chapList'});
+				}
+			}
+		</script>
+		
+		
+	</body>
+</html>

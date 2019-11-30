@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/viewBuffetDet.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/halfFilter.css"/>
+		<title>布置作业</title>
+	</head>
+	<body class="paddingTop">
+		<div class="comHeader otherBg">
+			<a class="posL" href="javascript:mui.back();"><i class="iconfont icon-fanhui"></i></a>
+			<span class="headerTit selQue">布置作业</span>
+			<p id="sellAllBtnWrap" class="sellAllBtn">
+				<input type="checkbox" id="sellAllBtn" />
+				<em id="sellAllEm">
+					<i class="iconfont icon-duihao"></i>
+				</em>
+			</p>
+		</div>
+		<div class="tabNav" style="display: none;">
+			<ul>
+				<li class="active" currTypeCon="xqjf">兴趣激发</li>
+				<li currTypeCon="ffgn">方法归纳</li>
+				<li currTypeCon="swxl">思维训练</li>
+				<li currTypeCon="zlkf">智力开发</li>
+				<li currTypeCon="nlpy">能力培养</li>
+				<li currTypeCon="zksl">中/高考涉猎</li>
+			</ul>
+		</div>
+		<div id="tabCon" class="tabCon">
+			<!-- 兴趣激发 -->
+			<div id="xqjf" class="innerTabCon" style="display: block; opacity: 1;"></div>
+			<!-- 方法归纳 -->
+			<div id="ffgn" class="innerTabCon"></div>
+			<!-- 思维训练  -->
+			<div id="swxl" class="innerTabCon"></div>
+			<!-- 智力开发  -->
+			<div id="zlkf" class="innerTabCon"></div>
+			<!-- 能力培养  -->
+			<div id="nlpy" class="innerTabCon"></div>
+			<!-- 中/高考涉猎  -->
+			<div id="zksl" class="innerTabCon"></div> 
+		</div>
+		
+		<!-- 已选 -->
+		<div class="hasChoice">
+			<span id="hasSelHwBtn" class="hasSelHwBtn">选好了 去布置</span>
+		</div>
+		<div id="layer" class="layer"></div>
+		<!-- 已选试题 -->
+		<div id="moreFilterWrap">
+			<strong class="titStrong">已选试题</strong>
+			<div class="moreFilter choiceQue">
+				<!-- 已选试题 -->
+				<div class="comFilter noBor">
+					<ul id="hasChoiceUl" class="clearfix"></ul>
+				</div>
+			</div>
+		</div>
+		<a id="viewHasSelBtn" class="viewHasSelBtn" href="javascript:void(0)">已选</a>
+		
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../studyOnline/js/comStudy.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var hwQueTypeArr = ['xqjf','ffgn','swxl','zlkf','nlpy','zksl'];
+			var classNameStr = '',endDate = '',lqIdArr = [];
+			mui.plusReady(function(){
+				var currField =plus.webview.currentWebview().currField,
+					hwType = currField.hwType;
+				var page = {
+					init : function(){
+						if(hwType != 1){
+							$('.tabCon').addClass('selQuesList');
+						}else{
+							$('.tabNav').show();
+						}
+						this.bindEvent();
+						this.loadQuesDet();
+					},
+					bindEvent : function(){
+						var _this = this;
+						app.getId('hasSelHwBtn').addEventListener('tap',function(){
+							lqIdArr.length = 0;
+							$("input[name='loreQueInp']").each(function(i){
+								var checkStatus = $('input[name=loreQueInp]').eq(i).prop('checked'),
+									queType = $('input[name=loreQueInp]').eq(i).attr('queType');
+								if(checkStatus){
+									//console.log($('input[name=loreQueInp]').eq(i).attr('queType'));
+									if(hwType == 1){
+										lqIdArr.push($('input[name=loreQueInp]').eq(i).val() + ':' + 'hw');
+									}else{
+										lqIdArr.push($('input[name=loreQueInp]').eq(i).val() + ':' + queType);
+									}
+									
+								}
+							});
+							if(lqIdArr.length == 0){
+								plus.nativeUI.toast('请选择试题');
+								return;
+							}
+							var lqIdField = {lqId:lqIdArr.join(',')};
+							mui.extend(lqIdField,currField);
+							//console.log(JSON.stringify( lqIdField ))
+							app.openwin('confirmPub.html',{currField:lqIdField,classNameStr:classNameStr,endDate:endDate});
+						});
+						
+						$('.tabNav li').on('click',function(){
+							var currTypeCon = $(this).attr('currTypeCon');
+							$(this).addClass('active').siblings().removeClass('active');
+							$(".innerTabCon").hide().css({"opacity":0});//全部题隐藏
+							$('#' + currTypeCon).show().animate({"opacity":1});
+						});
+						//全选
+						$('#sellAllBtnWrap').on('touchend',function(){
+							if($("input[name='loreQueInp']").length > 0){
+								var checkStatus = $('#sellAllBtn').prop("checked");
+								if(!checkStatus){
+									var str = '';
+									$("input[name='loreQueInp']").prop("checked",true);
+									$("input[name='loreQueInp']").next().addClass('hasSelect'); 
+									$('#sellAllEm').addClass('hasSelect');
+									$("input[name='loreQueInp']").each(function(i){
+										var lqId = $("input[name='loreQueInp']").eq(i).val(),
+											checkInpTit = $("input[name='loreQueInp']").eq(i).attr('title');
+										str += "<li id='hasChoiceLi_"+lqId+"' onclick=removeHasChoiceItem(this,"+ lqId +")><span>"+checkInpTit+"</span><i class='iconfont icon-wrong'></i></li>";
+									});
+									$("#hasChoiceUl").html(str);
+								}else{
+									$("input[name='loreQueInp']").prop("checked",false);
+									$("input[name='loreQueInp']").next().removeClass('hasSelect');
+									$('#sellAllEm').removeClass('hasSelect');
+									$("#hasChoiceUl").html('<div class="noData"><img src="../../images/noData.png" /><p>暂未选择试题！</p></div>');
+								}
+							}else{
+								plus.nativeUI.toast('暂无试题！');
+							}
+						});
+						//查看已选
+						app.getId('viewHasSelBtn').addEventListener('tap',function(){
+							$('.layer').show();
+							$('#moreFilterWrap').removeClass('animationClose').addClass('animation');
+							if($("#hasChoiceUl").find('li').length == 0){
+								$("#hasChoiceUl").html('<div class="noData"><img src="../../images/noData.png" /><p>暂未选择试题！</p></div>');
+							}else{
+								$('.noData').remove();
+							}
+						});
+						app.getId('layer').addEventListener('tap',function(){
+							$('#moreFilterWrap').removeClass('animation').addClass('animationClose');
+							setTimeout(function(){
+								$('#layer').hide();
+							},400);
+						});
+						
+					}, 
+					//加载题库详情
+					loadQuesDet : function(){
+						var _this = this;
+						mui.ajax(http_ + '/hw.do?action=getLoreQuestionData',{
+							data:currField,
+							dataType:'json',
+							type:'post',
+							timeout:10000,
+							success:function(json){
+								app.showToast(2);
+								//console.log(JSON.stringify( json ))
+								if(json.result == 'success'){
+									classNameStr = json.classNameStr;
+									endDate = json.endDate;
+									if(hwType == 1){//家庭作业
+										for(var i=0;i<hwQueTypeArr.length;i++){
+											_this.renderHwQueHtml(json[hwQueTypeArr[i]],hwQueTypeArr[i]);
+										}
+									}else{
+										_this.renderOtherHwQueHtml(json.lqList);
+									}
+								}else if(json.result == 'noInfo'){
+									app.getId('tabCon').innerHTML = '<div class="noData"><img src="../../images/noData.png"/><p>暂无试题！</p></div>';
+								}
+							},
+							error:function(xhr,type,errorThrown){
+								app.showToast(2);
+								plus.nativeUI.toast('服务器错误');
+							} 
+						});
+					},
+					//课前预习 课后复习类型DOM 
+					renderOtherHwQueHtml : function(list){
+						//xqjf
+						var str = '';
+						for(var i=0;i<list.length;i++){
+							if(list[i].queType == 'sys'){
+								var j=0, answerA = "",answerB = "",answerC = "",answerD = "",answerE = "",answerF = "",answerOptionArray = new Array();
+								answerOptionArray = assignToArray(list[i].answerA,list[i].answerB,list[i].answerC,list[i].answerD,list[i].answerE,list[i].answerF);
+							}
+							str += '<div class="listTabCon"><label>';
+							str += '<input onclick="selLqListItem('+ list[i].lqId +')" id="lqInp_'+ list[i].lqId +'" name="loreQueInp" type="checkbox" queType="'+ list[i].queType +'" title="'+ list[i].lqTitle +'" value="'+ list[i].lqId +'"/>';
+							str += '<span id="currSelSpan_'+ list[i].lqId +'" class="currSelSpan"><i class="iconfont icon-duihao"></i></span>';
+							//标题
+							str += '<div class="detTitPart">';
+								str += '<div class="typeTit clearfix"><strong class="fl">'+ list[i].lqType +'</strong><p class="fl">'+ list[i].lqTitle +'</p></div>';
+							str += '</div>';
+							//题干
+							str += '<div class="queSub">';
+								str += '<p class="subTit">题干：</p><div class="queSubCon">'+ list[i].lqSub +'</div>';
+							str += '</div>';
+							if(list[i].queType == 'sys'){
+								str += '<div class="quesOptBox">';
+								//quesOpt
+								if(list[i].answerA != ""){
+									if(checkAnswerImg(list[i].answerA)){
+										answerA = "<img src='"+ answerOptionArray[j++] +"'/>";
+									}else{
+										answerA = answerOptionArray[j++];
+									}
+									str += '<div class="quesOpt"><span class="optionsWord">A</span><div class="optionsCon">'+ answerA +'</div></div>';
+								}
+								if(list[i].answerB != ""){
+									if(checkAnswerImg(list[i].answerB)){
+										answerB = "<img src='"+ answerOptionArray[j++] +"'/>";
+									}else{
+										answerB = answerOptionArray[j++];
+									}
+									str += '<div class="quesOpt"><span class="optionsWord">B</span><div class="optionsCon">'+ answerB +'</div></div>';
+								}
+								if(list[i].answerC != ""){
+									if(checkAnswerImg(list[i].answerC)){
+										answerC = "<img src='"+ answerOptionArray[j++] +"'/>";
+									}else{
+										answerC = answerOptionArray[j++];
+									}
+									str += '<div class="quesOpt"><span class="optionsWord">C</span><div class="optionsCon">'+ answerC +'</div></div>';
+								}
+								if(list[i].answerD != ""){
+									if(checkAnswerImg(list[i].answerD)){
+										answerD = "<img src='"+ answerOptionArray[j++] +"'/>";
+									}else{
+										answerD = answerOptionArray[j++];
+									}
+									str += '<div class="quesOpt"><span class="optionsWord">D</span><div class="optionsCon">'+ answerD +'</div></div>';
+								}
+								if(list[i].answerE != ""){
+									if(checkAnswerImg(list[i].answerE)){
+										answerE = "<img src='"+ answerOptionArray[j++] +"'/>";
+									}else{
+										answerE = answerOptionArray[j++];
+									}
+									str += '<div class="quesOpt"><span class="optionsWord">E</span><div class="optionsCon">'+ answerE +'</div></div>';
+								}
+								if(list[i].answerF != ""){
+									if(checkAnswerImg(list[i].answerF)){
+										answerF = "<img src='"+ answerOptionArray[j++] +"'/>";
+									}else{
+										answerF = answerOptionArray[j++];
+									}
+									str += '<div class="quesOpt"><span class="optionsWord">F</span><div class="optionsCon">'+ answerF +'</div></div>';
+								}
+								str += '</div>';
+							}
+							//答案
+							str += '<div class="realAns hasBorTop"><p>答案：</p><p>'+ list[i].lqAnswer +'</p></div>';
+							//解析
+							str += '<div class="analysis"><p class="subTit">解析：</p>';
+							if(list[i].lqResolution == ''){
+								str += '<div class="analsisDet noTxt">暂无解析</div></div>';
+							}else{
+								str += '<div class="analsisDet">'+ list[i].lqResolution +'</div></div>';
+							}
+							str += '</label></div>';	
+						}
+						$('#xqjf').html(str);
+						var hasImgLen = $("#xqjf").find('img').length;
+						if(hasImgLen > 0){
+							$("#xqjf").find('img').each(function(k){
+								$("#xqjf").find('img').eq(k).attr('src', http_ + '/' + $("#xqjf").find('img').eq(k).attr('src'));
+							});
+						}
+					},
+					//家庭作业类型DOM
+					renderHwQueHtml : function(list,hwTypeWrap){
+						if(list.length == 0){
+							$('#' + hwTypeWrap).html('<div class="noData"><img src="../../images/noData.png" /><p>暂无试题！</p></div>');
+						}else{
+							var str = '';
+							for(var i=0;i<list.length;i++){
+								str += '<div class="listTabCon"><label>';
+									str += '<input onclick="selLqListItem('+ list[i].lqId +')" id="lqInp_'+ list[i].lqId +'" name="loreQueInp" type="checkbox" queType="'+ list[i].queType +'" title="'+ list[i].lqTitle +'" value="'+ list[i].lqId +'"/>';
+									str += '<span id="currSelSpan_'+ list[i].lqId +'" class="currSelSpan"><i class="iconfont icon-duihao"></i></span>';
+									//标题
+									str += '<div class="detTitPart">';
+										str += '<div class="typeTit clearfix"><strong class="fl">'+ list[i].lqType +'</strong><p class="fl">'+ list[i].lqTitle +'</p></div>';
+										str += '<p class="smTitPart"><span>思维类型：</span><strong>'+ list[i].swType +'</strong></p>';
+										str += '<p class="smTitPart"><span>能力类型：</span><strong>'+ list[i].nlType +'</strong></p>';
+									str += '</div>';
+									//题干
+									str += '<div class="queSub">';
+										str += '<p class="subTit">题干：</p><div class="queSubCon">'+ list[i].lqSub +'</div>';
+									str += '</div>';
+									//答案
+									str += '<div class="realAns hasBorTop"><p>答案：</p><p>'+ list[i].lqAnswer +'</p></div>';
+									//解析
+									str += '<div class="analysis"><p class="subTit">解析：</p>';
+									if(list[i].lqResolution == ''){
+										str += '<div class="analsisDet noTxt">暂无解析</div></div>';
+									}else{
+										str += '<div class="analsisDet">'+ list[i].lqResolution +'</div></div>';
+									}
+								str += '</label></div>';
+							}
+							$('#' + hwTypeWrap).html(str);
+							var hasImgLen = $("#" + hwTypeWrap).find('img').length;
+							if(hasImgLen > 0){
+								$("#" + hwTypeWrap).find('img').each(function(k){
+									$("#" + hwTypeWrap).find('img').eq(k).attr('src', http_ + '/' + $("#" + hwTypeWrap).find('img').eq(k).attr('src'));
+								});
+							}
+						}
+					}
+				};
+				page.init();
+			});
+			//选择单个题
+			function selLqListItem(lqId){
+				var checkStatus = $("#lqInp_"+lqId).prop("checked");
+				var totalLen = $('input[name=loreQueInp]').length;
+				var hasCheckedLen = $('input[name=loreQueInp]:checked').length;
+				var checkInpTit = $("#lqInp_"+lqId).attr("title");
+				if(checkStatus){
+					$("#currSelSpan_"+lqId).addClass("hasSelect");
+					$("#hasChoiceUl").append("<li id='hasChoiceLi_"+lqId+"' onclick=removeHasChoiceItem(this,"+ lqId +")><span>"+checkInpTit+"</span><i class='iconfont icon-wrong'></i></li>");
+				}else{
+					$("#currSelSpan_"+lqId).removeClass("hasSelect");
+					$("#hasChoiceLi_"+lqId).remove();
+				}
+				if(hasCheckedLen == totalLen){
+					$('#sellAllEm').addClass("hasSelect");
+					$('#sellAllBtn').prop("checked",true);
+				}else{
+					$('#sellAllEm').removeClass("hasSelect");
+					$('#sellAllBtn').prop("checked",false);
+				}
+			}
+			//移除已选
+			function removeHasChoiceItem(obj,lqId){
+				$(obj).remove();
+				$('#lqInp_' + lqId).attr('checked',false);
+				$('#sellAllBtn').prop("checked",false);
+				$("#currSelSpan_"+lqId).removeClass("hasSelect");
+				$('#sellAllEm').removeClass('hasSelect');
+				if($("#hasChoiceUl").find('li').length == 0){
+					$("#hasChoiceUl").html('<div class="noData"><img src="../../images/noData.png" /><p>暂未选择试题！</p></div>');
+				}
+			}
+		</script>
+		
+	</body>
+</html>

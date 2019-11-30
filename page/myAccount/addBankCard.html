@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/myAccount.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/halfFilter.css"/>
+		<script src="https://at.alicdn.com/t/font_1400864_k88kgaqz1u.js" type="text/javascript" charset="utf-8"></script>
+		<title>添加银行卡</title>
+	</head>
+	<body class="paddingTop">
+		<div class="comHeader otherBg">
+			<a id="backBtn" class="posL" href="javascript:mui.back();"><i class="iconfont icon-fanhui"></i></a>
+			<span class="headerTit">添加编辑银行卡</span>
+		</div>
+		<div class="addBankWrap">
+			<div id="selBankBtn" class="comFormPart">
+				<input type="hidden" id="bankNameInp" />
+				<p id="bankName" class="noSel">请选择开户银行</p>
+				<i class="iconfont icon-more"></i>
+			</div>
+			<div class="comFormPart">
+				<input id="bankNum" type="text" placeholder="请输入银行卡号" maxlength="19" />
+			</div>
+			<div class="comFormPart" style="display: none;">
+				<input id="bankAccName" type="text" placeholder="请输入开户人姓名" />
+			</div>
+		</div>
+		<p class="noteTxt hasMargTop">注：请绑定持卡人本人的银行卡</p>
+		<span id="saveBtn" class="saveBtn">保存</span>
+		<!-- 银行卡list -->
+		<div id="layer" class="layer"></div>
+		<div id="moreFilterWrap">
+			<strong class="titStrong">选择银行卡</strong>
+			<div class="moreFilter choiceQue">
+				<div class="bankList">
+					<ul id="bankListUl" class="clearfix">
+						<li>
+							<svg class="icon-svg addBankIcon" aria-hidden="true"><use xlink:href="#icon-zhongguoyinhang"></use></svg>
+							<p>中国银行</p>
+							<input type="radio" class="com_BankRdio" name="bankRadio" value="中国银行"/>
+						</li>
+						<li>
+							<svg class="icon-svg addBankIcon" aria-hidden="true"><use xlink:href="#icon-gongshangyinhang"></use></svg>
+							<p>中国工商银行</p>
+							<input type="radio" class="com_BankRdio" name="bankRadio" value="中国工商银行"/>
+						</li>
+						<li>
+							<svg class="icon-svg addBankIcon" aria-hidden="true"><use xlink:href="#icon-nongyeyinhang"></use></svg>
+							<p>中国农业银行</p>
+							<input type="radio" class="com_BankRdio" name="bankRadio" value="中国农业银行"/>
+						</li>
+						<li>
+							<svg class="icon-svg addBankIcon" aria-hidden="true"><use xlink:href="#icon-jianhang"></use></svg>
+							<p>中国建设银行</p>
+							<input type="radio" class="com_BankRdio" name="bankRadio" value="中国建设银行"/>
+						</li>
+						<li>
+							<svg class="icon-svg addBankIcon" aria-hidden="true"><use xlink:href="#icon-youzhengyinhang"></use></svg>
+							<p>中国邮政储蓄银行</p>
+							<input type="radio" class="com_BankRdio" name="bankRadio" value="中国邮政储蓄银行"/>
+						</li>
+						<li>
+							<svg class="icon-svg addBankIcon" aria-hidden="true"><use xlink:href="#icon-zhaoshangyinhang"></use></svg>
+							<p>招商银行</p>
+							<input type="radio" class="com_BankRdio" name="bankRadio" value="招商银行"/>
+						</li>
+						<li>
+							<svg class="icon-svg addBankIcon" aria-hidden="true"><use xlink:href="#icon-jiaotongyinhang"></use></svg>
+							<p>交通银行</p>
+							<input type="radio" class="com_BankRdio" name="bankRadio" value="交通银行"/>
+						</li>
+						<li>
+							<svg class="icon-svg addBankIcon" aria-hidden="true"><use xlink:href="#icon-zhongxinyinhang"></use></svg>
+							<p>中信银行</p>
+							<input type="radio" class="com_BankRdio" name="bankRadio" value="中信银行"/>
+						</li>
+						<li>
+							<svg class="icon-svg addBankIcon" aria-hidden="true"><use xlink:href="#icon-minshengyinhang"></use></svg>
+							<p>中国民生银行</p>
+							<input type="radio" class="com_BankRdio" name="bankRadio" value="中国民生银行"/>
+						</li>
+						<li>
+							<svg class="icon-svg addBankIcon" aria-hidden="true"><use xlink:href="#icon-guangdayinhang"></use></svg>
+							<p>中国光大银行</p>
+							<input type="radio" class="com_BankRdio" name="bankRadio" value="中国光大银行"/>
+						</li>
+						<li>
+							<svg class="icon-svg addBankIcon" aria-hidden="true"><use xlink:href="#icon-xingyeyinhang"></use></svg>
+							<p>兴业银行</p>
+							<input type="radio" class="com_BankRdio" name="bankRadio" value="兴业银行"/>
+						</li>
+						<li>
+							<svg class="icon-svg addBankIcon" aria-hidden="true"><use xlink:href="#icon-pufayinhang"></use></svg>
+							<p>浦发银行</p>
+							<input type="radio" class="com_BankRdio" name="bankRadio" value="浦发银行"/>
+						</li>
+						<li>
+							<svg class="icon-svg addBankIcon" aria-hidden="true"><use xlink:href="#icon-guangfayinhang"></use></svg>
+							<p>广发银行</p>
+							<input type="radio" class="com_BankRdio" name="bankRadio" value="广发银行"/>
+						</li>
+						<li>
+							<svg class="icon-svg addBankIcon" aria-hidden="true"><use xlink:href="#icon-huaxiayinhang"></use></svg>
+							<p>华夏银行</p>
+							<input type="radio" class="com_BankRdio" name="bankRadio" value="华夏银行"/>
+						</li>
+						<li>
+							<svg class="icon-svg addBankIcon" aria-hidden="true"><use xlink:href="#icon-shanghaiyinhang"></use></svg>
+							<p>上海银行</p>
+							<input type="radio" class="com_BankRdio" name="bankRadio" value="上海银行"/>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+		
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			//var reg = /^\d{19}$/g;   // 以19位数字开头，以19位数字结尾
+			var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+			mui.init({
+				beforeback : function(){
+					var opener = plus.webview.currentWebview().opener();
+					mui.fire(opener,'updateBankInfo',{});
+					return true;
+				} 
+			});
+			mui.plusReady(function(){
+				var currType = plus.webview.currentWebview().currType;
+				var page = {
+					init : function(){
+						if(currType == 'editBank'){//编辑银行卡
+							var bankInfo = plus.webview.currentWebview().bankInfo;
+							app.getId('bankNameInp').value = bankInfo.bankName;
+							app.getId('bankName').className = '';
+							app.getId('bankName').innerHTML = bankInfo.bankName;
+							app.getId('bankNum').value = bankInfo.bankNum;
+						}
+						this.bindEvent();
+					},
+					closeBankList : function(){
+						app.getId('moreFilterWrap').className = 'animationClose';
+						setTimeout(function(){
+							app.getId('layer').style.display = 'none';
+						},400);
+					},
+					bindEvent : function(){
+						var _this = this;
+						//选择银行卡
+						app.getId('selBankBtn').addEventListener('tap',function(){
+							var aInp = app.getId('bankListUl').getElementsByTagName('input'),
+								bankName = app.getId('bankName').innerHTML;
+							for(var i=0;i<aInp.length;i++){
+								 aInp[i].parentNode.className = '';
+								if(bankName == aInp[i].value){
+									 aInp[i].parentNode.className ='active';
+								}
+							}
+							app.getId('bankNum').value = '';
+							app.getId('layer').style.display = 'block';
+							app.getId('moreFilterWrap').className = 'animation';
+						});
+						app.getId('layer').addEventListener('tap',function(){
+							_this.closeBankList();
+						});
+						mui('#bankListUl').on('tap','.com_BankRdio',function(){
+							this.parentNode.className = 'active';
+							app.getId('bankName').className = '';
+							app.getId('bankName').innerHTML = this.value;
+							app.getId('bankNameInp').value = this.value;
+							_this.closeBankList();
+						});
+						//保存银行卡
+						app.getId('saveBtn').addEventListener('tap',function(){
+							var bankNameInp = app.getId('bankNameInp').value,
+								bankNum = app.getId('bankNum').value;
+								reg = /^\d{19}$/g;   // 以19位数字开头，以19位数字结尾
+							if(bankNameInp == ''){
+								mui.toast('请选择开户银行');
+							}else if(bankNum == ''){
+								mui.toast('请输入银行卡号');
+							}else if(!reg.test(bankNum)){
+								mui.toast('请输入正确的银行卡号');
+							}else{
+								app.showToast(1);
+								mui.ajax(http_ + '/netTeacher.do?action=addOrUpdateBankCard',{
+									data:{userId:userInfo.userId,bankName:escape(bankNameInp),bankNum:bankNum},
+									dataType:'json',
+									type:'post',
+									timeout:10000,  
+									success:function(json){ 
+										app.showToast(2);
+										console.log(JSON.stringify( json ))
+										if(json.result == 'success'){
+											mui.toast('保存成功');
+											setTimeout(function(){
+												mui.back();
+											},500);
+										}else if(json.result == 'fail'){
+											mui.toast('保存失败，请重试');
+										}
+									},
+									error:function(xhr,type,errorThrown){
+										app.showToast(2);
+										plus.nativeUI.toast('服务器错误');
+									} 
+								});
+							}
+							
+						});
+					}
+				};
+				page.init();
+			});
+		</script>
+	</body>
+</html>

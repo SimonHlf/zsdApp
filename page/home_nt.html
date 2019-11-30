@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8"> 
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../css/index.css"/>
+		<title>网络导师首页</title>
+	</head>
+	<body class="paddingTop">
+		<div class="comHeader">
+			<span class="headerTit">知识典</span>
+			<a id="msgWrap" class="posR">
+				<em id="unReadMsg" class="newsMsg"></em>
+				<i class="iconfont icon-tongzhi"></i>
+			</a>
+		</div> 
+		<div class="mui-slider">
+			<div class="mui-slider-group">
+				<div class="mui-slider-item"><img src="../images/ntBanner.jpg" /></div>
+			</div>
+		</div>
+		<!-- 导航 -->
+		<div class="navWrap">
+			<ul class="clearfix">
+				<li id="myAccLi">
+					<a class="blockA">
+						<span class="iconBox wodedayiBg">
+							<i class="iconfont icon-zhanghucaozuo"></i>
+						</span>
+						<strong>我的账户</strong>
+					</a>
+				</li>
+				<li id="trackGuide">
+					<a class="blockA">
+						<span class="iconBox gzBg">
+							<i class="iconfont icon-genzong"></i>
+						</span>
+						<strong>跟踪指导</strong>
+					</a>
+				</li>
+				<li id="buffetSend">
+					<a class="blockA">
+						<span class="iconBox zzcBg">
+							<i class="iconfont icon-xuexi"></i>
+						</span>
+						<strong>自助餐</strong>
+					</a>
+				</li>
+			</ul>
+		</div> 
+		<!-- 我的答疑 -->
+		<div class="myStudioList">
+			<div class="recTit clearfix">
+				<strong>我的答疑<i id="noAnsNum"></i></strong>
+				<span id="myAnsLi"><i class="iconfont icon-more"></i></span>
+			</div>
+			<div class="myAnsList">
+				<ul id="myAnsListUl"></ul>
+			</div>
+		</div> 
+		<div id="layer" class="layer"></div>
+		<div id="ntVerify" class="ntVerify">
+			<div class="verifyTop"> 
+				<strong id="verifyTit"></strong>
+			</div>
+			<div class="verifyMid">
+				<p id="verifyTxt"></p>
+			</div>
+			<span id="upIdCard" class="upIdCard">证件上传</span>
+		</div>
+		<p id="test"></p>
+		
+		<script src="../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var userInfo = JSON.parse(localStorage.getItem('userInfo'));
+			var userId = 0,loginStatus=0;
+			mui.plusReady(function(){
+				var opener = plus.webview.currentWebview().opener();//index_st.html
+				var page = {
+					init : function(){
+						this.bindEvent();
+						app.checkEmailUnRead();
+						this.getAnsList();
+					},
+					//检测导师是否审核通过 
+					checkIsVerifyPass : function(){
+						var checkSta = 0;
+						mui.ajax(http_ + '/netTeacher.do?action=checkNtVerify',{
+							data:{userId:userInfo.userId},
+							dataType:'json',
+							type:'post',
+							async:false,
+							timeout:10000,  
+							success:function(json){ 
+								if(json.checkSta == 0){//未审核
+									checkSta = 0;
+									app.getId('verifyTit').innerHTML = '证件上传/审核中';
+									app.getId('verifyTxt').innerHTML = '请先上传对应证件(身份证正、反面，教师资格证，学历证)，系统审核通过后才能使用本系统';
+								}else if(json.checkSta == 1){//审核未通过
+									checkSta = 1;
+									app.getId('verifyTit').innerHTML = '审核未通过';
+									app.getId('verifyTxt').innerHTML = '您传的证件资料审核未通过，请重新上传！';
+								}else if(json.checkSta == 2){//审核通过
+									checkSta = 2;
+								}
+							},
+							error:function(xhr,type,errorThrown){
+								plus.nativeUI.toast('服务器错误');
+							} 
+						});
+						return checkSta;
+					},
+					bindEvent : function(){
+						var loginView = plus.webview.getWebviewById('login'),_this = this;
+						//消息通知
+						app.getId('msgWrap').addEventListener('tap',function(){
+							var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+							var currStatus = userInfo == null ? false : true;
+							if(currStatus){
+								app.openwin('msgCen/msgList.html');
+							}else{
+								mui.fire(loginView,"noLoginCheck",{opt:'noLogin_user'});
+								app.doLogin();
+							}
+						});
+						//关闭提示导师审核弹窗
+						app.getId('layer').addEventListener('tap',function(){
+							app.getId('layer').style.display = 'none';
+							app.getId('ntVerify').style.display = 'none';
+							mui.fire(opener,'showIndexLayer',{opt:'close'});
+						});
+						//上传证件
+						app.getId('upIdCard').addEventListener('tap',function(){
+							app.openwin('ntVerify/ntVerifyList.html');
+						});
+						//我的账户
+						app.getId('myAccLi').addEventListener('tap',function(){
+							var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+							var currStatus = userInfo == null ? false : true;
+							if(currStatus){
+								app.openwin('myAccount/mainAcc.html');
+							}else{
+								mui.fire(loginView,"noLoginCheck",{opt:'noLogin_user'});//从app内除了人为退出为login页面绑定的opt
+								app.doLogin();
+							}
+						});
+						//我的答疑
+						app.getId('myAnsLi').addEventListener('tap',function(){
+							var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+							var currStatus = userInfo == null ? false : true;
+							if(currStatus){
+								app.openwin('myAnswer_nt/myAnswerList.html');
+							}else{
+								mui.fire(loginView,"noLoginCheck",{opt:'noLogin_user'});//从app内除了人为退出为login页面绑定的opt
+								app.doLogin();
+							}
+						});
+						//跟踪指导 
+						app.getId('trackGuide').addEventListener('tap',function(){
+							var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+							var currStatus = userInfo == null ? false : true;
+							if(currStatus){
+								var checkSta = _this.checkIsVerifyPass();
+								if(checkSta == 2){//审核通过
+									app.openwin('trackingGuide/trackingGuide.html',{userId:userInfo.userId,jumpPos:'byHome'});
+								}else{
+									app.getId('layer').style.display = 'block';
+									app.getId('ntVerify').style.display = 'block';
+									mui.fire(opener,'showIndexLayer',{opt:'open'});
+								}
+							}else{
+								mui.fire(loginView,"noLoginCheck",{opt:'noLogin_user'});//从app内除了人为退出为login页面绑定的opt
+								app.doLogin();
+							}
+						});
+						//自助餐
+						app.getId('buffetSend').addEventListener('tap',function(){
+							var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+							var currStatus = userInfo == null ? false : true;
+							if(currStatus){
+								var checkSta = _this.checkIsVerifyPass();
+								if(checkSta == 2){//审核通过
+									app.openwin('buffetSend/buffetStudyLog.html',{userId:userInfo.userId});
+								}else{
+									app.getId('layer').style.display = 'block';
+									app.getId('ntVerify').style.display = 'block';
+									mui.fire(opener,'showIndexLayer',{opt:'open'});
+								}
+							}else{ 
+								mui.fire(loginView,"noLoginCheck",{opt:'noLogin_user'});//从app内除了人为退出为login页面绑定的opt
+								app.doLogin();
+							}
+						});
+					},
+					//获取我的答疑未解答
+					getAnsList : function(){
+						var _this = this;
+						var field = {userId:userInfo.userId,stuId:0,readStatus:0,limit:5,page:1};
+						//console.log(JSON.stringify( field ))
+						mui.ajax(http_ + '/questionInfo.do?action=getQueByntList',{
+							data:field,
+							dataType:'json',
+							type:'post',
+							timeout:10000,  
+							success:function(json){ 
+								//console.log(JSON.stringify( json ))
+								app.showToast(2);
+								if(json.msg == 'success'){ 
+									_this.renderAnsList(json.data);
+									app.getId('noAnsNum').innerHTML = '('+ json.unAns + '条未解答)';
+								}else if(json.msg == '暂无记录'){ 
+									app.getId('noAnsNum').innerHTML = '';
+									app.getId('myAnsListUl').innerHTML = '<div class="noDyRecData"><i class="iconfont icon-dayi"></i><p>暂无答疑记录</p></div>';
+								}
+							}, 
+							error:function(xhr,type,errorThrown){
+								app.showToast(2);
+								plus.nativeUI.toast('服务器错误');
+							} 
+						});
+					},
+					renderAnsList : function(list){
+						var str = '';
+						var loginView = plus.webview.getWebviewById('login');
+						for(var i=0;i<list.length;i++){
+							str += '<li class="ansQueLi" qId="'+ list[i].qId +'" readSta="'+ list[i].readSta +'" stuName="'+ list[i].stuName +'">';
+							str += '<div class="headPic"><img src="'+ http_ +'/'+ list[i].stuPortrait +'"/></div>';
+							str += '<div class="ansCon">';
+							str += '<p class="ansConTxt">'+ list[i].queTitle +'</p>';
+							str += '<p class="ansState">';
+							str += '<span class="stuName">'+ list[i].stuName +'</span>';
+							str += '<span>'+ list[i].queTime +'</span>';
+							str += '</p>';
+							str += '</div>';
+							str += '</li>';
+						} 
+						app.getId('myAnsListUl').innerHTML = str;
+						mui('#myAnsListUl').on('tap','.ansQueLi',function(){
+							var qId = this.getAttribute('qId'),
+								readSta = this.getAttribute('readSta'),
+								stuName = this.getAttribute('stuName');
+							var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+							var currStatus = userInfo == null ? false : app.checkLoginStatus(userInfo.userId,userInfo.loginStatus);
+							if(currStatus){
+								app.openwin('myAnswer_nt/ansDet.html',{qId:qId,readSta:readSta,isUpFlag_lis:false,stuName:stuName});
+							}else{
+								mui.fire(loginView,"noLoginCheck",{opt:'noLogin_user'});//从app内除了人为退出为login页面绑定的opt
+								app.doLogin();
+							}
+						});
+					}
+				};
+				page.init();
+				//我的解答完毕更新当前答疑列表
+				document.addEventListener('upDateAnsList',function(e){
+					var isUpFlag_lis = e.detail.isUpFlag_lis;
+					if(isUpFlag_lis){
+						page.getAnsList();
+					}
+				});
+				//检测消息/邮件未读条数
+				document.addEventListener('upDateUnReadMsgFun',function(){
+					app.checkEmailUnRead();
+				});
+			});
+		</script>
+		
+	</body>
+</html>

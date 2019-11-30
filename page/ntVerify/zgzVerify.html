@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/ntVerify.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/mui.min.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/mui.imageviewer.css"/>
+		<title>教师资格证上传</title>
+	</head>
+	<body class="paddingTop">
+		<div class="comHeader otherBg">
+			<a class="posL" id="backBtn" href="javascript:void(0);"><i class="iconfont icon-fanhui"></i></a>
+			<span class="headerTit">教师资格证上传</span>
+		</div>
+		<div class="upWrap">
+			<div class="upTit">
+				<span></span>
+				<p>上传教师资格证</p>
+			</div>
+			<div class="upCon">
+				<input type="hidden" id="zgzSrcInp" />
+				<div class="upImgWrap">
+					<p class="noteTxt">注：请提交在有效期内的教师证照片，需保证头像及文字清晰可见</p>
+					<div id="imgBox_zgz" class="imgBox imgBox_zgz">
+						<img id="zgzImg" src="" data-preview-group="1" data-preview-src=""/>
+						<em id="delZgzImg" class="delBtn"><i class="iconfont icon-wrong"></i></em>
+						<span id="upBtn_zgzImg" class="upBtn"><i class="iconfont icon-camera1"></i></span>
+					</div>
+				</div>
+				<span id="saveZgzBtn" class="saveBtn">保存</span>
+				<span id="passIcon" class="passIcon"><i class="iconfont icon-shenhetongguo"></i></span>
+			</div>
+		</div>
+		<div id="mask" class="mask"></div>
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/ntVerify.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/mui.zoom.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/mui.previewimage.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var wpage,isUpFlag = false,isClickFlag = false,verifyInfo = null;//当verifyInfo不为null 一旦点击删除 true 执行upload 否则 不执行upload
+			var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+			mui.init({
+				beforeback : function(){
+					var opener = plus.webview.currentWebview().opener();
+					mui.fire(opener,'upDateVerifyStaInfo',{isUpFlag:isUpFlag});
+					return true;
+				} 
+			}); 
+			mui.plusReady(function(){
+				mui.previewImage();
+				wpage = plus.webview.currentWebview();
+				verifyInfo = plus.webview.currentWebview().verifyInfo;
+				var isPassFlag = plus.webview.currentWebview().isPassFlag;
+				if(verifyInfo != null){
+					if(isPassFlag){//审核通过
+						app.getId('saveZgzBtn').style.display = 'none';
+						app.getId('passIcon').style.display = 'block';
+					}else{
+						app.getId('delZgzImg').style.display = 'block';
+					}
+					app.getId('zgzImg').style.display = 'block';
+					app.getId('zgzImg').setAttribute('src',http_ + '/' + verifyInfo.zgzImg);
+					app.getId('zgzSrcInp').value = verifyInfo.zgzImg;
+					app.getId('zgzImg').setAttribute('data-preview-src',http_ + '/' + verifyInfo.zgzImg.replace('_small',''));
+				}else{//未上传
+					isClickFlag = true;
+				}
+				var page = {
+					init : function(){
+						this.bindEvent();
+					},
+					bindEvent : function(){
+						var _this = this;
+						//上传教师资格证
+						app.getId('upBtn_zgzImg').addEventListener('tap',function(){
+							choicePic('zgzImg');
+						});
+						app.getId('backBtn').addEventListener('tap',function(){
+							mui.back();
+						});
+						//删除教师资格证
+						app.getId('delZgzImg').addEventListener('tap',function(){
+							delChoicePic(this,'delZgzImg');
+							app.getId('zgzImg').setAttribute('data-preview-src','');
+							isClickFlag = true;
+						});
+						app.getId('saveZgzBtn').addEventListener('tap',function(){
+							var zgzImg = app.getId('zgzImg').getAttribute('src'),
+								imgBox_zgz = document.querySelectorAll(".imgBox_zgz");
+							var url = http_ +'/upload.do?action=upCert&userId=' + userInfo.userId,field = null;
+							if(zgzImg == ''){
+								mui.toast('请上传教师资格证');
+							}else{
+								plus.nativeUI.showWaiting("提交中...",{size:"12px",background:"rgba(0,0,0,0.6)",back:"none"});
+								if(isClickFlag){//未上传/已经上传 未审核通过进行修改点击了删除执行上传方法
+									var filesImg = {}; //保存图片的数组
+									for(var i=0;i<imgBox_zgz.length;i++){
+										filesImg["img0"+(i+1)] = imgBox_zgz[i].getAttribute("data-img");
+									}
+									app.getId('mask').style.display = 'block';
+									var uploader = plus.uploader.createUpload(url,{
+										method:'POST'
+									}, function(upload,status){
+										wpage.setStyle({mask:"none"});
+										if(status==200){//发布成功
+											var imgSrc = JSON.parse(upload.responseText).smallUrl;
+											field = {
+												userId: userInfo.userId,
+												roleId: userInfo.roleId,
+												loginStatus: userInfo.loginStatus,
+												zgzImgSmall : imgSrc
+											};
+											_this.saveZgzInfo(field);
+										}else{
+											plus.nativeUI.closeWaiting();
+											app.getId('mask').style.display = 'none';
+											mui.toast('上传失败，请重试');
+										}	
+									});
+									//添加上传的图片
+									mui.each(filesImg,function(index,tem){
+										uploader.addFile(tem,{key:index});
+									}); 
+									uploader.start();  //开始上传数据  
+								}else{
+									plus.nativeUI.closeWaiting();
+									mui.toast('上传成功，等待管理员审核中...');
+									setTimeout(function() {
+										app.getId('mask').style.display = 'none';
+										mui.back();
+									}, 500);
+								}
+							}
+						});
+					},
+					saveZgzInfo : function(field){
+						mui.ajax(http_ + '/netTeacher.do?action=saveNtCert', {
+							data: field,
+							dataType: 'json',
+							type: 'post',
+							timeout: 10000,
+							success: function(json) {
+								plus.nativeUI.closeWaiting();
+								if (json.result == 'success') {
+									mui.toast('上传成功，等待管理员审核中...');
+									isUpFlag = true;
+									setTimeout(function() {
+										app.getId('mask').style.display = 'none';
+										mui.back();
+									}, 500);
+									//发布成功后,删除该目前下的所有图片,
+									plus.io.resolveLocalFileSystemURL("_doc/fileimgs/", function(entry) {
+										entry.removeRecursively(function(entry) {
+											console.log("删除目录成功");
+										}, function(e) {
+											console.log("删除目录失败");
+										});
+									}, function(e) {
+										console.log('目录对象不存在');
+									});
+								}else if (json.result == 'error') {
+									app.getId('mask').style.display = 'none';
+									mui.toast('服务器异常');
+								}else if (json.result == 'fail') {
+									app.getId('mask').style.display = 'none';
+									mui.toast('保存失败，请重试');
+								}else{
+									app.getId('mask').style.display = 'none';
+									app.checkLoginStaInfo(json.result);
+								}
+							},
+							error: function(xhr, type, errorThrown) {
+								plus.nativeUI.closeWaiting();
+								app.getId('mask').style.display = 'none';
+								mui.toast('服务器异常');
+							}
+						});
+					}
+					
+				};
+				page.init();
+			});
+		</script>
+	</body>
+</html>

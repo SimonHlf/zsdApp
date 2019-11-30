@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/mine.css"/>
+		<title>添加修改手机号码</title>
+	</head>
+	<body>
+		<div class="comHeader otherBg">
+			<a id="backBtn" class="posL"><i class="iconfont icon-fanhui"></i></a>
+			<span class="headerTit">修改手机号码</span>
+		</div>
+		<div class="fixPass">
+			<div class="comForm">
+				<span><i class="iconfont icon-shoujihao"></i></span>
+				<input id="phoneInp" type="number" placeholder="请输入手机号码" />
+			</div>
+			<p id="saveBtn" class="sureBtn" href="javascript:void(0)">保存</p>
+		</div>
+		
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			mui.plusReady(function () {
+			   var page = {
+					init : function(){
+						app.backFun();
+						this.initPhoneNum();
+						this.bindEvent();
+					},
+					initPhoneNum : function(){
+						var _self = plus.webview.currentWebview();
+						if(_self.currArgu != '' || _self.currArgu != undefined){
+							app.getId('phoneInp').value = _self.currArgu;
+						}
+					},
+					bindEvent : function(){
+						app.getId('saveBtn').addEventListener('tap',function(){
+							var phoneInp = app.trim(app.getId('phoneInp').value),
+								regPhone = /^1\d{10}$/,
+								userId = plus.webview.currentWebview().userId;
+							if(phoneInp == ''){
+								mui.toast('请输入手机号码');
+							}else if(!regPhone.test(phoneInp)){
+								mui.toast('手机号码格式不正确');
+							}else{
+								mui.ajax(http_ + '/user.do?action=updateUserByMobile',{
+									data:{userId:userId,mobile:phoneInp},
+									dataType:'json',
+									type:'post',
+									timeout:10000,
+									beforeSend : function(){
+										app.showToast(1,'保存中...');
+									}, 
+									success:function(json){
+										app.showToast(2);
+										if(json.msg == 'success'){
+											mui.toast('设置手机号码成功'); 
+											var settingPhone = plus.webview.currentWebview(),
+												opener = settingPhone.opener();
+											mui.fire(opener,'updatePhone',{phone:phoneInp});
+											settingPhone.close('pop-out');
+										}else if(json.msg == 'fail'){
+											plus.nativeUI.closeWaiting();
+											mui.toast('设置手机号码失败');
+										}
+									},
+									error:function(xhr,type,errorThrown){
+										app.showToast(2);
+										mui.toast('服务器连接失败');
+									}
+								});
+							}
+						});
+					}
+			   }; 
+			   page.init();
+			});
+		</script>
+	</body>
+</html>

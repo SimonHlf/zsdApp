@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/myLearningRecord.css"/>
+		<title>学习记录详情</title>
+	</head>
+	<body>
+		<div class="comHeader otherBg">
+			<a id="backBtn" class="posL"><i class="iconfont icon-fanhui"></i></a>
+			<span class="headerTit"></span>
+		</div>
+		<!-- 学习明细 -->
+		<div class="recordDet">
+			<strong id="recordTit" class="recordTit">学习明细</strong>
+			<div class="listRecordDet">
+				<p id="zdxzd" class="clearfix"></p>
+				<p id="glxzd" class="clearfix"></p>
+				<p id="glzsdZd" class="clearfix"></p>
+				<p id="bzsdXx" class="clearfix"></p>
+				<p id="zczd" class="clearfix"></p>
+				<p id="wcqk" class="clearfix"></p>
+				<p id="cj" class="clearfix"></p>
+			</div>
+		</div>
+		<!-- 按钮 -->
+		<div id="btnGroup" class="btnGroup"></div>
+		<!-- 系统评价 -->
+		<div class="sysAssessment">
+			<strong class="recordTit">系统评价</strong>
+			<div class="sysTxt"></div>
+		</div>
+		<!-- 导师建议 -->
+		<div class="ntAdvice">
+			<strong class="recordTit ntRecordTit">导师评价</strong>
+			<div class="ntAdviceTxt"></div>
+		</div> 
+		
+		
+		
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var jumpPos = '',studyLogId = 0,loreId = 0,loreName = '';
+			var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+			mui.init({
+				beforeback : function(){
+					var studyRecView = plus.webview.currentWebview().opener();
+					mui.fire(studyRecView,'upStudyRecData',{});//更新mapData
+					return true;
+				}
+			});
+			mui.plusReady(function(){
+				studyLogId = plus.webview.currentWebview().studyLogId;
+				jumpPos = plus.webview.currentWebview().jumpPos;
+				if(jumpPos == 'byTrackGuide'){
+					var stuName = plus.webview.currentWebview().stuName,
+						guideStaNum = plus.webview.currentWebview().guideStaNum;
+					$('#recordTit').html(stuName + '同学的学习明细');
+				}
+				var page = {
+					init : function(){
+						app.backFun();
+						this.loadStudyRes();
+						this.bindEvent();
+					},
+					bindEvent : function(){
+						if(userInfo.roleId == stu_role_id){
+							mui('#btnGroup').on('tap','.goStudyBtn',function(){
+								app.openwin('../studyOnline/studyMap.html',{loreId:loreId,userId:userInfo.userId,loreName:loreName,studyLogId:studyLogId,byComPos:'byLearnDet'});
+							});
+						}
+					},
+					//加载学习详情结果
+					loadStudyRes : function(){
+						var _this = this;
+						$.ajax({
+							url : http_ + '/studyRecord.do?action=StuLogByResult',
+							data:{stuLogId:studyLogId},  
+							dataType:'json',
+							type:'post',
+							timeout:10000,
+							beforeSend : function(){ 
+								app.showToast(1);
+							},
+							success:function(json){
+								app.showToast(2);
+								//console.log( JSON.stringify( json ) )
+								$('.headerTit').html(json.loreName + '的学习明细');
+								loreId = json.loreId;
+								loreName = json.loreName;
+								_this.renderStudyResList(json);
+							},
+							error:function(xhr,type,errorThrown){
+								app.showToast(2);
+								plus.nativeUI.toast('服务器异常');
+							}
+						}); 
+					},
+					renderStudyResList : function(list){
+						//console.log(JSON.stringify( list ))
+						var strNoPassSpan = '<span class="currSta noPassSta"></span>',
+							strPassSpan = '<span class="currSta passSta"></span>',
+							studyBtn = '<span class="btnSpan goStudyBtn fl">继续学习</span>';
+						if(jumpPos == 'stuLearnRec'){
+							var viewAnsBtn = '<span class="btnSpan viewAnsBtn fr" onclick="goViewAnsPage(this)" loreName="'+ list.loreName +'" loreId="'+ list.loreId +'" studyLogId="'+ list.stuLogId +'">查看答卷</span>'
+						}else{
+							var viewAnsBtn = '<span class="btnSpan viewAnsBtn trackGuideBtn" onclick="goViewAnsPage(this)" loreName="'+ list.loreName +'" loreId="'+ list.loreId +'" studyLogId="'+ list.stuLogId +'">查看答卷</span>'
+						}
+						//针对性诊断
+						if(list.step1 == '未通过'){
+							$('#zdxzd').html(strNoPassSpan + '<span>针对性诊断：'+ list.step1 +'</span>');
+						}else {
+							$('#zdxzd').html(strPassSpan + '<span>针对性诊断：'+ list.step1 +'</span>');
+						}
+						//关联性诊断
+						if(list.step2 == '诊断未完成' || list.step2 == '未诊断'){
+							$('#glxzd').html(strNoPassSpan + '<span>关联性诊断：'+ list.step2 +'</span>');
+						}else{
+							$('#glxzd').html(strPassSpan + '<span>关联性诊断：'+ list.step2 +'</span>');
+						}
+						//关联知识点诊断
+						if(list.step3 == '未学习' || list.step3 == '学习未完成'){
+							$('#glzsdZd').html(strNoPassSpan + '<span>关联知识点诊断：'+ list.step3 +'</span>');
+						}else{
+							$('#glzsdZd').html(strPassSpan + '<span>关联知识点诊断：'+ list.step3 +'</span>');
+						}
+						//本知识点学习
+						if(list.step4 == '未学习' || list.step4 == '学习未完成'){
+							$('#bzsdXx').html(strNoPassSpan + '<span>本知识点学习：'+ list.step4 +'</span>');
+						}else{
+							$('#bzsdXx').html(strPassSpan + '<span>本知识点学习：'+ list.step4 +'</span>');
+						}
+						//再次诊断
+						if(list.step5 == '未诊断' || list.step5 == '诊断未通过'){
+							$('#zczd').html(strNoPassSpan + '<span>再次诊断：'+ list.step5 +'</span>');
+						}else{
+							$('#zczd').html(strPassSpan + '<span>再次诊断：'+ list.step5 +'</span>');
+						}
+						//完成情况
+						if(list.stepCom == '未完成'){
+							$('#wcqk').html(strNoPassSpan + '<span>完成情况：'+ list.stepCom +'</span>');
+						}else{
+							$('#wcqk').html(strPassSpan + '<span>完成情况：'+ list.stepCom +'</span>');
+						}
+						//成绩 
+						if(list.finalScore == '暂无'){
+							$('#cj').html(strNoPassSpan + '<span>成绩：'+ list.finalScore +'</span>');
+						}else{
+							$('#cj').html(strPassSpan + '<span>成绩：'+ list.finalScore +'</span>');
+						}
+						$('.sysTxt').html(list.sysAssess);
+						if(jumpPos == 'stuLearnRec'){
+							$('.ntAdviceTxt').html(list.teaAssess);
+							if(userInfo.roleId == stu_role_id){
+								$('.btnGroup').html(studyBtn + viewAnsBtn);
+							}else{
+								$('.btnGroup').html(viewAnsBtn);
+								$('.viewAnsBtn').addClass('trackGuideBtn').css('float','none');
+							}
+							$('.ntRecordTit').html('导师评价');
+						}else{
+							$('.ntRecordTit').html('我的指导建议');
+							if(list.teaAssess == '暂无导师评价'){//未指导
+								$('.ntAdviceTxt').html('<textarea id="teaAssess" placeholder="请输入您的指导建议(120字内)" maxlength="120"></textarea><span id="addTeaAssBtn">添加指导建议</span>');
+							}else{
+								$('.ntAdviceTxt').html(list.teaAssess);
+							}
+							$('.btnGroup').html(viewAnsBtn);
+						}
+						if(jumpPos == 'byTrackGuide' && list.teaAssess == '暂无导师评价'){
+							app.getId('addTeaAssBtn').addEventListener('tap',function(){
+								var teaAssCon = $.trim($('#teaAssess').val());
+								if(teaAssCon == ''){
+									mui.toast('指导建议不能为空');
+								}else if(app.isEmojiCharacter(teaAssCon)){
+									mui.toast("'指导建议不能带有特殊表情");
+								}else{
+									app.showToast(1);
+								    $.ajax({
+										url : http_ + '/studyRecord.do?action=addTeaAssess',
+										data:{teaAssess:escape(teaAssCon),stuLogId:studyLogId}, 
+										dataType:'json',
+										type:'post',
+										timeout:10000,
+										beforeSend : function(){ 
+											app.showToast(1);
+										},
+										success:function(json){
+											app.showToast(2);
+											if(json.result){
+												mui.toast('添加指导建议成功');
+												setTimeout(function(){
+													mui.back();
+												},200);
+											}else{
+												mui.toast('添加失败，请重试');
+											}
+											console.log( JSON.stringify( json ) ) 
+										},
+										error:function(xhr,type,errorThrown){
+											app.showToast(2);
+											plus.nativeUI.toast('服务器异常');
+										}
+								    }); 
+								}
+							});
+						}
+					}
+				};
+				page.init();
+				document.addEventListener('upDateLearnRec',function(){
+					page.loadStudyRes();
+				});
+			});
+			function goViewAnsPage(obj){
+				var loreId = $(obj).attr('loreId'),
+					studyLogId = $(obj).attr('studyLogId'),
+					loreName = $(obj).attr('loreName');
+				var studyAnsDet = plus.webview.getWebviewById('viewAnswer.html');
+				if(!studyAnsDet){
+					studyAnsDet = plus.webview.create('viewAnswer.html','viewAnswer.html',{},{loreName:loreName,loreId:loreId,studyLogId:studyLogId});
+					studyAnsDet.show('pop-in');
+				} 
+			}
+		</script>
+		
+	</body>
+</html>

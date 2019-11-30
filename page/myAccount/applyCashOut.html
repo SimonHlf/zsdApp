@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/myAccount.css"/>
+		<title>申请提现</title>
+	</head>
+	<body class="paddingTop">
+		<div class="comHeader otherBg">
+			<a id="backBtn" class="posL" href="javascript:mui.back();"><i class="iconfont icon-fanhui"></i></a>
+			<span class="headerTit">申请提现</span>
+		</div>
+		<div class="applyCash">
+			<p class="smTxt">提现金额</p>
+			<div class="cashNum">
+				<span>¥</span>
+				<input id="cashNumInp" type="number" />
+			</div>
+			<div class="cashBot">
+				<p>可提金额 <em id="canUseNum"></em>元</p>
+				<span id="getTotalBtn">全部提现</span>
+			</div>
+		</div>
+		<p class="noteTxt hasMargTop">注：</p>
+		<p class="noteTxt">单次提现金额最低100元,最高10000元,提现金额不能大于可提现金额</p>
+		<span id="appCashBtn" class="appCashBtn">申请提现</span>
+		
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var userInfo = JSON.parse( localStorage.getItem('userInfo') ),isUpFlag = false;
+			mui.init({
+				beforeback : function(){
+					var opener = plus.webview.currentWebview().opener();
+					mui.fire(opener,'upDateAccInfo',{isUpFlag:isUpFlag});
+					return true;
+				} 
+			});
+			mui.plusReady(function(){
+				var accMoney = plus.webview.currentWebview().accMoney;
+				isUpFlag = plus.webview.currentWebview().isUpFlag;
+				var page = {
+					init : function(){
+						this.bindEvent();
+						app.getId('canUseNum').innerHTML = accMoney;
+					},
+					bindEvent : function(){
+						//全部提现
+						app.getId('getTotalBtn').addEventListener('tap',function(){
+							var canUseNum = app.getId('canUseNum').innerText;
+							app.getId('cashNumInp').value = canUseNum;
+						});
+						app.getId('appCashBtn').addEventListener('tap',function(){
+							var reg = /^[1-9]+[0-9]*]*$/;
+							var cashNumInp = app.getId('cashNumInp').value;
+							if(cashNumInp == ''){
+								mui.toast('请输入可提现金额');
+							}else if(!reg.test( cashNumInp )){
+								mui.toast('可提现金额应为大于100的正整数');
+							}else if(cashNumInp < 100){
+								mui.toast('可提现最少金额为100元');
+							}else{
+								app.showToast(1);
+								mui.ajax(http_ + '/netTeacher.do?action=addTX',{
+									data:{userId:userInfo.userId,roleId:userInfo.roleId,txFee:cashNumInp},
+									dataType:'json',
+									type:'post',
+									timeout:10000,  
+									success:function(json){ 
+										app.showToast(2);
+										if(json.msg == 'success'){
+											plus.nativeUI.toast('申请提现成功，等待管理员审核中...');
+											setTimeout(function(){
+												isUpFlag = true;
+												mui.back();
+											},500);
+										}else if(json.msg == 'bankNull'){
+											plus.nativeUI.toast('请先添加银行卡');
+										}else if(json.msg == 'feeError'){
+											plus.nativeUI.toast('申请提现数额不正确');
+										}else if(json.msg == 'error'){
+											plus.nativeUI.toast('服务器错误');
+										}
+									},
+									error:function(xhr,type,errorThrown){
+										app.showToast(2);
+										plus.nativeUI.toast('服务器错误');
+									} 
+								});
+							}
+						});
+					}
+				};
+				page.init();
+			});
+		</script>
+	</body>
+</html>

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../css/home_tea.css"/>
+		<title>家庭作业</title>
+	</head>
+	<body class="paddingTop">
+		<div class="comHeader otherBg">
+			<span class="headerTit">首页</span>
+			<a id="msgBtn" class="msgBtn" href="javascript:void(0)">
+				<em id="unReadMsg" class="newsMsg"></em>
+				<i class="iconfont icon-tongzhi"></i>
+			</a>
+		</div> 
+		<div class="mui-slider">
+			<div class="mui-slider-group">
+				<div class="mui-slider-item"><img src="../images/teaBanner.jpg" /></div>
+			</div>
+		</div>
+		<!-- 导航 -->
+		<div class="nav clearfix">
+			<a id="pubHwBtn" href="javascript:void(0)">
+				<i class="iconfont icon-zuoye"></i>
+				<span>布置作业</span>
+			</a>
+			<a id="hwHisBtn" href="javascript:void(0)">
+				<i class="iconfont icon-xiugaijilu"></i>
+				<span>作业记录</span>
+			</a>
+		</div>
+		<!-- 班级作业 -->
+		<div class="homeWorkList">
+			<div class="homeWorkTit">
+				<strong>当日作业布置记录</strong>
+			</div>
+			<!-- 当天发布家庭作业列表 -->
+			<div id="listHomeWork" class="listHomeWork"></div>
+		</div>
+		
+		<script src="../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var userInfo = JSON.parse(localStorage.getItem('userInfo'));
+			var userId = 0,loginStatus=0;
+			mui.plusReady(function(){
+				var page = {
+					init : function(){
+						this.bindEvent();
+						this.loadHwSendHis();
+						this.checkUnReadMsg();//检测是否存在班级转染新纪录
+						//每次登录进来检测作业报告页面是否存在,如果存在先删除再通过底部导航点击创建
+						var hwRepView = plus.webview.getWebviewById('page/hwReport/hwReport.html');
+						if(hwRepView){
+							hwRepView.close('none');
+						}
+					},
+					bindEvent : function(){
+						var loginView = plus.webview.getWebviewById('login'),_this = this;
+						//布置作业  
+						app.getId('pubHwBtn').addEventListener('tap',function(){
+							var userInfo = JSON.parse(localStorage.getItem('userInfo'));
+							var currStatus = userInfo == null ? false : true;
+							if(currStatus){
+								app.openwin('pubHw/selHwType.html');
+							}else{
+								mui.fire(loginView,"noLoginCheck",{opt:'noLogin_user'});//从app内除了人为退出为login页面绑定的opt
+								app.doLogin();
+							}
+						});
+						//作业记录
+						app.getId('hwHisBtn').addEventListener('tap',function(){
+							var userInfo = JSON.parse(localStorage.getItem('userInfo'));
+							var currStatus = userInfo == null ? false : true;
+							if(currStatus){
+								app.openwin('hwRecord/hwRecordList.html',{isSendFlag:false,jumpPagePos:'byHome'});
+							}else{
+								mui.fire(loginView,"noLoginCheck",{opt:'noLogin_user'});//从app内除了人为退出为login页面绑定的opt
+								app.doLogin();
+							}
+						});
+						//跳转值接管班级记录
+						app.getId('msgBtn').addEventListener('tap',function(){
+							var userInfo = JSON.parse(localStorage.getItem('userInfo'));
+							var currStatus = userInfo == null ? false : true;
+							if(currStatus){
+								app.openwin('transferTakeClasses/transferTakeList.html',{jumpPagePos:'byHome',isDealFlag:false});
+							}else{
+								mui.fire(loginView,"noLoginCheck",{opt:'noLogin_user'});//从app内除了人为退出为login页面绑定的opt
+								app.doLogin();
+							}
+						});
+						
+						mui('#listHomeWork').on('tap','.noCheckLi',function(){
+							var userInfo = JSON.parse(localStorage.getItem('userInfo'));
+							var currStatus = userInfo == null ? false : true;
+							if(currStatus){
+								var hwSendId = this.getAttribute('hwSendId');
+								app.openwin('hwRecord/hwDetail.html',{hwSendId:hwSendId,userId:userInfo.userId,checkOpt:'noCheck',jumpPos:'home'});
+							}else{
+								mui.fire(loginView,"noLoginCheck",{opt:'noLogin_user'});//从app内除了人为退出为login页面绑定的opt
+								app.doLogin();
+							}
+						});
+						//已检查
+						mui('#listHomeWork').on('tap','.hasCheckLi',function(){
+							var userInfo = JSON.parse(localStorage.getItem('userInfo'));
+							var currStatus = userInfo == null ? false : true;
+							if(currStatus){
+								var hwSendId = this.getAttribute('hwSendId');
+								app.openwin('hwRecord/hwDetail.html',{hwSendId:hwSendId,userId:userInfo.userId,checkOpt:'hasCheck',jumpPos:'home'});
+							}else{
+								mui.fire(loginView,"noLoginCheck",{opt:'noLogin_user'});//从app内除了人为退出为login页面绑定的opt
+								app.doLogin();
+							}
+						});
+					},
+					checkUnReadMsg : function(){
+						mui.ajax(http_ + '/applyClass.do?action=getMyUnCheckApplyInfo',{
+							data:{userId:userInfo.userId},
+							dataType:'json',
+							type:'post',
+							timeout:10000,
+							success:function(json){ 
+								app.showToast(2); 
+								if(json.result == 'success'){
+									app.getId('unReadMsg').style.display = 'block';
+								}else if(json.result == 'noInfo'){
+									app.getId('unReadMsg').style.display = 'none';
+								}
+							},
+							error:function(xhr,type,errorThrown){
+								app.showToast(2);
+								plus.nativeUI.toast('服务器错误');
+							} 
+						});
+					},
+					//获取当日作业发送记录
+					loadHwSendHis : function(){
+						app.showToast(1);
+						var _this = this;
+						mui.ajax(http_ + '/hw.do?action=getSendHwData',{
+							data:{userId:userInfo.userId,classId:0,checkStatus:-1,opt:0,sDate:'',eDate:''},
+							dataType:'json',
+							type:'post',
+							timeout:10000,
+							success:function(json){ 
+								app.showToast(2); 
+								//console.log(JSON.stringify( json ))
+								if(json.result == 'success'){
+									_this.renderHwHisList(json.sendHwList);
+								}else if(json.result == 'noInfo'){
+									app.getId('listHomeWork').innerHTML = '<div class="noData" style="margin-top:2rem;"><img src="../images/noData.png" /><p>暂无作业发送记录</p></div>';
+								}
+							},
+							error:function(xhr,type,errorThrown){
+								app.showToast(2);
+								plus.nativeUI.toast('服务器错误');
+							} 
+						});
+					},
+					renderHwHisList : function(list){
+						var str = '<ul>';
+						for(var i=0;i<list.length;i++){
+							if(list[i].checkStatus == 0){//未检查
+								str += '<li class="noCheckLi" hwSendId="'+  list[i].hwSendId+'">';
+									str += '<span class="lineSpan waitCheck"></span>';
+							}else{
+								str += '<li class="hasCheckLi" hwSendId="'+  list[i].hwSendId+'">';
+									str += '<span class="lineSpan hasCheck"></span>';
+							}
+								str += '<div class="listTit">';
+									str += '<strong>'+ list[i].classInfo +'</strong>';
+									str += '<span class="timeHomeWork">'+ list[i].hwTitle +'</span>';
+									str += '<p><span>截至：</span><span>'+ list[i] .endDate+'</span></p>';
+								str += '</div>';
+								str += '<div class="currTit">';
+									if(list[i].hwType == 1){
+										str += '<span>家庭作业：</span>';
+									}else if(list[i].hwType == 2){
+										str += '<span>课后复习：</span>';
+									}else if(list[i].hwType == 3){ 
+										str += '<span>课前预习：</span>';
+									}
+									str += '<p class="ellip">'+ list[i].loreInfo +'</p>';
+								str += '</div>';
+								str += '<div class="completeStatus">';
+									str += '<p><span>按时完成</span><strong>'+ list[i].zsComNum +'人</strong></p>';
+									str += '<p><span>补做完成</span><strong>'+ list[i].bzComNum +'人</strong></p>';
+									str += '<p><span>未完成</span><strong>'+ list[i].unComNum +'人</strong></p>';
+								str += '</div>';
+								str += '<div class="checkSta">';
+								if(list[i].checkStatus == 0){//未检查
+									str += '<p><span>检查状态：</span><strong class="noCheckTxt">未检查</strong></p>';
+								}else if(list[i].checkStatus == 1){
+									str += '<p><span>检查状态：</span><strong class="hasCheckTxt">已检查</strong></p>';
+								}
+								str += '</div>';
+							str += '</li>';
+						} 
+						str += '</ul>';  
+						app.getId('listHomeWork').innerHTML = str;
+					} 
+				};
+				page.init();
+				//发送成功跳至作业记录页面 从作业记录返回到首页时,刷新首页作业发送记录
+				document.addEventListener('upDateSendData',function(e){
+					var isSendFlag = e.detail.isSendFlag;
+					if(isSendFlag){
+						page.loadHwSendHis();
+					}
+				});
+				//更新首页消息提醒是否已处理
+				document.addEventListener('upDateTakeClassTips',function(e){
+					var isDealFlag = e.detail.isDealFlag;
+					if(isDealFlag){
+						page.checkUnReadMsg();
+					}
+				}); 
+			});
+		</script>
+		
+	</body>
+</html>

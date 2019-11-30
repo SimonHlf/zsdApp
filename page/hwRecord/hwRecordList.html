@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/mui.min.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/hwRecordList.css"/>
+		<title>作业记录</title>
+	</head> 
+	<body class="paddingTop">
+		<div class="comHeader otherBg">
+			<a id="backBtn" class="posL" href="javascript:mui.back();"><i class="iconfont icon-fanhui"></i></a>
+			<span class="headerTit">作业记录</span>
+			<span id="filterBtn" class="filterBtn"><i class="iconfont icon-shaixuan"></i></span> 
+		</div> 
+		<div id="hwRecContainer" class="listHomeWork">
+			<div class="mui-scroll">
+				<ul id="listHomeWork"></ul>
+			</div>
+			<div id="noData" class="noData" style="display: none;"><img src="../../images/noData.png" /><p>暂无作业记录！</p></div>
+		</div>
+		<div id="layer" class="layer"></div>
+		<div class="botColrSta">
+			<p>
+				<span></span>
+				<span>待检查</span>
+			</p>
+			<p>
+				<span></span>
+				<span>已检查</span>
+			</p>
+		</div>
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var userInfo = JSON.parse(localStorage.getItem('userInfo'));
+			var isSendFlag = false,isPullLoadFlag = false,noDataPage = 0;
+			var classId = 0,hwType = '',sDate = '',eDate = '',checkStatus = -1,pageNum = 1,currOpt = '',jumpPagePos = '',hwSendId=0;
+			mui.init({
+				beforeback : function(){
+					var opener = plus.webview.getWebviewById('page/home_tea.html');
+					mui.fire(opener,'upDateSendData',{isSendFlag:isSendFlag});
+					if(jumpPagePos == 'bySelGrade'){//从选择班级带检查进来 返回更新当前班级待检查状态
+						var selGrade = plus.webview.getWebviewById('selGrade.html');
+						mui.fire(selGrade,'upDateCheckStatus');
+					}
+					return true;
+				},
+				pullRefresh : {
+					container : "#hwRecContainer",
+					up : {
+						height:50,
+						auto:false,
+						contentrefresh : "正在加载...",
+						contentnomore:'没有更多数据了',
+						callback : getHwRecordList_more
+					}
+				}
+			});
+			mui.plusReady(function(){
+				isSendFlag = plus.webview.currentWebview().isSendFlag;
+				jumpPagePos = plus.webview.currentWebview().jumpPagePos;//两个位置进来:01->首页作业记录(byHome) 02->选择班级待检查('bySelGrade')
+				
+				var page = {
+					init : function(){
+						this.bindEvent();
+						this.loadHwRecList_init();
+					},
+					bindEvent : function(){
+						//条件筛选
+						app.getId('filterBtn').addEventListener('tap',function(){
+							app.getId('layer').style.display = 'block';
+							mui.openWindow({  
+								url :'filter.html',
+								id : 'filter.html', 
+								styles : {
+									top:0,//新页面顶部位置
+									right:'0px',
+									bottom:0,//新页面底部位置
+									width:'75%',//新页面宽度，默认为100%,
+								},
+								extras : {
+									sDate : sDate,
+									eDate : eDate,
+									jumpPos : 'hwRec'
+								}
+							});
+						});
+						app.getId('layer').addEventListener('tap',function(){
+							var filterView = plus.webview.getWebviewById('filter.html');
+							filterView.hide('pop-out');
+							setTimeout(function(){
+								app.getId('layer').style.display = 'none';
+							},400);
+						});
+					},
+					loadHwRecList_init : function(){
+						getHwRecordListData(null,'initLoad');
+					}
+				};
+				page.init();
+				
+				//通过作业记录返回更新作业列表
+				document.addEventListener('upDateList',function(e){
+					if(isPullLoadFlag){//上拉加载了并且加载至返回noInfo
+						pageNum = noDataPage;
+					}else{
+						pageNum = e.detail.currPage;
+					}
+					currOpt = e.detail.currOpt;
+					if(currOpt == 'backLoad'){
+						isSendFlag = true;
+						getHwRecordListData(null,'initLoad');
+					}
+				},false);
+				
+				//系统返回时监听关闭layer层
+				document.addEventListener('closeLayer',function(){
+					setTimeout(function(){
+						app.getId('layer').style.display = 'none';
+					},400);
+				});
+				
+				//通过筛选更新作业列表
+				document.addEventListener('upDateHwRecList',function(e){
+					var currField = e.detail.currField;
+					classId = currField.classId;
+					hwType = currField.hwType;
+					checkStatus = currField.checkStatus;
+					sDate = currField.sDate;
+					eDate = currField.eDate;
+					if(currField.tapOpt == 'sureBtn'){
+						setTimeout(function(){
+							app.getId('layer').style.display = 'none';
+							isPullLoadFlag = false;
+							pageNum = 1;
+							getHwRecordListData(null,'query');
+						},400);
+					}
+				})
+			});
+			function getHwRecordListData(currObj,loadType){
+				app.showToast(1);
+				var field = {userId:userInfo.userId,classId:classId,hwType:hwType,checkStatus:checkStatus,opt:1,status:currOpt,sDate:sDate,eDate:eDate,pageNo:pageNum};
+				//console.log(JSON.stringify( field ))
+				mui.ajax(http_ + '/hw.do?action=getSendHwData',{
+					data:field,
+					dataType:'json',
+					type:'post',
+					timeout:10000,
+					success:function(json){ 
+						app.showToast(2);
+						//sDate = json.sDate;
+						//eDate = json.eDate;
+						currOpt = '';
+						//console.log(JSON.stringify(json))
+						if(json.result == 'success'){
+							app.getId('noData').style.display = 'none';
+							renderHwRecordList(json.sendHwList,currObj);
+							if(loadType == 'query'){
+								$('.mui-pull').show();
+								mui('#hwRecContainer').pullRefresh().refresh(true);
+							}
+						}else if(json.result == 'noInfo'){
+							if(currObj != null){
+								isPullLoadFlag = true;
+								noDataPage = pageNum-1;
+								currObj.endPullupToRefresh(true);
+							}else{
+								$('.mui-pull').hide();
+								$('#listHomeWork').html('');
+								app.getId('noData').style.display = 'block';
+							}
+						}
+					}, 
+					error:function(xhr,type,errorThrown){
+						app.showToast(2);
+						plus.nativeUI.toast('服务器错误');
+					} 
+				});
+			}
+			function renderHwRecordList(list,currObj){
+				var str = '';
+				for(var i=0;i<list.length;i++){
+					if(list[i].checkStatus == 0){//未检查
+						str += '<li class="noCheckLi" hwSendId="'+  list[i].hwSendId+'">';
+							str += '<span class="lineSpan waitCheck"></span>';
+					}else{
+						str += '<li class="hasCheckLi" hwSendId="'+  list[i].hwSendId+'">';
+							str += '<span class="lineSpan hasCheck"></span>';
+					}
+						str += '<div class="listTit">';
+							str += '<strong>'+ list[i].classInfo +'</strong>';
+							str += '<span class="timeHomeWork">'+ list[i].hwTitle +'</span>';
+							str += '<p><span>截至：</span><span>'+ list[i] .endDate+'</span></p>';
+						str += '</div>';
+						str += '<div class="currTit">'; 
+							if(list[i].hwType == 1){
+								str += '<span>家庭作业：</span>';
+							}else if(list[i].hwType == 2){
+								str += '<span>课后复习：</span>';
+							}else if(list[i].hwType == 3){
+								str += '<span>课前预习：</span>';
+							}
+							str += '<p class="ellip">'+ list[i].loreInfo +'</p>';
+						str += '</div>';
+						str += '<div class="completeStatus">';
+							str += '<p><span>按时完成</span><strong>'+ list[i].zsComNum +'人</strong></p>';
+							str += '<p><span>补做完成</span><strong>'+ list[i].bzComNum +'人</strong></p>';
+							str += '<p><span>未完成</span><strong>'+ list[i].unComNum +'人</strong></p>';
+						str += '</div>';
+						str += '<div class="checkSta">';
+						if(list[i].checkStatus == 0){//未检查
+							str += '<p><span>检查状态：</span><strong class="noCheckTxt">未检查</strong></p>';
+						}else if(list[i].checkStatus == 1){
+							str += '<p><span>检查状态：</span><strong class="hasCheckTxt">已检查</strong></p>';
+						}
+						str += '</div>';
+					str += '</li>';
+				}
+				if(currObj != null){
+					$('#listHomeWork').append(str);
+					currObj.endPullupToRefresh(false);
+				}else{
+					$('#listHomeWork').html(str);
+				}
+				//未检查跳转
+				mui('#listHomeWork').on('tap','.noCheckLi',function(){
+					var hwSendId = this.getAttribute('hwSendId');
+					app.openwin('hwDetail.html',{hwSendId:hwSendId,userId:userInfo.userId,currPage:pageNum,currOpt:'backLoad',checkOpt:'noCheck',jumpPos:jumpPagePos});
+				});
+				//已检查跳转
+				mui('#listHomeWork').on('tap','.hasCheckLi',function(){
+					var hwSendId = this.getAttribute('hwSendId');
+					isSendFlag = false;//已检查设为false 返回时没必要更新首页当日作业列表接口了
+					app.openwin('hwDetail.html',{hwSendId:hwSendId,userId:userInfo.userId,currPage:pageNum,currOpt:'',checkOpt:'hasCheck',jumpPos:jumpPagePos});
+				});
+			}
+			function getHwRecordList_more(){
+				pageNum++;
+				getHwRecordListData(this,'pullLoad');
+			}
+		</script>
+	</body>
+</html>

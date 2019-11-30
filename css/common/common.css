@@ -1,0 +1,231 @@
+@import url("../../fonts/iconfont.css");
+.paddingTop{
+	padding-top: 1.3rem;
+}
+.comHeader{
+	width: 100%;
+	height: 1.3rem;
+	line-height: 1.3rem;
+	position: fixed;
+	left: 0;
+	top: 0;
+	z-index: 100;
+	background: #fff;
+}
+.comHeader.hasBor{
+	border-bottom: 1px solid #e3e3e3;
+}
+.comHeader.otherBg{
+	background: #4d47f1;
+}
+.comHeader a{
+	width: 15%;
+	height: 100%;
+	display: block;
+	line-height: 1.3rem;
+	position: absolute;
+	top: 0;
+}
+.comHeader a.posL{
+	left: .2667rem;
+}
+.comHeader a.posR{
+	right: 0;
+	text-align: center;
+}
+.comHeader a.posR.posRTxt{
+	font-size: .48rem;
+	color: #333;
+}
+.comHeader a.posL i{
+	font-size: .75rem;
+	display: block;
+	color: #666;
+}
+.comHeader.otherBg a.posL i{
+	color: #fff;
+}
+.comHeader a.posR i{
+	font-size: .8rem;
+	display: block;
+	color: #333;
+}
+.comHeader span.filterBtn{
+	width: 15%;
+	height: 100%;
+	position: absolute;
+	right: 0;
+	top: 0;
+	text-align: right;
+	padding-right: .2667rem;
+}
+.comHeader span.filterBtn i{
+	color: #fff;
+	font-size: .5rem;
+	display: block;
+}
+.newsMsg{
+	width: .26rem;
+	height: .26rem;
+	border-radius: 50%;
+	background: #e10080;
+	position: absolute;
+	right: .4rem;
+	top:.25rem;
+}
+.comHeader span.headerTit{
+	display: block;
+	margin-left: 10%;
+	width: 80%;
+	max-width: 80%;
+	height: 100%;
+	text-align: center;
+	font-size: .5rem;
+	font-weight: 650;
+	color: #333;
+	text-overflow: ellipsis;
+	overflow: hidden;
+	white-space: nowrap;
+}
+.comHeader span.headerTit.noAlign{
+	text-align: left;
+}
+.comHeader.otherBg span.headerTit{
+	color: #fff;
+}
+.gradePicker{
+	width: 26%;
+	height: 100%;
+	position: absolute;
+	left:0;
+	top:0;
+	text-align: center;
+	color: #333;
+	font-size: .45rem;
+}
+.gradePicker i{
+	font-size: .5rem;
+}
+i.icon-yuwen1{
+	font-size: .55rem !important;
+}
+i.icon-huaxue{
+	font-size: .6rem !important;
+}
+i.icon-dili{
+	font-size: .8rem !important;
+}
+i.icon-shengwu{
+	font-size: .6rem !important;
+	font-weight: 600;
+}
+i.icon-lishi{
+	font-size: .58rem !important;
+}
+i.icon-kexue{
+	font-size: .8rem !important;
+}
+/* footer */
+.footer{
+	width: 100%;
+	height: 50px;
+	background: #f7f7f7;
+	position: fixed;
+	left: 0;
+	bottom: 0px; 
+	border-top:1px solid #d3d3d3 !important;
+}
+.footer ul{
+	height: 100%;
+	height: 100%;
+}
+.footer li{
+	height: 100%;
+	float: left;
+	box-sizing: border-box;
+}
+.footer .stFooterUl li{
+	width: 25%; 
+}
+.footer .ntFooterUl li,
+.footer .teaFooterUl li{
+	width: 33.33%; 
+}
+.footer li a{
+	width: 100% !important;
+	height: 100% !important;
+	display: block !important;
+	text-align: center;
+	position: relative;
+	touch-action: none;
+}
+.footer li a i{
+	width: 100%;
+	text-align: center;
+	display: block;
+	position: absolute;
+	height:25px;
+	line-height: 25px;
+	top:3px;
+	color: #000;
+	font-size: 24px;
+}
+.footer li a.mui-active i,
+.footer li a.mui-active span{
+	color: #4d47f1;
+}  
+.footer li a i.icon-wode1{
+	font-size: 22px;
+}
+.footer li a i.icon-xuesheng{
+	font-size: 28px;
+}
+.footer li a span{
+	width: 100%;
+	height: 25px; 
+	line-height: 25px;
+	position: absolute;
+	text-align: center;
+	bottom:-1px;
+	left: 0;
+	color: #333;
+	font-size: 13px;
+}
+.noData{
+	text-align: center;
+	width: 100%;
+	position: absolute;
+	left: 0;
+	top:50%;
+	margin-top: -3rem;
+}
+.noData img{
+	width: 3.4666rem;
+	height: 3.4133rem;
+	display: inline-block;
+}
+.noData p{
+	font-size: .42rem;
+	color: #999;
+	margin-top: .2rem;
+}
+/* 公共下拉方法 */
+.hasPosRea{
+	position: relative;
+}
+.comSelTxtCon{
+	display: block; 
+	padding: 0 .5rem 0 .25rem;
+	position: relative; 
+	z-index: 5;
+} 
+.comSelTxtCon ~ i{
+	color: #999;
+	position: absolute;
+	right: 0rem;
+	top:0;
+	z-index: 1;
+}
+.comSelTxtCon ~ i.hasDis{
+	right: -.35rem;
+}

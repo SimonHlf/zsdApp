@@ -1,0 +1,71 @@
+.filter.noBoxShadow{
+	box-shadow: none;
+}
+.qinfenData{
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 4rem;
+	bottom:4rem;
+	overflow: hidden;
+	overflow-y:auto;
+	-webkit-overflow-scrolling: touch;
+}
+.totalTxt{
+	height: 1.1rem;
+	line-height: 1.1rem;
+	border-left: 3px solid #4d47f1;
+	background: #fff;
+	font-size:.42rem;
+	color: #333;
+	text-indent: .2rem;
+	box-shadow: 0 3px 5px #eee;
+}
+.selClassStuWrap{
+	height: 1.2rem;
+	background: #fff;
+	padding: 0 .2667rem;
+	position: relative;
+	z-index: 10;
+	padding: 0 .2667rem;
+	border-bottom: 1px solid #e6e6e6;
+}
+.selClassStuWrap .gradeSel,
+.selClassStuWrap #stuSel{
+	float: left;
+	height: 100%;
+	line-height: 1.2rem;
+	font-size: .4rem;
+}
+.selClassStuWrap #stuSel{
+	color: #999;
+	float: right;
+}
+.selClassStuWrap #stuSel.hasSel{
+	color: #333;
+}
+.selClassStuWrap .gradeSel i,
+.selClassStuWrap #stuSel i{
+	color: #999;
+}
+.selClassStuWrap,
+.filterBtn{
+	display: none;
+}
+.rateWrap{
+	width: 100%;
+	height: 4rem;
+	position: absolute;
+	left: 0;
+	bottom: 0;
+}
+.rateWrap p{
+	height: .8rem;
+	line-height: .8rem;
+	font-size: .4rem;
+	color: #333;
+	padding: 0 .2667rem;
+}
+.rateWrap p span{
+	color: #666;
+}

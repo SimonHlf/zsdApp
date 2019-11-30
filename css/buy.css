@@ -1,0 +1,131 @@
+body{
+	background: #f2f2f2;
+}
+.buyCon{
+	width: 9.4rem;
+	margin:-1.5rem auto 0;
+	position: relative;
+	z-index: 5;
+}
+.buyCon strong{
+	width: 100%;
+	height: 1.5rem;
+	line-height: 1.5rem;
+	text-align: center;
+	display: block;
+	font-size: .5rem;
+	color: #4d47f1;
+	background: #fff;
+	border-radius: 5px 5px 0 0;
+}
+.courseDes{
+	padding: 0 .25rem .35rem;
+	background: #fff;
+	border-radius:  0 0 5px 5px;
+	margin-bottom: .35rem;
+}
+.desItem{
+	min-height: 0.9333rem;
+	margin-bottom: .4rem;
+}
+.desItem img{
+	width: 1.3866rem;
+	height: 0.9333rem;
+	float: left;
+}
+.desItem p.desCon{
+	width: 80%;
+	font-size: .4rem;
+	color: #333;
+	float: left;
+	margin-left: .25rem;
+	margin-top: .1rem;
+	line-height: .6rem;
+}
+.coursePrice{
+	height: 1.2rem;
+	line-height: 1.2rem;
+	padding: 0 .25rem;
+	background: #fff;
+	border-radius: 5px;
+	font-size: .42rem;
+	color: #333;
+	margin-bottom: .25rem;
+}
+.coursePrice span.titSpan{
+	float: left;
+}
+.coursePrice p.priceNum{
+	float: right;
+	font-size: .5rem;
+	font-weight: 620;
+	color: #e10080;
+}
+.coursePrice p.priceNum span{
+	font-size: .38rem;
+	font-weight: normal;
+	margin-left: .1rem;
+}
+.selMonthWrap{
+	float: right;
+	position: relative;
+}
+.coursePrice p.discortTxt{
+	height: .45rem;
+	line-height: .45rem;
+	float: right;
+	padding: 0 .1rem;
+	background: -webkit-linear-gradient(left, #f77062 , #f44572); /* Safari 5.1 - 6.0 */
+	background: -o-linear-gradient(right, #f77062, #f44572); /* Opera 11.1 - 12.0 */
+	background: -moz-linear-gradient(right, #f77062, #f44572); /* Firefox 3.6 - 15 */
+	background: linear-gradient(to right, #f77062 , #f44572); /* 标准的语法 */
+	font-size: .28rem;
+	margin:.32rem 0 0 .2rem;
+	color: #fff;
+	display: none;
+}
+.selMonthWrap span{
+	padding: 0 .5rem 0 1rem;
+	display: block;
+	font-size: .4rem;
+	color: #4d47f1;
+	font-weight: 620;
+}
+.selMonthWrap em{
+	width: 0;
+	height: 0;
+	border-width: .18rem;
+	border-style: solid dashed dashed dashed;
+	border-color: #999 transparent transparent transparent;
+	position: absolute;
+	right: 0;
+	top:.5rem;
+}
+.feeDetInfo{
+	margin-top: .5rem;
+}
+.feeDetInfo span{
+	font-size: .35rem;
+	color: #4d47f1;
+	display: block;
+}
+.feeDetInfo .feeDetCon{
+	margin-top: .15rem;
+}
+.feeDetInfo p{
+	font-size: .35rem;
+	color: #666;
+	line-height: .6rem;
+}
+.orderBtn{
+	width: 60%;
+	height: 1rem;
+	line-height: 1rem;
+	background: #4d47f1;
+	font-size: .45rem;
+	color: #fff;
+	text-align: center;
+	display: block;
+	margin:.8rem auto 0;
+	border-radius: 4px;
+}

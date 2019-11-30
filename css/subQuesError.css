@@ -1,0 +1,117 @@
+body{
+	background: #f2f2f2;
+}
+.tips{
+	height: 1.2rem;
+	line-height: 1.2rem;
+	background: #fff;
+	padding: 0 .2667rem;
+	font-size: .4rem;
+	color: #666666;
+	margin-bottom: .25rem;
+}
+.tips i{
+	color:#4d47f1 ;
+	font-size: .4rem;
+}
+.subErrorWrap{
+	background: #fff;
+}
+.sub,
+.subErrType{
+	border-bottom: 1px solid #e6e6e6;
+	padding: 0 .2667rem;
+	font-size: .4rem;
+	color: #333;
+}
+.sub{
+	height: 1.2rem;
+	line-height: 1.2rem;
+}
+.subErrType{
+	padding: .2rem .2667rem .25rem;
+}
+.sub strong,
+.subErrType strong{
+	width: 23%;
+	color:#666 ;
+	display: block;
+}
+.sub strong{
+	float: left;
+}
+.sub p{
+	width: 76%;
+	float: left;
+}
+.subErrType ul{
+	margin-top: .3rem;
+}
+.subErrType li{
+	padding: 0 .2rem;
+	height: .8rem;
+	line-height: .8rem;
+	float: left;
+	background: #f2f2f2;
+	margin-right: .35rem;
+	border:1px solid #f2f2f2;
+	color: #333;
+	font-size: .4rem;
+	border-radius: 4px;
+}
+.subErrType li:last-child{
+	margin-right: 0;
+}
+.subErrType li.active{
+	border:1px solid #4d47f1;
+	color: #4d47f1;
+}
+.textAreaWrap{
+	height: 4rem;
+	margin-top:.25rem ;
+}
+.textAreaWrap textarea{
+	border:none;
+	padding: 2%;
+	height: 96%;
+	width: 98%;
+	font-size: .4rem;
+	color: #333;
+	line-height: .65rem;
+}
+.textAreaWrap textarea::-webkit-input-placeholder{
+	color:#999;
+}
+.subErrBtn {
+	margin-top: .4rem;
+}
+.subErrBtn span{
+	width: 60%;
+	height: 1rem;
+	line-height: 1rem;
+	background: #4d47f1;
+	font-size: .45rem;
+	color: #fff;
+	text-align: center;
+	display: block;
+	margin:.25rem auto 0;
+	border-radius: 4px;
+}
+.notice{
+	position: fixed;
+	left: 0;
+	bottom: 0;
+	background: #e6e6e6;
+	padding: .2rem;
+	font-size: .4rem;
+	color: #666;
+}
+.noteTxtErr{
+	padding: 0 .2667rem;
+	color: #999;
+	font-size: .35rem;
+	margin-top: .1rem;
+}
+#notSubTxt{
+	color:#e10080 ;
+}

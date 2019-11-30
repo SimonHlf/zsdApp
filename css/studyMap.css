@@ -1,0 +1,330 @@
+body{
+	background: #f2f2f2;
+}
+.comHeader span.headerTit.mapHeaderTit{
+	width: 75%;
+	max-width: 75%;
+}
+.taskAwardBtn{
+	width: 15%;
+	position: absolute;
+	right: 0;
+	top:0;
+	text-align: center;
+}
+.taskAwardBtn img{
+	width: 50%;
+	display: inline-block;
+	margin-top: .22rem;
+}
+.studyMapFour{
+	padding: 0 .2667rem;
+	margin-top: 1.6rem;
+}
+.studyMapFour li{
+	width: 4.6rem;
+	height: 3.3333rem;
+	border-radius:4px;
+	float: left;
+	margin-bottom: .25rem;
+	color:#fff;
+	position: relative;
+}
+.studyMapFour li#shipinBtn{
+	background: #4d47f1 url(../images/fourStep/zhishi.png) no-repeat; 
+	background-size: cover;
+}
+.studyMapFour li#dianboBtn{
+	background: #4d47f1 url(../images/fourStep/dianbo.png) no-repeat; 
+	background-size: cover;
+}
+.studyMapFour li#qingdanBtn{
+	background: #4d47f1 url(../images/fourStep/jieti.png) no-repeat; 
+	background-size: cover;
+}
+.studyMapFour li#jietiBtn{
+	background: #4d47f1 url(../images/fourStep/gonggu.png) no-repeat; 
+	background-size: cover;
+}
+.studyMapFour li:nth-of-type(2n){
+	float: right;
+}
+.studyMapFour li p{
+	width: 100%;
+	position: absolute;
+	left: 0;
+	bottom: .1rem;
+	text-align: center;
+	font-size: .42rem;
+}
+.studyMapFour li i.icon-lock{
+	display: none;
+	position: absolute;
+	right: .2rem;
+	top: .2rem;
+}
+.currStudyTit{
+	background: #fff;
+	height: 1.1rem;
+	line-height: 1.1rem;
+	padding: 0 .2667rem;
+}
+.currStudyTit span{
+	width: 5px;
+	height: 65%;
+	background: #4d47f1;
+	border-radius: 20px;
+	display: block;
+	float: left;
+	margin-top:.2rem;
+}
+.currStudyTit p{
+	float: left;
+	font-size: .48rem;
+	color: #333;
+	font-weight: 600;
+	margin-left: .2rem;
+	width: 94%;
+}
+.currLoreWrap{
+	padding: 0 .2667rem .3rem;
+	margin-top: .25rem;
+	background: #fff;
+}
+.currLoreWrap.buffetCurrLoreWrap{
+	margin-top: 0rem;
+	padding-top: .25rem;
+}
+.currLoreWrap p.currTxt{
+	font-size: .38rem;
+	line-height: 1rem;
+	color: #999;
+}
+.currLoreWrap .loreName{
+	width: 75%;
+	display: block;
+	font-size: .45rem;
+	color: #333;
+	font-weight: 600;
+}
+.goldenBox{
+	width: 3.1733rem;
+	height: 2.6666rem;
+	margin: .5rem auto 0;
+	position: relative;
+}
+.goldenBox.buffetGolden{
+	margin-top:0;
+}
+.goldenBox img{
+	height: 100%;
+	height: 100%;
+}
+.goldenBox span{
+	font-size:2rem;
+	position: absolute;
+	left: -1.4rem;
+	top: 0;
+	color: #4d47f1;
+}
+.currLoreWrap .mapTxt{
+	font-size: .42rem;
+	color: #666;
+	text-align: center;
+	margin-top: .5rem;
+	line-height: 1rem;
+}
+.currLoreWrap .levelTxt{
+	font-size: .38rem;
+	color: #999;
+	text-align: center;
+	margin-left: .35rem;
+}
+.viewSuyuanBtn{
+	font-size: .42rem;
+	color: #4d47f1;
+	text-align: center;
+	display: block;
+	margin-left: .35rem;
+}
+.goStudyBtn{
+	width: 70%;
+	height: 1.2rem;
+	line-height: 1.2rem;
+	display: block;
+	margin:.5rem auto 0;
+	background: #4d47f1;
+	color: #fff;
+	font-size: .45rem;
+	border-radius: 6px;
+	text-align: center;
+}
+/* 点拨指导 知识清单 解题示范结构 */
+.bitTit{
+	width: 100%;
+	height: 1.2rem;
+	line-height: 1.2rem;
+	background: #fff;
+	border-bottom: 1px solid #e6e6e6;
+	position: fixed;
+	left: 0;
+	top: 1.22rem;
+}
+.innerTit{
+	padding: 0 .2667rem;
+	height: 100%;
+}
+.bitTit strong{
+	font-size: .48rem;
+	color: #4d47f1;
+}
+.bitTit p{
+	width: 77%;
+	font-size: .38rem;
+	color: #999;
+	margin-left: .2rem;
+}
+.listCon{
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	top: 2.45rem;
+	overflow:hidden;
+	overflow-y: auto;
+	-webkit-overflow-scrolling: touch;
+}
+.listPart{
+	margin-bottom: .25rem;
+	background: #fff;
+	padding-bottom: .25rem;
+}
+.listPart.jietiPart{
+	padding-bottom: 0;
+}
+.smTit{
+	height: 1rem;
+	line-height: 1rem;
+	border-bottom: 1px solid #e6e6e6;
+	padding: 0 .2667rem;
+	margin-bottom: .1rem;
+}
+.smTit.moreHigh{
+	height: 1.1rem;
+	line-height: 1.1rem;
+}
+.smTit span{
+	width: 5px;
+	height: 60%;
+	background: #4d47f1;
+	border-radius: 10px;
+	float: left;
+	margin-right: .2rem;
+	margin-top: .2rem;
+}
+.smTit p{
+	font-size: .45rem;
+	color: #333;
+	font-weight: 600;
+}
+.list_jieti{
+	margin-bottom: .2rem;
+}
+.list{
+	padding: 0 .26677rem;
+}
+.list.specList{
+	margin-bottom: .25rem;
+	background: #fff;
+	margin-top: -.25rem;
+	padding-bottom: .25rem;
+}
+.listTop{
+	height: .8rem;
+	line-height: .8rem;
+	font-size: .42rem;
+}
+.listTop strong{
+	font-weight: 620;
+	float: left;
+	color: #4d47f1;
+}
+.listTop div{
+	width: 83%;
+	float:left;
+	margin-left:.2rem;
+	color: #333;
+}
+.listBot{
+	position: relative;
+	font-size: .42rem;
+}
+.listBot strong.conTit{
+	position: absolute;
+	left: 0;
+	top:0;
+	height: 100%;
+	width: 1.4rem;
+	color: #4d47f1;
+}
+.listBot div.listBotCon{
+	margin-left: 1.4rem;
+	color: #333;
+}
+/* 解题示范 */
+.listSub ,
+.listAns,
+.listAnaly{
+	border-bottom: 1px solid #e6e6e6;
+	padding: 0 .2667rem;
+}
+.listAns,
+.listAnaly{
+	padding-top: .15rem;
+}
+.listSub strong,
+.listAns strong,
+.listAnaly strong{
+	width: 100%;
+	color:#4d47f1 ;
+	font-size:.42rem;
+	display: block;
+}
+.listSubCon,
+.listAnsCon,
+.listAnalyCon{
+	font-size: .42rem;
+	color: #333;
+	margin:.15rem 0;
+}
+.noticeTxt{
+	padding: .25rem .2667rem;
+	background: #fff;
+	margin-top: .25rem;
+	font-size: .4rem;
+	color: #666;
+}
+.noticeTxt i{
+	font-size: .38rem;
+	color: #4d47f1;
+}
+.noticeTxt span{
+	color: #4d47f1;
+	font-weight: bold;
+}
+#mapTxt{
+	display: none;
+}
+.comHeader span.viewHisBtn{
+	width: 15%;
+	height: 100%;
+	text-align: center;
+	position: absolute;
+	right: 0;
+	top:0;
+	display: none;
+}
+.comHeader span.viewHisBtn i{
+	font-size: .68rem;
+	color: #4d47f1;
+}

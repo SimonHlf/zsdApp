@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/selHomeWorkType.css"/>
+		<title>选择班级</title>
+	</head>
+	<body class="paddingTop">
+		<div class="comHeader otherBg">
+			<a id="backBtn" class="posL"  href="javascript:mui.back();"><i class="iconfont icon-fanhui"></i></a>
+			<span class="headerTit">选择班级</span>
+		</div>
+		<!-- 选择班级 -->
+		<div id="gradeClassWrap"></div>
+		
+		<!-- <span class="nextStep">下一步</span> -->
+		
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+			var classIdArr = [];
+			mui.plusReady(function(){
+				var hwType = plus.webview.currentWebview().hwType;				
+				var page = {
+					init : function(){
+						this.loadGradeClassInfo();
+						this.bindEvent();
+					},
+					loadGradeClassInfo : function(){
+						app.showToast(1);
+						var _this = this;
+						mui.ajax(http_ + '/hw.do?action=getMyClassData_1',{
+							data:{userId:userInfo.userId,hwType:hwType},
+							dataType:'json',
+							type:'post',
+							timeout:10000,
+							success:function(json){
+								app.showToast(2);
+								if(json.result == 'success'){
+									_this.renderGradeClass(json.gcList);
+									
+								}else if(json.result == 'noInfo'){
+									plus.nativeUI.toast('暂无年级班级信息');
+								}
+							},
+							error:function(xhr,type,errorThrown){
+								app.showToast(2);
+								plus.nativeUI.toast('服务器错误');
+							} 
+						});
+					},
+					renderGradeClass : function(gradeList){
+						//console.log(JSON.stringify( gradeList ))
+						var str = '';
+						for(var i=0;i<gradeList.length;i++){
+							str += '<div class="selClasses">';
+								str += '<div class="gradeName">';
+									str += '<div class="grade"><strong>'+ gradeList[i].gradeName +'</strong></div>';
+									str += '<label><span><i class="iconfont icon-duihao"></i></span><input id="selAllInp_'+ i +'" name="selAllInp" ontouchend="selAllClass(this,'+ i +')" type="checkbox"/><p>全选</p></label>';
+								str += '</div>';
+								str += '';
+								str += '<div class="classList"><ul class="clearfix">';
+									for(var j=0;j<gradeList[i].cList.length;j++){
+										if(gradeList[i].cList[j].checkStatus == 0){//未检查 待检查
+											str += '<li currCheckSta="'+ gradeList[i].cList[j].checkStatus +'" class="waitCheck"><span>'+ gradeList[i].cList[j].cName +'</span><i class="iconfont icon-daijiancha"></i></li>';
+										}else{
+											str += '<li currIndex='+ i +' currCheckSta="'+ gradeList[i].cList[j].checkStatus +'"><input class="classesInp" name="classInp_'+ i +'" type="checkbox" onclick="selClasses(this,'+ i +')" value="'+ gradeList[i].cList[j].classId +'"><span>'+ gradeList[i].cList[j].cName +'</span></li>';
+										}
+									}
+									
+								str += '</ul></div>';
+							str += '</div>';
+						}
+						str += '<span id="nexStep" class="nextStep">下一步</span>';
+						app.getId('gradeClassWrap').innerHTML = str;
+						//下一步
+						app.getId('nexStep').addEventListener('tap',function(){
+							classIdArr.length = 0;
+							$('.classesInp').each(function(i){
+								var checkStatus = $('.classesInp').eq(i).prop('checked');
+								if(checkStatus){
+									classIdArr.push($('.classesInp').eq(i).val());
+								}
+							});
+							if(classIdArr.length == 0){
+								plus.nativeUI.toast('请选择班级');
+								return;
+							}
+							var classIdStr = classIdArr.join(',');
+							app.openwin('selChaptList.html',{classIdStr:classIdStr,hwType:hwType,userId:userInfo.userId});
+						});
+						
+					},
+					bindEvent : function(){
+						//待检查
+						mui('#gradeClassWrap').on('tap','.waitCheck',function(){
+							var btnArray = ['确定','取消'];
+							mui.confirm('您的班级有待检查作业，需要检查后才能选择班级并继续发布作业哦！', '待检查作业提示', btnArray, function(e) {
+								if (e.index == 0){
+									app.openwin('../hwRecord/hwRecordList.html',{isSendFlag:false,jumpPagePos:'bySelGrade'});
+								}
+							});
+						});
+					}
+					
+				};
+				page.init();
+				//从作业记录返回进来更新当前班级列表中待检查状态
+				document.addEventListener('upDateCheckStatus',function(){
+					page.loadGradeClassInfo();
+				});
+			});
+			var lastIndex = 0;
+			//选择班级
+			function selClasses(obj,index){
+				var checkSta = $(obj).prop('checked');
+				var totalLen = $('input[name=classInp_'+ index +']').length;
+			    var hasCheckedLen = $('input[name=classInp_'+ index +']:checked').length;
+				var currIndex = $(obj).parent().attr('currIndex');
+				if(lastIndex != currIndex){
+					$('input[name=classInp_'+ lastIndex +']').prop('checked',false);
+					$('input[name=classInp_'+ lastIndex +']').parent().removeClass('active');
+					$('#selAllInp_' + lastIndex).prop('checked',false).parent().removeClass('active');
+				}
+				if(checkSta){
+					lastIndex = index;
+					$(obj).parent().addClass('active');
+				}else{
+					$(obj).parent().removeClass('active');
+				}
+				if(hasCheckedLen == totalLen){
+					$('#selAllInp_' + index).prop('checked',true).parent().addClass('active');
+				}else{
+					$('#selAllInp_' + index).prop('checked',false).parent().removeClass('active');
+				}
+			}
+			//根据年级全选对应的班级
+			function selAllClass(obj,index){
+				var checkSta = $(obj).prop('checked');
+				if(!checkSta){
+					lastIndex = index;
+					
+					$('input[name=selAllInp]').prop('checked',false);
+					$('input[name=selAllInp]').parent().removeClass('active');
+					$('.classesInp').prop('checked',false);
+					$('.classesInp').parent().removeClass('active');
+					
+					$(obj).parent().addClass('active');
+					$('input[name=classInp_'+ index +']').prop('checked',true);
+					$('input[name=classInp_'+ index +']').parent().addClass('active');
+				}else{
+					$('input[name=classInp_'+ index +']').prop('checked',false);
+					$(obj).parent().removeClass('active');
+					$('input[name=classInp_'+ index +']').parent().removeClass('active');
+				}
+			}
+		</script>
+		
+	</body>
+</html>

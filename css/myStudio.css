@@ -1,0 +1,338 @@
+body{
+	background: #f2f2f2;
+}
+.bindNtBtn{
+	width: 15%;
+	height: 100%;
+	position: absolute;
+	right: 0;
+	top:0;
+	text-align: center;
+}
+.bindNtBtn i{
+	color: #fff;
+	font-size: .5rem;
+	display: block;
+}
+.myStudioInfo{
+	padding: 0 .2667rem;
+}
+.innerInfo{
+	background: #fff;
+	border-radius: 4px;
+	margin:.25rem 0;
+	box-shadow: 0 3px 4px rgba(0,0,0,.05);
+}
+.item{
+	height: 1.2rem;
+	line-height: 1.2rem;
+	border-bottom: 1px solid #e6e6e6;
+}
+.item.noBorBot{
+	border-bottom: none;
+}
+.item span{
+	width: 2.6rem;
+	height: 100%;
+	float: left;
+	font-size: .4rem;
+	color: #666;
+	text-align: right;
+}
+.item p{
+	width: 6.55rem;
+	float: left;
+	text-align: right;
+	font-size: .4rem;
+	color: #333;
+	margin-right: .25rem;
+}
+.item p.inviteCode em{
+	font-style: normal;
+	color: #e10080;
+	float: right;
+	margin-right: .2rem;
+}
+.item p.inviteCode i{
+	color: #666;
+	float: right;
+}
+.item_spec{
+	position: relative;
+	border-bottom: 1px solid #e6e6e6;
+	padding: .2rem 0;
+}
+.item_spec span{
+	width: 2.6rem;
+	height: 100%;
+	position: absolute;
+	left: 0;
+	top:0;
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	font-size: .4rem;
+	color: #666;
+}
+.item_spec p{
+	width: 6.75rem;
+	margin-left: 2.8rem;
+	font-size: .4rem;
+	min-height: 1.2rem;
+	color: #333;
+	display: flex;
+	align-items: center;
+}
+.memberList{
+	padding: 0 .2667rem;
+	border-radius: 4px;
+}
+.titStrong{
+	width: 100%;
+	height: 1.2rem;
+	line-height: 1.2rem;
+	text-indent: .25rem;
+	background: #fff;
+	font-size: .42rem;
+	color: #333;
+	font-weight: 650;
+	background:#fff;
+	display: block;
+}
+.listMember {
+	background: #fff;
+}
+.listMember li{
+	width: 25%;
+	float: left;
+	text-align: center;
+	margin-bottom: .25rem;
+}
+.listMember li .headPic{
+	width: 1.3rem;
+	height: 1.3rem;
+	margin:0 auto;
+}
+.listMember li .headPic img{
+	width: 100%;
+	height: 100%;
+	border-radius: 50%;
+}
+.listMember li p{
+	font-size: .4rem;
+	color: #333;
+	margin-top: .1rem;
+}
+/* 编辑我的工作室 */
+.editItem{
+	height: 1.2rem;
+	line-height: 1.2rem;
+	border-bottom: 1px solid #e6e6e6;
+	padding: 0 .2667rem;
+	background: #fff;
+}
+.editItem span{
+	float: left;
+	width: 2.4rem;
+	font-size: .4rem;
+	color: #666;
+}
+.editItem input{
+	width: 6.75rem;
+	float: left;
+	margin-left: .25rem;
+	height: 100%;
+	border:none;
+	font-size: .4rem;
+	color: #333;
+}
+.editItem input::-webkit-input-placeholder,
+.proTxt textarea::-webkit-input-placeholder{
+	color: #999;
+}
+.editItem_spec{
+	position: relative;
+	padding: 0 .2667rem;
+	border-bottom: 1px solid #e6e6e6;
+	background: #fff;
+	padding: .2rem 0;
+}
+.editItem_spec span{
+	width: 2.4rem;
+	height: 100%;
+	font-size: .4rem;
+	color: #666;
+	position: absolute;
+	left: .2667rem;
+	top:0;
+	display: flex;
+	align-items: center;
+	text-align: center;
+}
+.proTxt{
+	width: 6.75rem;
+	margin-left: 2.625rem;
+}
+.proTxt textarea{
+	width: 100%;
+	height: 3rem;
+	border:none;
+	font-size: .4rem;
+	color: #333;
+	display: block;
+}
+.saveBtn{
+	width: 60%;
+	height: 1rem;
+	line-height: 1rem;
+	background: #4d47f1;
+	font-size: .45rem;
+	color: #fff;
+	text-align: center;
+	display: block;
+	margin:.5rem auto 0;
+	border-radius: 4px;
+}
+.entryCode{
+	width: 90%;
+	height: 3rem;
+	position: absolute;
+	left:5%;
+	top: 50%; 
+	margin-top: -2rem;
+	display: none;
+}
+.entryCode input{
+	width: 100%;
+	height: 1.2rem;
+	line-height: 1.2rem;
+	border:none;
+	font-size: .45rem;
+	color: #333;
+	display: block;
+	text-indent: .25rem;
+	font-weight: 620;
+	border-radius: 4px;
+}
+.entryCode input::-webkit-input-placeholder{
+	color: #999;
+	font-weight: normal;
+}
+.entryCode span,
+.joinBtn{
+	width: 60%;
+	height: 1rem;
+	line-height: 1rem;
+	background: #4d47f1;
+	font-size: .45rem;
+	color: #fff;
+	text-align: center;
+	display: block;
+	border-radius: 4px;
+	margin:.5rem auto 0;
+}
+/* 加入工作室详情 */
+.studioInfo{
+	background: #fff;
+}
+.studioItem{
+	height: 1.2rem;
+	line-height: 1.2rem;
+	padding:0 .2667rem;
+	border-bottom: 1px solid #e6e6e6;
+}
+.studioItem_spec{
+	position: relative;
+	padding:.1rem .2667rem;
+	border-bottom: 1px solid #e6e6e6;
+}
+.studioItem span,
+.studioItem_spec span{
+	width: 2.4rem;
+	height: 100%;
+	font-size: .4rem;
+	color:#666;
+}
+.studioItem span{
+	float: left;
+	text-align: right;
+}
+.studioItem_spec span{
+	position: absolute;
+	left: .2667rem;
+	top:0;
+	display: flex;
+	justify-content: flex-end;
+	align-items: center;
+}
+.studioItem  p,
+.studioItem_spec p{
+	width: 6.8rem;
+	font-size: .4rem;
+	color: #333;
+}
+.studioItem p{
+	float: left;
+	margin-left: .2rem;
+}
+.studioItem_spec p{
+	margin-left: 2.6rem;
+	line-height: .65rem;
+	min-height: 1.2rem;
+	display: flex;
+	align-items: center;
+}
+.studioWrap{
+	display: none;
+}
+/* 查看学生人数 */
+.stuNum{
+	width: 7.3rem;
+	height: 9.6rem;
+	position: fixed;
+	left: 1.5rem;
+	top:50%;
+	margin-top: -4.8rem;
+	z-index: 1000;
+	background: #fff;
+	border-radius: 10px;
+	display: none;
+}
+.stuNumTop{
+	width: 7.3rem;
+	height: 3.8rem;
+	background: url(../images/memberBg.png) no-repeat;
+	background-size: cover;
+}
+.stuNumTop strong{
+	width: 100%;
+	height: 1.4rem;
+	line-height: 1.4rem;
+	text-align: center;
+	display: block;
+	font-size: .5rem;
+	color: #fff;
+}
+.stuNumBot{
+	height: 3.5rem;
+	padding-top: .5rem;
+}
+.stuNumBot p{
+	color: #333;
+	line-height: 1rem;
+	text-align: center;
+	font-size: .45rem;
+	font-weight: 620;
+}
+.stuNum .sureBtn{
+	width: 70%;
+	height: 1rem;
+	line-height: 1rem;
+	margin:.3rem auto 0;
+	background: #4d47f1;
+	color: #fff;
+	font-size: .45rem;
+	text-align: center;
+	display: block;
+	border-radius: 20px;
+}

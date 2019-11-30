@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/subList.css"/>
+		<title>选择学科</title>
+	</head>
+	<body class="paddingTop">
+		<div class="comHeader otherBg">
+			<a id="backBtn" class="posL"><i class="iconfont icon-fanhui"></i></a>
+			<span class="headerTit">选择学科</span>
+		</div>
+		<div class="subList">
+			<ul id="subList"></ul>
+		</div>
+		
+		
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var switchField = {isUpFlag:false};
+			mui.init({
+				beforeback : function(){
+					var opener = plus.webview.currentWebview().opener();
+					mui.fire(opener,'upBuffetChart',{switchField:switchField});
+					return true;
+				} 
+			});
+			mui.plusReady(function(){
+				var list = plus.webview.currentWebview().subField,
+					subId = plus.webview.currentWebview().subId;
+				var page = {
+					init : function(){
+						this.loadSubList();
+						this.bindEvent();
+					},
+					bindEvent : function(){
+						mui('#subList').on('tap','li',function(){
+							var aLi = app.getId('subList').getElementsByTagName('li');
+							var subId = this.getAttribute('subId'),
+								subName = this.getAttribute('subName');
+							for(var i=0;i<aLi.length;i++){
+								aLi[i].className = '';
+							}
+							this.className = 'active';
+							switchField.isUpFlag = true;
+							var field = {subId:subId,subName:subName};
+							mui.extend(switchField,field);
+							mui.back();
+						});
+					},					
+					loadSubList : function(){
+						if(subId == 0){
+							var str = '<li subId="0" class="active" subName="全部">全部</li>';
+						}else{
+							var str = '<li subId="0" subName="全部">全部</li>';
+						}
+						
+						for(var i=0;i<list.length;i++){
+							if(subId == list[i].subId){
+								str += '<li subId="'+ list[i].subId +'" class="active" subName="'+ list[i].subName +'">'+ list[i].subName +'</li>';
+							}else{
+								str += '<li subId="'+ list[i].subId +'" subName="'+ list[i].subName +'">'+ list[i].subName +'</li>';
+							}
+							
+						}
+						app.getId('subList').innerHTML = str;
+					}
+				};
+				page.init();
+			});
+		</script>
+	</body>
+</html>

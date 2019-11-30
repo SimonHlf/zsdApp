@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/ntVerify.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/mui.min.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/mui.imageviewer.css"/>
+		<title>身份证正/反面上传</title>
+	</head>
+	<body class="paddingTop">
+		<div class="comHeader otherBg">
+			<a class="posL" id="backBtn" href="javascript:void(0)"><i class="iconfont icon-fanhui"></i></a>
+			<span class="headerTit">身份证正/反面上传</span>
+		</div>
+		<div class="upWrap">
+			<div class="upTit">
+				<span></span>
+				<p>上传身份证正/反面</p>
+			</div>
+			<div class="upCon">
+				<div class="upItem">
+					<span>姓名：</span>
+					<input id="idCardName" type="text" placeholder="请输入姓名" maxlength="6">
+				</div>
+				<div class="upItem">
+					<span>身份证号：</span>
+					<input id="idCardNum" type="text" placeholder="请输入身份证号码" maxlength="18"/>
+				</div>
+				<div class="upImgWrap">
+					<input type="hidden" id="frontImgSrcInp" />
+					<input type="hidden" id="backImgSrcInp" />
+					<p class="upImgTit">身份证(正/反面)</p>
+					<div id="imgBox_front" class="imgBox imgBox_iCard" style="margin-bottom: .4rem;">
+						<img id="frontImg" src="" data-preview-group="1" data-preview-src=""/>
+						<em id="delFrontImg" class="delBtn"><i class="iconfont icon-wrong"></i></em>
+						<div class="imgDec front"></div>
+						<span id="upBtn_iCard_front" class="upBtn"><i class="iconfont icon-camera1"></i></span>
+					</div>
+					
+					<div id="imgBox_back" class="imgBox imgBox_iCard">
+						<img id="backImg" src="" data-preview-group="1" data-preview-src=""/> 
+						<em id="delBackImg" class="delBtn"><i class="iconfont icon-wrong"></i></em>
+						<div class="imgDec behind"></div>
+						<span id="upBtn_iCard_back" class="upBtn"><i class="iconfont icon-camera1"></i></span>
+					</div>
+				</div>
+				<span id="saveIdCardBtn" class="saveBtn">保存</span>
+			</div>
+			<span id="passIcon" class="passIcon"><i class="iconfont icon-shenhetongguo"></i></span>
+		</div>
+		<div id="mask" class="mask"></div>
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/ntVerify.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/mui.zoom.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/mui.previewimage.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var wpage,isUpFlag = false,isClickFlag = false,verifyInfo = null;//当verifyInfo不为null 一旦点击删除 true 执行upload 否则 不执行upload
+			var userInfo = JSON.parse( localStorage.getItem('userInfo') ),delFrontFlag = false,delBackFlag = false;
+			mui.init({
+				beforeback : function(){
+					var opener = plus.webview.currentWebview().opener();
+					mui.fire(opener,'upDateVerifyStaInfo',{isUpFlag:isUpFlag});
+					return true;
+				} 
+			}); 
+			mui.plusReady(function(){
+				wpage = plus.webview.currentWebview();
+				verifyInfo = plus.webview.currentWebview().verifyInfo;
+				var isPassFlag = plus.webview.currentWebview().isPassFlag;
+				mui.previewImage();
+				if(verifyInfo != null){
+					if(isPassFlag){//审核通过
+						app.getId('saveIdCardBtn').style.display = 'none';
+						app.getId('passIcon').style.display = 'block';
+						app.getId('idCardName').disabled = true;
+						app.getId('idCardNum').disabled = true;
+					}else{
+						app.getId('delFrontImg').style.display = 'block';
+						app.getId('delBackImg').style.display = 'block';
+					}
+					app.getId('idCardName').value = verifyInfo.iCardName;
+					app.getId('idCardNum').value = verifyInfo.iCardNo;
+					app.getId('frontImg').style.display = 'block';
+					app.getId('backImg').style.display = 'block';
+					app.getId('frontImg').setAttribute('src',http_ + '/' + verifyInfo.iCardFrontImg);
+					app.getId('backImg').setAttribute('src',http_ + '/' + verifyInfo.iCardBackImg);
+					app.getId('frontImgSrcInp').value = verifyInfo.iCardFrontImg;
+					app.getId('backImgSrcInp').value = verifyInfo.iCardBackImg;
+					app.getId('frontImg').setAttribute('data-preview-src',http_ + '/' + verifyInfo.iCardFrontImg.replace('_small',''));
+					app.getId('backImg').setAttribute('data-preview-src',http_ + '/' + verifyInfo.iCardBackImg.replace('_small',''));
+				}else{//未上传
+					isClickFlag = true;
+				}
+				var page = {
+					init : function(){
+						this.bindEvent();
+					},
+					bindEvent : function(){
+						var _this = this;
+						app.getId('backBtn').addEventListener('tap',function(){
+							mui.back();
+						});
+						//上传身份证正面
+						app.getId('upBtn_iCard_front').addEventListener('tap',function(){
+							choicePic('frontImg');
+						});
+						//删除身份证正面
+						app.getId('delFrontImg').addEventListener('tap',function(){
+							delChoicePic(this,'delFrontImg');
+							isClickFlag = true;
+							app.getId('frontImg').setAttribute('data-preview-src','');
+						});
+						//上传身份证背面
+						app.getId('upBtn_iCard_back').addEventListener('tap',function(){
+							choicePic('backImg');
+						});
+						//删除身份证反面
+						app.getId('delBackImg').addEventListener('tap',function(){
+							delChoicePic(this,'delBackImg');
+							isClickFlag = true;
+							app.getId('backImg').setAttribute('data-preview-src','');
+						});
+						//保存身份证
+						app.getId('saveIdCardBtn').addEventListener('tap',function(){
+							var idCardName = app.getId('idCardName').value,
+								idCardNum = app.getId('idCardNum').value,
+								reg = /^[0-9]{17}[0-9A-Za-z]{1}$|^[0-9]{14}[0-9A-Za-z]{1}$/,
+								frontImg = app.getId('frontImg').getAttribute('src'),
+								backImg = app.getId('backImg').getAttribute('src'),
+								imgBox_iCard = document.querySelectorAll(".imgBox_iCard");
+							var url = http_ +'/upload.do?action=upCert&userId=' + userInfo.userId,field = null;
+							var frontImgSrc = '',backImgSrc = '';
+							if(idCardName == ''){
+								mui.toast('请输入姓名');
+							}else if(app.isEmojiCharacter(idCardName)){
+								mui.toast('姓名中不能含有表情字符');
+							}else if(idCardNum == ''){
+								mui.toast('请输入身份证号码');
+							}else if(!reg.test(idCardNum)){
+								mui.toast('身份证号码格式不正确');
+							}else if(frontImg == ''){
+								mui.toast('请上传身份证正面');
+							}else if(backImg == ''){
+								mui.toast('请上传身份证背面');
+							}else{ 
+								plus.nativeUI.showWaiting("提交中...",{size:"12px",background:"rgba(0,0,0,0.6)",back:"none"});
+								if(isClickFlag){//未上传/已经上传 未审核通过进行修改点击了删除执行上传方法
+									var filesImg = {}; //保存图片的数组
+									for(var i=0;i<imgBox_iCard.length;i++){
+										filesImg["img0"+(i+1)] = imgBox_iCard[i].getAttribute("data-img");
+									}
+									app.getId('mask').style.display = 'block';
+									var uploader = plus.uploader.createUpload(url,{
+										method:'POST'
+									}, function(upload,status){
+										wpage.setStyle({mask:"none"});
+										if(status==200){//发布成功
+											var imgSrc = JSON.parse(upload.responseText).smallUrl;
+											if(verifyInfo != null){//已上传未审核 已上传审核未通过
+												if(delFrontFlag && delBackFlag == false){//只删除了正面 背面采用后台返回
+													frontImgSrc = JSON.parse(upload.responseText).smallUrl;
+													backImgSrc = app.getId('backImgSrcInp').value;
+												}else if(delFrontFlag == false && delBackFlag){//只删除了背面 正面采用后台返回
+													frontImgSrc = app.getId('frontImgSrcInp').value;
+													backImgSrc = JSON.parse(upload.responseText).smallUrl;
+												}else if(delFrontFlag && delBackFlag){//正面和背面都删除 统一采用重新上传
+													frontImgSrc = imgSrc.split(',')[0];
+													backImgSrc = imgSrc.split(',')[1];
+												}
+											}else{//未上传
+												frontImgSrc = imgSrc.split(',')[0];
+												backImgSrc = imgSrc.split(',')[1];
+											}
+											field = {
+												userId: userInfo.userId,
+												roleId: userInfo.roleId,
+												loginStatus: userInfo.loginStatus,
+												icardName: escape(idCardName),
+												icardNum: escape(idCardNum),
+												icardImgFrontSmall : frontImgSrc,
+												icardImgBackSmall :  backImgSrc
+											};
+											_this.saveiCardInfo(field);
+										}else{
+											plus.nativeUI.closeWaiting();
+											app.getId('mask').style.display = 'none';
+											mui.toast('上传失败，请重试');
+										}	
+									});
+									//添加上传的图片
+									mui.each(filesImg,function(index,tem){
+										uploader.addFile(tem,{key:index});
+									}); 
+									uploader.start();  //开始上传数据  
+								}else{
+									frontImgSrc = app.getId('frontImgSrcInp').value;
+									backImgSrc = app.getId('backImgSrcInp').value;
+									field = {
+										userId: userInfo.userId,
+										roleId: userInfo.roleId,
+										loginStatus: userInfo.loginStatus,
+										icardName: escape(idCardName),
+										icardNum: escape(idCardNum),
+										icardImgFrontSmall : frontImgSrc,
+										icardImgBackSmall :  backImgSrc
+									};
+									_this.saveiCardInfo(field);
+								}
+								
+							}
+						}); 
+					},
+					saveiCardInfo : function(field){
+						mui.ajax(http_ + '/netTeacher.do?action=saveICard', {
+							data: field,
+							dataType: 'json',
+							type: 'post',
+							timeout: 10000,
+							success: function(json) {
+								plus.nativeUI.closeWaiting();
+								if (json.result == 'success') {
+									mui.toast('上传成功，等待管理员审核中...');
+									isUpFlag = true;
+									setTimeout(function() {
+										app.getId('mask').style.display = 'none';
+										mui.back();
+									}, 500);
+									//发布成功后,删除该目前下的所有图片,
+									plus.io.resolveLocalFileSystemURL("_doc/fileimgs/", function(entry) {
+										entry.removeRecursively(function(entry) {
+											console.log("删除目录成功");
+										}, function(e) {
+											console.log("删除目录失败");
+										});
+									}, function(e) {
+										console.log('目录对象不存在');
+									});
+								}else if (json.result == 'error') {
+									app.getId('mask').style.display = 'none';
+									mui.toast('服务器异常');
+								}else if (json.result == 'fail') {
+									app.getId('mask').style.display = 'none';
+									mui.toast('保存失败，请重试');
+								}else{
+									app.getId('mask').style.display = 'none';
+									app.checkLoginStaInfo(json.result);
+								}
+							},
+							error: function(xhr, type, errorThrown) {
+								plus.nativeUI.closeWaiting();
+								app.getId('mask').style.display = 'none';
+								mui.toast('服务器异常');
+							}
+						});
+					}
+				};
+				page.init();
+			});
+		</script>
+	</body>
+</html>

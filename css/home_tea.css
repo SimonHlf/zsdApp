@@ -1,0 +1,173 @@
+body{
+	background: #f2f2f2;
+}
+.comHeader a.msgBtn{
+	width: 15%;
+	height: 100%;
+	position: absolute;
+	right: .2667rem;
+	top: 0;
+	text-align: right;
+}
+.comHeader a.msgBtn i{
+	color: #fff;
+	font-size: .75rem;
+	display: block;
+}
+.comHeader a.msgBtn #unReadMsg.newsMsg{
+	right: 0;
+	background: #f14696;
+	display: none;
+}
+.nav{
+	padding: .65rem .2667rem .4rem;
+	background: #fff;
+}
+.nav a{
+	float: left;
+	width: 3.2rem;
+	height: 1.2rem;
+	line-height: 1.2rem;
+	background: #4d47f1;
+	border-radius: 12px;
+	font-size: .45rem;
+	color: #fff;
+}
+.nav a:first-child{
+	margin-left: .35rem;
+}
+.nav a:last-child{
+	float: right;
+	margin-right: .35rem;
+}
+.nav a i{
+	font-size: .7rem;
+	float: left;
+	margin:0 .1rem 0 .3rem;
+}
+.nav a:first-child i{
+	font-size: .75rem;
+}
+.nav a i span{
+	float: left;
+}
+.homeWorkTit{
+	height: 1.2rem;
+	line-height: 1.2rem;
+	background: #fff;
+	border-bottom: 1px solid #e6e6e6;
+	padding: 0 .2667rem;
+}
+.homeWorkTit strong{
+	font-size: .48rem;
+	color: #333;
+	float: left;
+}
+.homeWorkTit span{
+	width: 20%;
+	height: 100%;
+	float: right;
+	text-align: right;
+	color: #999;
+}
+.homeWorkTit span i{
+	font-size: .55rem;
+	display: block;
+}
+.listHomeWork{
+	padding: 0 .2667rem;
+	margin-top: .25rem;
+	position: relative;
+}
+.listHomeWork li{
+	background:#fff;
+	padding:.2rem;
+	margin-bottom: .28rem;
+	position: relative;
+}
+.listHomeWork li span.lineSpan{
+	width: 2px;
+	height: 100%;
+	position: absolute;
+	left: 0;
+	top:0;
+}
+.listHomeWork li span.lineSpan.hasCheck{
+	background: #4d47f1;
+}
+.listHomeWork li span.lineSpan.waitCheck{
+	background: #e73098;
+}
+.listTit{
+	height: .8rem;
+	line-height: .8rem;
+	color: #333;
+}
+.listTit strong{
+	float: left;
+	font-size: .45rem;
+}
+.listTit .timeHomeWork{
+	float: left;
+	margin-left: .2rem;
+	color: #4d47f1;
+	font-weight: bold;
+	font-size: .4rem;
+}
+.listTit p{
+	float: right;
+	font-size: .38rem;
+	color: #999;
+}
+.currTit,
+.completeStatus{
+	height: .8rem;
+	line-height: .8rem;
+	color: #666;
+}
+.currTit span,
+.currTit p{
+	float: left;
+	font-size: .4rem;
+}
+.currTit span{
+	color: #999;
+}
+.currTit p{
+	width: 76%;
+	color: #333;
+}
+.completeStatus p{
+	width: 33.33%;
+	float: left;
+	font-size: .4rem
+}
+.completeStatus p strong{
+	font-weight: normal;
+	color: #4d47f1;
+}
+.completeStatus p:nth-of-type(3n),
+.completeStatus p:nth-of-type(3n-1){
+	text-align: center;
+}
+.completeStatus p:nth-of-type(3n-1) strong{
+	color: #29c7c6;
+}
+.completeStatus p:nth-of-type(3n) strong,
+.checkSta p strong.noCheckTxt{
+	color: #e73098;
+}
+.checkSta{
+	height: .8rem;
+	line-height: .8rem;
+	font-size: .4rem;
+}
+.checkSta p span{
+	color: #666;
+}
+.checkSta p strong{
+	font-weight: normal;
+}
+.checkSta p strong.hasCheckTxt{
+	color: #4d47f1;
+}

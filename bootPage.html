@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="css/common/reset.css"/>
+		<title>知识典启动页</title>
+		<style>
+			.bootImg{
+				position:fixed; 
+				top: 0; 
+				left: 0; 
+				width:100%; 
+				height:100%; 
+				z-index:-10; 
+				zoom: 1; 
+				background:url(images/bootPic.jpg) no-repeat; 
+				background-size: cover; 
+				-webkit-background-size: cover; 
+				background-position: center center; 
+			}
+		</style>
+	</head>
+	<body>
+		<div class="bootImg"></div>
+		<script src="plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			//localStorage.removeItem('userInfo')
+			mui.init({
+			   preloadPages:[  //预加载登录页面,需要时显示出来 
+					{
+						 id:'login', 
+						 url:'login.html',
+						 styles:{"scrollIndicator":"none"} //设置打开的页面样式, 隐藏滚动条, 设置状态栏为深绿色
+					}
+				]
+			});
+			mui.plusReady(function () {
+				var userInfo = JSON.parse(localStorage.getItem('userInfo'));
+				var currView = plus.webview.currentWebview();
+				if(userInfo == null){//不存在storage
+					plus.nativeUI.showWaiting();
+					setTimeout(function(){
+						plus.nativeUI.closeWaiting();
+						var loginView = plus.webview.getWebviewById('login');
+						loginView.show('pop-in');
+						mui.fire(loginView,"noLoginCheck",{opt:'noLogin_boot'});
+						setTimeout(function(){
+							currView.close('none');
+						},500);
+					},2000);
+				}else{//已经登录根据对应的roleId跳转不同的页面  
+					//2:学生 3:网络导师
+					if(userInfo.roleId == 2){//学生
+						setTimeout(function(){
+							if(!stIndexView){
+								stIndexView = plus.webview.open('index_st.html','index_st.html',{});
+								stIndexView.show();
+							}
+							setTimeout(function(){
+								currView.close('none');
+							},500);
+							//stIndexView.show('pop-in');
+						},2000);
+					}
+				}
+			}) 
+		</script>
+	</body>
+</html>

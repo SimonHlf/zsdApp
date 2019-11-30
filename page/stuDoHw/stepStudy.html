@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/stepStudy.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/studyMap.css"/> 
+		<link rel="stylesheet" type="text/css" href="../../css/questionList.css"/>
+		<title>五步学习</title>
+	</head>
+	<body class="paddingTop">
+		<div class="comHeader hasBor">
+			<a id="backBtn" class="posL" href="javascript:mui.back()"><i class="iconfont icon-fanhui"></i></a>
+			<span id="headerTit" class="headerTit">
+				<em id="bigTit" class="bigTit"></em>
+				<em id="smTit" class="smTit"></em>
+			</span>
+		</div>
+		<div class="studyNavWrap">
+			<input type="hidden" id="loreTypeName" value="video" />
+			<ul class="studyNav">
+				<li class="active">
+					<span class="stepTit">听</span>
+					<p class="stepTitTxt">知识讲解</p>
+				</li>
+				<li id="guidePoint">
+					<span class="stepTit">看</span>
+					<p class="stepTitTxt">点拨指导</p>
+				</li>
+				<li id="loreListBox">
+					<span class="stepTit">背</span>
+					<p class="stepTitTxt">知识清单</p>
+				</li>
+				<li id="exampleKpBox">
+					<span class="stepTit">写</span>
+					<p class="stepTitTxt">解题示范</p>
+				</li>
+				<li id="consolidKpBox">
+					<span id="consoSpan" class="stepTit">固</span>
+					<p class="stepTitTxt">巩固训练</p>
+				</li>
+			</ul>
+			<div id="throughDiv" class="throughLine"></div>
+			<div id="moveLineDiv" class="moveLine"></div>
+			<div class="moveCirWrap">
+				<div id="moveDiv"><span id="moveBox" class="moveCir"></span></div>
+			</div>
+		</div>
+		<div id="studyInfo" class="studyInfo"></div>
+		<div class="mainQuesAreaStudy">
+			<!-- 答题区 -->
+			<div class="quesArea studyPart">
+				<ul id="quesAreaUl"></ul>
+			</div>
+			
+			<!-- 展示答题卡按钮 -->
+			<div id="showQueCard" class="quesNum">
+				<i class="iconfont icon-caidan"></i>
+				<p><em id="currQuesNum" class="currQuesNum"></em>/<span class="totalQuesNumCard"></span></p>
+			</div>
+			
+		</div>
+		<div class="stepBotBtn">
+			<span id="videoBtn" class="stepBtn" loreType="guide" style="display: block;">我听完了</span>
+			<span id="guideBtn" loreType="loreList" class="stepBtn">我看完了</span>
+			<span id="loreBtn" loreType="example" class="stepBtn">我背完了</span>
+			<span id="exampleBtn" loreType="practice" class="stepBtn">我学会了</span>
+		</div>
+		<!-- 答题卡layer -->
+		<div id="queCardLayer" class="layer"></div>
+		<div id="quesCardList" class="quesCardList">
+			<div class="quesNumTxt">
+				<p><em id="currQuesNumTxt" class="currQuesNum"></em>/<span class="totalQuesNumCard"></span></p>
+				<i class="iconfont icon-caidan"></i>
+			</div>
+			<div class="innerQuesCardlist">
+				<ul id="innerQuesCartUl" class="clearfix"></ul>
+			</div>
+		</div>
+		<!-- 答题正确和错误提示层 -->
+		<div id="tipInfoBox" class="tipInfoBox">
+			<!-- errorImg -->
+			<span class="rightErrorImg rightImg"></span>
+			<div class="errRightInfoTxt">
+				<!-- rightState -->
+				<p class="infoState errState clearfix">
+					<i class="iconfont tipIcon icon-xiaolian"></i>
+					<!-- 
+						很遗憾你答错了！
+						胜不骄败不馁，再接再厉取得好成绩
+					 -->
+					<!-- <i class="iconfont tipIcon icon-cry"></i> -->
+					<span>恭喜你答对了！</span>
+				</p>
+				<p class="info"></p>
+			</div>
+		</div>
+		<div class="maskLayer"></div>
+		
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../buffetStudy/js/questionList_bf.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/comLastSubmit.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../studyOnline/js/stepStudy.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../studyOnline/js/comStudy.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var completeNum = 0,questionLength = 0; //当前已经做过题的数量包括对和错
+			var perScale = 0; // 当前已做过题的比例
+			var lastCommitNumber = 0;
+			var currentAllQuestionFlag = 1,originLoreId=0,loreTaskName='',lorePath='',currPageType='studyPage_hw',comMoveWid_gg=0,globalTjId=0;
+			var player = null,_self=null,currPage = 1,currPos = '';
+			mui.plusReady(function(){
+				_self = plus.webview.currentWebview().currField,
+				currPage = plus.webview.currentWebview().currPage;
+				currPos = plus.webview.currentWebview().currPos;
+				globalTjId = _self.tjId;
+				var page = {
+					init : function(){
+						this.initLiWid();
+						this.bindEvent();
+						this.getStepStudyInfo();
+					},
+					initLiWid : function(){
+						$(".studyNav li").each(function(i){
+							$(".studyNav li").eq(i).width(parseInt($(".studyNav").width()/5)-1);
+						});
+						$("#moveDiv").width($("#guidePoint").width());
+					},
+					closeQuesCard : function(){
+						$('#quesCardList').addClass('animationClose').removeClass('animation');
+						setTimeout(function(){
+							$('.layer').hide();
+						},400);
+					},
+					bindEvent : function(){
+						var _this = this;
+						$('#videoBtn').on('touchend',function(){
+							var loreType = $(this).attr('loreType');
+							$('#loreTypeName').val(loreType);
+							_this.getStepStudyInfo();
+						});
+						$('#guideBtn').on('touchend',function(){
+							var loreType = $(this).attr('loreType');
+							$('#loreTypeName').val(loreType);
+							_this.getStepStudyInfo();
+						});
+						$('#loreBtn').on('touchend',function(){
+							var loreType = $(this).attr('loreType');
+							$('#loreTypeName').val(loreType);
+							_this.getStepStudyInfo();
+						});
+						$('#exampleBtn').on('touchend',function(){
+							var loreType = $(this).attr('loreType');
+							var allNumber = $("#number_jtsf").val();
+							$('#loreTypeName').val(loreType);
+							if(allNumber == ""){
+								_this.getStepStudyInfo();
+							}else{
+								var number = allNumber.split(",").length - 1;
+								plus.nativeUI.toast(number+"题尚未解答,请继续答题");
+							}
+						});
+						app.getId('showQueCard').addEventListener('tap',function(){
+							setTimeout(function(){
+								$('.layer').show();
+								$('#quesCardList').addClass('animation').removeClass('animationClose');
+							},200);
+						});
+						app.getId('queCardLayer').addEventListener('tap',function(){
+							_this.closeQuesCard();
+						});
+					},
+					getStepStudyInfo : function(){
+						app.showToast(1);
+						var loreTypeName = $('#loreTypeName').val();
+						var _this = this;
+						var field = {tjId:_self.tjId,currentLoreId:_self.currentLoreId,loreTypeName:loreTypeName};
+						$.ajax({
+							url : http_ + '/hw.do?action=getStepStudyData',
+							data:field, 
+							dataType:'json',
+							type:'post',
+							timeout:10000,
+							success:function(json){
+								app.showToast(2); 
+								//console.log( JSON.stringify( json ) )
+								if(json.result == 'success'){
+									//originLoreId = json.loreId;
+									$('#bigTit').html(json.loreName);
+									$('#smTit').html(json.subDetail);
+									if(json.loreTypeName == 'video'){
+										renderStudyInfo_video(json);
+									}else if(json.loreTypeName == '点拨指导'){
+										renderStudyInfo_guide(json.sourceDetail);
+									}else if(json.loreTypeName == '知识清单'){
+										renderStudyInfo_loreList(json.sourceDetail);
+									}else if(json.loreTypeName == '解题示范'){
+										renderStudyInfo_jieti(json.sourceDetail);
+									}else if(json.loreTypeName == '巩固训练'){
+										renderStudyInfo_gg(json.sourceDetail);
+									} 
+								}else if(json.result == 'noInfo'){
+									
+								}else if(json.result == 'error'){
+									plus.nativeUI.toast('服务器异常');
+								}
+							},
+							error:function(xhr,type,errorThrown){
+								app.showToast(2);
+								plus.nativeUI.toast('服务器异常');
+							}
+						});
+					}
+				};
+				page.init();
+			});
+		</script>
+	</body>
+</html>

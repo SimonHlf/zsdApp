@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/myNtTea.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/mobileSelect.css"/>
+		<title>导师基本信息</title>
+	</head>
+	<body class="paddingTop bodyBg">
+		<div class="comHeader hasBor">
+			<a id="backBtn" class="posL" href="javascript:mui.back();"><i class="iconfont icon-fanhui"></i></a>
+			<span id="headerTit" class="headerTit"></span>
+		</div>
+		<div class="bascInfo">
+			<div class="myNtModTit"><span></span><p>导师基本信息</p></div>
+			<div class="basicItem">
+				<span>导师姓名：</span>
+				<p id="ntName"></p>
+			</div>
+			<div class="basicItem">
+				<span>担任学段科目：</span>
+				<p id="shTypeSub"></p>
+			</div>
+			<div id="payFudao_fee" class="basicItem">
+				<span>辅导费用：</span>
+				<p id="feeNum"></p>
+				<p id="discortTxt" class="discortTxt"></p>
+			</div>
+			<div id="payTime_fee" class="basicItem">
+				<span>购买时长：</span>
+				<input type="hidden" id="monthInp" value="1" />
+				<div class="mothWrap">
+					<p id="monthTxt">1个月</p>
+					<em class="triEm"></em>
+				</div>
+			</div>
+			<div id="payTime_Freefee" class="basicItem">
+				<span>购买时长：</span>
+				<p>试用7天</p>
+			</div>
+		</div>
+		<span id="freeBtn" class="subOrder">免费试用</span>
+		<span id="subOrder" class="subOrder">提交订单</span>
+		
+		
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/mobileSelect.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			//导师姓名，辅导学科，学段，购买时长：试用7天
+			var isUpFlag = false,globalNtFee = 0,ntId = 0;
+			var monthData = [
+				{"type":1,"value":"1个月"},
+				{"type":2,"value":"2个月"},
+				{"type":3,"value":"3个月"},
+				{"type":4,"value":"4个月"},
+				{"type":5,"value":"5个月"},
+				{"type":6,"value":"6个月"},
+				{"type":7,"value":"7个月"},
+				{"type":8,"value":"8个月"},
+				{"type":9,"value":"9个月"},
+				{"type":10,"value":"10个月"},
+				{"type":11,"value":"11个月"},
+				{"type":12,"value":"12个月"}
+			];
+			var userInfo = JSON.parse(localStorage.getItem('userInfo'));
+			mui.init({
+				beforeback : function(){
+					var opener = plus.webview.currentWebview().opener();
+					mui.fire(opener,'upDateMyNtList',{isUpFlag:isUpFlag});
+					return true;
+				} 
+			});
+			mui.plusReady(function(){
+				var ntField = plus.webview.currentWebview().ntField;
+				ntId = ntField.ntId;
+				var page = {
+					init : function(){
+						this.loadNtInfo(ntField);
+						var _this = this;
+						new MobileSelect({
+							trigger: '#monthTxt',
+							title: '请选择购买时长',
+							wheels: [ 
+								{data: monthData}
+							],
+							position:[0], //初始化定位 打开时默认选中的哪个 如果不填默认为0
+							transitionEnd:function(indexArr, data){},
+							callback:function(indexArr, data){
+								app.getId('monthInp').value = data[0].type;
+								_this.reloadNtInfo();
+							}
+						});
+						//免费试用
+						app.getId('freeBtn').addEventListener('tap',function(){
+							var btnArray = ['确定','取消'];
+							mui.confirm('是否确认要免费试用此导师?', '免费试用提示', btnArray, function(e){
+								if(e.index == 0){
+									mui.ajax(http_ + '/ntsBind.do?action=ntsFreeBind',{
+										data:{ntId:ntId,userId:userInfo.userId,roleId:userInfo.roleId},
+										dataType:'json',
+										type:'post',
+										timeout:10000,
+										success:function(json){
+											app.showToast(2);
+											if(json.result == 'success'){
+												mui.toast('免费试用绑定导师成功');
+												isUpFlag = true;
+												setTimeout(function(){
+													mui.back();
+												});
+											}else if(json.result == 'checkFail'){
+												mui.toast('该导师审核未通过');
+											}else if(json.result == 'paraDiff'){
+												mui.toast('该导师辅导学段和你目前所处学段不一致');
+											}else if(json.result == 'error'){
+												mui.toast('服务器错误');
+											}
+										},
+										error:function(xhr,type,errorThrown){
+											app.showToast(2);
+											console.log(errorThrown)
+										} 
+									})
+								}
+							});
+							
+						});
+						app.getId('subOrder').addEventListener('tap',function(){
+							var monthTxt = app.getId('monthInp').value;
+							mui.toast('后续开放');
+							//app.openwin('subOrder.html',{ntId:ntId,selMonth:monthTxt,ntFee:globalNtFee,jumpPos:'byNtInfo'});
+						});
+					},
+					//每次选择时长从新加载ntInfo
+					reloadNtInfo : function(){
+						app.showToast(1);
+						var selMonth = app.getId('monthInp').value,_this = this;
+						var field = {userId:userInfo.userId,roleId:userInfo.roleId,selMonth:selMonth,ntId:ntId};
+						mui.ajax(http_ + '/pay.do?action=getNtFee',{
+							data:field,
+							dataType:'json',
+							type:'post',
+							timeout:10000,
+							success:function(json){
+								app.showToast(2);
+								console.log(JSON.stringify( json ))
+								if(json.result == 'success'){
+									ntId = json.ntId;
+									_this.loadNtInfo(json)
+								}else if(json.result == 'noInfo'){
+									mui.toast('该导师不存在');
+								}else if(json.result == 'noBuy'){
+									mui.toast('选择时长涉及升学，不能购买');
+								}else if(json.result == 'bindExist'){
+									mui.toast('该科目下已存在正在绑定的导师');
+								}else if(json.result == 'checkFail'){
+									mui.toast('该导师审核未通过');
+								}else if(json.result == 'paraDiff'){
+									mui.toast('该导师辅导学段和你目前所处学段不一致');
+								}else if(json.result == 'error'){
+									mui.toast('服务器错误');
+								}
+							},
+							error:function(xhr,type,errorThrown){
+								app.showToast(2);
+								console.log(errorThrown)
+							} 
+						})
+					},
+					loadNtInfo : function(json){
+						globalNtFee = json.fee;
+						app.getId('headerTit').innerHTML =  json.ntName + '导师基本信息';
+						app.getId('ntName').innerHTML = json.ntName;
+						app.getId('shTypeSub').innerHTML = json.schoolType + json.subName;
+						app.getId('feeNum').innerHTML = '<b class="feeNumTxt">¥' + json.fee + '</b>';
+						if(json.zkRate != '100.0%'){
+							app.getId('discortTxt').style.display = 'block';
+							app.getId('discortTxt').innerHTML = parseInt(json.zkRate)/10 + '折';
+						}else{
+							app.getId('discortTxt').style.display = 'none';
+							app.getId('discortTxt').innerHTML = '';
+						}
+						app.getId('ntName').innerHTML = json.ntName;
+						if(json.bindStatus == -1){//免费试用
+							app.getId('payTime_Freefee').style.display = 'block';
+							app.getId('freeBtn').style.display = 'block';
+						}else if(json.bindStatus == 1){//付费绑定
+							app.getId('payFudao_fee').style.display = 'block';
+							app.getId('payTime_fee').style.display = 'block';
+							app.getId('subOrder').style.display = 'block';
+						}
+					}
+				};
+				page.init();
+			});
+		</script>
+	</body>
+</html>

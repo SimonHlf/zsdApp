@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/studyMap.css"/>
+		<title>在线学习</title>
+	</head>
+	<body>
+		<div class="comHeader hasBor">
+			<a id="backBtn" class="posL" href="javascript:mui.back();"><i class="iconfont icon-fanhui"></i></a>
+			<span class="headerTit mapHeaderTit"></span>
+			<em id="taskAwardBtn" class="taskAwardBtn"><img src="../../images/awrad.png"/></em>
+		</div>
+		<!-- 视频讲解 点拨指导 知识清单 解题示范 -->
+		<div class="studyMapFour">
+			<ul class="clearfix">
+				<li id="shipinBtn" loreTypeName="知识讲解"><p>知识讲解</p></li>
+				<li id="dianboBtn" loreTypeName="点拨指导"><p>点拨指导</p><i id="dianboIcon" class="iconfont icon-lock"></i></li>
+				<li id="qingdanBtn" loreTypeName="知识清单"><p>知识清单</p><i id="qingdanIcon" class="iconfont icon-lock"></i></li>
+				<li id="jietiBtn" loreTypeName="解题示范"><p>解题示范</p><i id="jietiIcon" class="iconfont icon-lock"></i></li>
+			</ul>
+		</div>
+		<!-- 学习Map -->
+		<div class="currStudyTit">
+			<span></span>
+			<p id="currTaskName" class="ellip"></p>
+		</div>
+		<div class="currLoreWrap">
+			<p class="currTxt clearfix">
+				<span class="fl">当前知识点：</span>
+				<strong class="loreName fl ellip"></strong>
+			</p>
+			<div class="goldenBox">
+				<span id="goldenNum"></span>
+				<img src="../../images/golden.png"/>
+			</div>
+			<div class="mapTxt clearfix">
+				<span class="fl">溯源路线图</span>
+				<p class="levelTxt totalLevel fl"></p>
+				<p class="levelTxt totalLoreNum fl"></p>
+				<p id="viewSuyuanBtn" class="viewSuyuanBtn fl">查看溯源<i id="suyuanIcon" class="iconfont icon-lock"></i></p>
+			</div>
+			<!-- 开始诊断 开始答题 btn-->
+			<a id="goStudyBtn" class="goStudyBtn"><span id="btnVal"></span><i id="goStudyBtnIcon" class="iconfont icon-lock"></i></a>
+		</div>
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/h.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var mapId = 0;//地图编号
+			var currStep = 0,field = null,currCptId = 0,jumpPos = 'study',byComPos = ''; 
+			mui.init({
+				beforeback : function(){
+					if(byComPos == 'chapList'){//在线学习章节列表进来
+						var chapterList = plus.webview.currentWebview().opener();
+						mui.fire(chapterList,'upDateChapterList',{currCptId:currCptId});//更新chapterList
+					}else if(byComPos == 'byLearnDet'){//从在线学习记录详情继续学习进来
+						var learnDet = plus.webview.currentWebview().opener();
+						mui.fire(learnDet,'upDateLearnRec');
+					}
+					return true;
+				}
+			});
+			mui.plusReady(function () {
+			    var _self = plus.webview.currentWebview();
+				byComPos = _self.byComPos;
+				if(byComPos == 'chapList'){
+					currCptId = _self.currCptId;
+				}
+				field = { userId:_self.userId,loreId:_self.loreId,studyLogId:_self.studyLogId};
+			//	console.log(JSON.stringify( field ))
+				var page = {
+					data : {
+						loreId:0,
+						nextLoreId : 0,
+						loreType:'',
+						loreTaskName:'',
+						studyLogId:0,
+						isFinish : -1 ,//1未完成 2完成,
+						pathType:'',
+						loreName:''
+					},
+					init : function(){
+						h('.headerTit').html(_self.loreName);
+						this.getStudyMapInfo();
+						this.bindEvent(); 
+						this.loadTaskDet();
+					},
+					//加载当前任务详情
+					loadTaskDet : function(){
+						var _this = this;
+						app.showToast(1); 
+						mui.ajax(http_ + '/onlineStudy.do?action=getStudyMapData',{
+							data:{userId:_self.userId,loreId:_self.loreId,studyLogId:_self.studyLogId,logType:1}, 
+							dataType:'json',
+							type:'post',
+							timeout:10000,
+							success:function(json){
+								//console.log( JSON.stringify( json ) )
+								app.showToast(2);
+								if(json.result == 'success'){ 
+									h('#currTaskName').html('任务' + json.task + '：' + json.loreTaskName);
+									h('#goldenNum').html(json.coin); 
+									h('#btnVal').html(json.buttonValue);
+									h('.loreName').html(json.loreName);
+									h('.totalLevel').html('共' + json.stepCount + '级');
+									h('.totalLoreNum').html('共' + json.loreCount + '个知识点');
+									_this.data.loreName = json.loreName;
+									_this.data.loreType = json.loreType;
+									_this.data.nextLoreId = json.nextLoreIdArray;
+									_this.data.loreTaskName = json.loreTaskName;
+									_this.data.loreId = json.loreId;
+									_this.data.studyLogId = json.studyLogId;
+									_this.data.isFinish = json.isFinish;
+									_this.data.pathType = json.pathType;
+								}else if(json.result == 'inUseError'){
+									plus.nativeUI.toast('当前知识点无效,不能做题');
+								}else if(json.result == 'error'){
+									plus.nativeUI.toast('获取当前任务信息失败');
+								}
+							},
+							error:function(xhr,type,errorThrown){
+								app.showToast(2);
+								plus.nativeUI.toast('服务器异常');
+							}
+						});
+					},
+					//一个知识点一天只能完成一次
+					checkCurrentLore : function(studyLogId){
+						var flag = false;
+						mui.ajax(http_ + '/onlineStudy.do?action=checkCurrentLore',{
+							data:{studyLogId:studyLogId}, 
+							dataType:'json',
+							type:'post',
+							async:false,
+							timeout:10000,
+							beforeSend : function(){
+								app.showToast(1);
+							},
+							success:function(json){
+								app.showToast(2);
+								if(json.studyFlag == true){
+									flag = true;
+								}else if(json.studyFlag == false){
+									flag = false;
+								}
+							},
+							error:function(xhr,type,errorThrown){
+								app.showToast(2);
+								plus.nativeUI.toast('服务器异常');
+							}
+						});
+						return flag;
+					},
+					bindEvent : function(){
+						var _this = this;
+						app.getId('taskAwardBtn').addEventListener('tap',function(){
+							var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+							var currField = {loreId:_this.data.loreId,studyLogId:_this.data.studyLogId,logType:1,userId:userInfo.userId}
+							app.openwin('taskAward.html',{currField:currField,loreName:_this.data.loreName,});
+							/*var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+							var currStatus = app.checkLoginStatus(userInfo.userId,userInfo.loginStatus);
+							if(currStatus){
+								var currField = {loreId:_this.data.loreId,studyLogId:_this.data.studyLogId,logType:1,userId:userInfo.userId}
+								app.openwin('taskAward.html',{currField:currField,loreName:_this.data.loreName,});
+							}*/
+						});
+						//视频讲解
+						app.getId('shipinBtn').addEventListener('tap',function(){
+							var loreTypeName = this.getAttribute('loreTypeName');
+							var currField = { loreTypeName:escape(loreTypeName)};
+							mui.extend(currField,field);
+							app.openwin('video.html',{field:currField,jumpPos:jumpPos});
+							/*var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+							var currStatus = app.checkLoginStatus(userInfo.userId,userInfo.loginStatus);
+							if(currStatus){
+								var currField = { loreTypeName:escape(loreTypeName)};
+								mui.extend(currField,field);
+								app.openwin('video.html',{field:currField,jumpPos:jumpPos});
+							}*/
+						});
+						//点拨指导
+						app.getId('dianboBtn').addEventListener('tap',function(){
+							if(currStep >= 1){
+								var loreTypeName = this.getAttribute('loreTypeName');
+								var currField = { loreTypeName:escape(loreTypeName)};
+								mui.extend(currField,field);
+								app.openwin('dianbozhidao.html',{field:currField,jumpPos:jumpPos});
+								/*var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+								var currStatus = app.checkLoginStatus(userInfo.userId,userInfo.loginStatus);
+								if(currStatus){
+									var currField = { loreTypeName:escape(loreTypeName)};
+									mui.extend(currField,field);
+									app.openwin('dianbozhidao.html',{field:currField,jumpPos:jumpPos});
+								}*/
+							}else{
+								mui.toast('请先观看知识讲解');
+							}
+						});
+						//知识清单 
+						app.getId('qingdanBtn').addEventListener('tap',function(){
+							if(currStep >= 2){
+								var loreTypeName = this.getAttribute('loreTypeName');
+								var currField = { loreTypeName:escape(loreTypeName)};
+								mui.extend(currField,field);
+								app.openwin('zhishiqingdan.html',{field:currField,jumpPos:jumpPos});
+								/*var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+								var currStatus = app.checkLoginStatus(userInfo.userId,userInfo.loginStatus);
+								if(currStatus){
+									var currField = { loreTypeName:escape(loreTypeName)};
+									mui.extend(currField,field);
+									app.openwin('zhishiqingdan.html',{field:currField,jumpPos:jumpPos});
+								}*/
+							}else{
+								mui.toast('请先观看点拨指导');
+							}
+						});
+						//解题示范 
+						app.getId('jietiBtn').addEventListener('tap',function(){
+							if(currStep >= 3){
+								var loreTypeName = this.getAttribute('loreTypeName');
+								var currField = { loreTypeName:escape(loreTypeName)};
+								mui.extend(currField,field);
+								app.openwin('jietishifan.html',{field:currField,jumpPos:jumpPos});
+								/*var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+								var currStatus = app.checkLoginStatus(userInfo.userId,userInfo.loginStatus);
+								if(currStatus){
+									var currField = { loreTypeName:escape(loreTypeName)};
+									mui.extend(currField,field);
+									app.openwin('jietishifan.html',{field:currField,jumpPos:jumpPos});
+								}*/
+							}else{
+								mui.toast('请性详细观看知识清单');
+							}
+						}); 
+						//查看溯源
+						app.getId('viewSuyuanBtn').addEventListener('tap',function(){
+							if(currStep >= 4){
+								/*var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+								var currStatus = app.checkLoginStatus(userInfo.userId,userInfo.loginStatus);
+								var currField = {loreId:_this.data.loreId,studyLogId:_this.data.studyLogId,userId:userInfo.userId,logType:1};
+								if(currStatus){
+									app.openwin('traceBackList.html',{field:currField});
+								}*/
+								var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+								var currField = {loreId:_this.data.loreId,studyLogId:_this.data.studyLogId,userId:userInfo.userId,logType:1};
+								app.openwin('traceBackList.html',{field:currField});
+							}else{
+								mui.toast('请详细学习解题示范');
+							}
+						});
+						app.getId('goStudyBtn').addEventListener('tap',function(){
+							var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+							//var currStatus = app.checkLoginStatus(userInfo.userId,userInfo.loginStatus),flag = false;
+							var flag = false;
+							if(currStep >= 4){
+								if(_this.data.isFinish == 2){//该知识点完成
+									if( !_this.checkCurrentLore(_this.data.studyLogId) ){//当天已经完成，不能再做
+										plus.nativeUI.toast('一个知识点一天只能完成一次');
+										flag = false;
+									}else{
+										flag = true;
+									}
+								}else{
+									flag = true;	
+								}
+								if(flag){
+									if(_this.data.pathType == 'diagnosis'){//各种诊断
+										var currField = { userId:_self.userId,loreId:_self.loreId,studyLogId:_this.data.studyLogId,loreTaskName: _this.data.loreTaskName,nextLoreIdArray: _this.data.nextLoreId,loreType:escape(_this.data.loreType)};
+										app.openwin('questionList.html',{ currField:currField,originLoreId:_this.data.loreId,byComPos:byComPos});
+									}else{//学习
+										var currField = {userId:userInfo.userId,loreName:_this.data.loreName,studyLogId:_this.data.studyLogId,nextLoreIdArray: _this.data.nextLoreId,loreTaskName: _this.data.loreTaskName};
+										app.openwin('studyWelcome.html',{ currField: currField,byComPos:byComPos });
+									}
+								}
+							}else{
+								mui.toast('请详细观看解题示范');
+							}
+						});
+					},
+					initStudyMapSta : function(currStep){
+						if(currStep === 0){
+							h('#dianboIcon').show();
+							h('#qingdanIcon').show();
+							h('#jietiIcon').show();
+							h('#suyuanIcon').show();
+							h('#goStudyBtnIcon').show();
+						}else if(currStep == 1){
+							h('#dianboIcon').remove();
+							h('#qingdanIcon').show();
+							h('#jietiIcon').show();
+							h('#suyuanIcon').show();
+							h('#goStudyBtnIcon').show();
+						}else if(currStep == 2){
+							h('#dianboIcon').remove();
+							h('#qingdanIcon').remove();
+							h('#jietiIcon').show();
+							h('#suyuanIcon').show();
+							h('#goStudyBtnIcon').show();
+						}else if(currStep == 3){
+							h('#dianboIcon').remove();
+							h('#qingdanIcon').remove();
+							h('#jietiIcon').remove();
+							h('#suyuanIcon').show();
+							h('#goStudyBtnIcon').show();
+						}else if(currStep == 4){
+							h('#dianboIcon').remove();
+							h('#qingdanIcon').remove();
+							h('#jietiIcon').remove();
+							h('#suyuanIcon').remove();
+							h('#goStudyBtnIcon').remove();
+						}
+					},
+					getStudyMapInfo : function(){
+						var _this = this;
+						mui.ajax(http_ + '/onlineStudy.do?action=getStudyMapInfo',{
+							data:{userId:_self.userId,loreId:_self.loreId}, 
+							dataType:'json',
+							type:'post',
+							timeout:10000,
+							success:function(json){
+								//视频讲解(0)，点拨指导(1),知识清单(2),解题示范(3),溯源路线图/在线学习(4)
+								currStep = json.currStep;
+								mapId = json.mapId;
+								_this.initStudyMapSta(currStep);
+							},
+							error:function(xhr,type,errorThrown){
+								plus.nativeUI.toast('服务器异常');
+							}
+						});
+					}
+				}; 
+				page.init();
+				document.addEventListener('upDataMapData',function(){
+					_self.studyLogId = page.data.studyLogId;
+					page.loadTaskDet();
+				});
+				//返回更新stepNum
+				document.addEventListener('updateStepNum',function(){
+					page.getStudyMapInfo()
+				});
+			});
+		</script>
+	</body>
+</html>

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/myStudio.css"/>
+		<title>加入工作室的详情</title>
+	</head>
+	<body class="paddingTop">
+		<div class="comHeader otherBg">
+			<a id="backBtn" class="posL" href="javascript:mui.back();"><i class="iconfont icon-fanhui"></i></a>
+			<span id="headerTit" class="headerTit"></span>
+		</div>
+		<div class="studioInfo">
+			<div class="studioItem">
+				<span>工作室名称：</span>
+				<p id="studioName"></p>
+			</div>
+			<div class="studioItem">
+				<span>创建人：</span>
+				<p id="ownerName"></p>
+			</div>
+			<div class="studioItem_spec">
+				<span>工作室简介：</span>
+				<p id="studioProfile"></p>
+			</div>
+			<div class="studioItem">
+				<span>成员人数：</span>
+				<p id="memberNum">20人</p>
+			</div>
+		</div>
+		<span id="joinBtn" class="joinBtn">加入</span>
+		
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+			var isJoinFlag = false;
+			mui.init({
+				beforeback : function(){
+					var opener = plus.webview.currentWebview().opener();
+					mui.fire(opener,'upDateIsJoinStudio',{isJoinFlag:isJoinFlag});
+					return true;
+				} 
+			});
+			mui.plusReady(function(){
+				var field = plus.webview.currentWebview().field,
+					studioCode = plus.webview.currentWebview().studioCode;
+				isJoinFlag = plus.webview.currentWebview().isJoinFlag;
+				var page = {
+					init : function(){
+						app.getId('headerTit').innerHTML = field.ownerInfo + '的工作室详情';
+						app.getId('studioName').innerHTML = field.studioName;
+						app.getId('ownerName').innerHTML = field.ownerInfo;
+						app.getId('studioProfile').innerHTML = field.studioProfile;
+						app.getId('memberNum').innerHTML = field.teaNum + '人';
+						this.bindEvent();
+					},
+					bindEvent : function(){
+						app.getId('joinBtn').addEventListener('tap',function(){
+							var btnArray = ['确定','取消'];
+							mui.confirm('确认要加入' + field.ownerInfo + '的工作室?', '加入工作室提示', btnArray, function(e) {
+								if(e.index == 0){
+									app.showToast(1);
+									console.log('studioCode=' + studioCode)
+									mui.ajax(http_ + '/ntStudio.do?action=addNtStudioRelation',{
+										data:{userId:userInfo.userId,studioCode:studioCode,roleId:userInfo.roleId},
+										dataType:'json',
+										type:'post',
+										timeout:10000,  
+										success:function(json){ 
+											app.showToast(2);
+											//console.log(JSON.stringify( json ))
+											if(json.msg == 'success'){
+												mui.toast('加入'+ field.ownerInfo +'的工作室成功');
+												isJoinFlag = true;
+												setTimeout(function(){
+													mui.back();
+												},400);
+											}else if(json.msg == 'fail'){
+												mui.toast('加入失败，请重试！');
+											}else if(json.msg == 'noAddSelf'){
+												mui.toast('暂不能加入自己的工作室');
+											}
+										},
+										error:function(xhr,type,errorThrown){
+											app.showToast(2);
+											plus.nativeUI.toast('服务器错误');
+										} 
+									});
+								}
+							});
+						});
+					}
+				};
+				page.init();
+			});
+		</script>
+	</body>
+</html>

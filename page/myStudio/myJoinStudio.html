@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/myStudio.css"/>
+		<title>我加入的工作室</title>
+	</head>
+	<body class="paddingTop">
+		<div class="comHeader otherBg">
+			<a id="backBtn" class="posL" href="javascript:mui.back();"><i class="iconfont icon-fanhui"></i></a>
+			<span class="headerTit">我加入的工作室</span>
+		</div>
+		<!-- 输入工作室邀请码 -->
+		<div id="entryCode" class="entryCode">
+			<input type="text" id="entryCodeInp" placeholder="请输入工作室邀请码" maxlength="12" />
+			<span id="getCodeInfoBtn">确定</span>
+		</div>
+		<div id="studioWrap" class="studioWrap">
+			<div class="myStudioInfo">
+				<div class="innerInfo">
+					<div class="item">
+						<span>工作室名称</span>
+						<p id="studioName"></p>
+					</div>
+					<div class="item_spec">
+						<span>工作室介绍</span>
+						<p id="studioProfile"></p> 
+					</div>
+					<div class="item noBorBot">
+						<span>工作室邀请码</span>
+						<p id="inviteCodeWrap" class="inviteCode inviteCodeWrap">
+							<em id="inviteCode"></em>
+						</p>
+					</div>
+				</div>
+			</div>
+			<!-- 工作室成员 -->
+			<div class="memberList">
+				<strong class="titStrong">工作室成员</strong>
+				<ul id="listMember" class="listMember clearfix"></ul>
+			</div>
+		</div>
+		<div id="layer" class="layer"></div>
+		<div id="stuNum" class="stuNum">
+			<div class="stuNumTop">
+				<strong id="ntNameTxt"></strong>
+			</div>
+			<div class="stuNumBot">
+				<p>免费学生数：<span id="freeNum"></span>人</p>
+				<p>付费学生数：<span id="payNum"></span>人</p>
+				<p>免费试用学生数：<span id="freeTrailNum"></span>人</p>
+			</div>
+			<span id="sureBtn" class="sureBtn">确定</span>
+		</div>
+		
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+			mui.plusReady(function(){
+				var page = {
+					init : function(){
+						this.bindEvent();
+						this.loadMyJoinStudio();
+					},
+					closeStuNum : function(){
+						app.getId('layer').style.display = 'none';
+						app.getId('stuNum').style.display = 'none';
+						app.getId('freeNum').innerHTML = '';
+						app.getId('payNum').innerHTML = '';
+						app.getId('freeTrailNum').innerHTML = '';
+					},
+					bindEvent : function(){
+						var _this = this;
+						app.getId('getCodeInfoBtn').addEventListener('tap',function(){
+							var entryCodeInp = app.trim(app.getId('entryCodeInp').value);
+							if(entryCodeInp == ''){
+								mui.toast('请输入工作室邀请码');
+								return;
+							}
+							mui.ajax(http_ + '/ntStudio.do?action=getNtStudioInfo',{
+								data:{userId:userInfo.userId,studioCode:entryCodeInp},
+								dataType:'json',
+								type:'post',
+								timeout:10000,  
+								success:function(json){
+									app.showToast(2);
+									console.log(JSON.stringify( json ))
+									if(json.result == 'success'){
+										app.openwin('joinStudioInfo.html',{field:json,studioCode:entryCodeInp,isJoinFlag:false});
+									}else if(json.result == 'noInfo'){
+										mui.toast('暂无此工作室');
+									}else if(json.result == 'noAddSelf'){
+										mui.toast('暂不能加入自己的工作室');
+									}
+								},
+								error:function(xhr,type,errorThrown){
+									app.showToast(2);
+									plus.nativeUI.toast('服务器错误');
+								} 
+							});
+						});
+						mui('#listMember').on('tap','li',function(){
+							var freetrial = this.getAttribute('freetrial'),
+								free = this.getAttribute('free'),
+								pay = this.getAttribute('pay'),
+								ntName = this.getAttribute('ntName');
+							app.getId('ntNameTxt').innerHTML = ntName + '老师班内学生人数';
+							app.getId('layer').style.display = 'block';
+							app.getId('stuNum').style.display = 'block';
+							app.getId('freeNum').innerHTML = free;
+							app.getId('payNum').innerHTML = pay;
+							app.getId('freeTrailNum').innerHTML = freetrial;
+						});
+						app.getId('sureBtn').addEventListener('tap',function(){
+							_this.closeStuNum();
+						});
+						app.getId('layer').addEventListener('tap',function(){
+							_this.closeStuNum();
+						});
+					},
+					//加载我加入的工作室信息
+					loadMyJoinStudio : function(){
+						var _this = this;
+						app.showToast(1);
+						mui.ajax(http_ + '/ntStudio.do?action=getOtherNTStudio',{
+							data:{userId:userInfo.userId},
+							dataType:'json',
+							type:'post',
+							timeout:10000,  
+							success:function(json){ 
+								app.showToast(2);
+								//console.log(JSON.stringify( json ))
+								if(json.msg == 'success'){
+									app.getId('studioWrap').style.display = 'block';
+									app.getId('studioName').innerHTML = json.studioName;
+									app.getId('studioProfile').innerHTML = json.studioProfile;
+									app.getId('inviteCode').innerHTML = json.studioCode;
+									//app.getId('inviteCodeWrap').setAttribute('data-clipboard-text','老师您好，我的工作室【' + json.studioName +'】已建立,邀请码为'+ json.studioCode +',欢迎您的加入到我的工作室。【知识典】下载链接：'+ http_ +'/baseInfo.do?action=downApp');
+									if(json.ntStudioInfo.length > 0){ 
+										_this.renderStudioMember(json.ntStudioInfo);
+									}else{
+										app.getId('listMember').innerHTML = '<div id="noData" class="noData" style="margin-top:0rem;"><img src="../../images/noData.png" /><p>暂无成员！</p></div>';
+									}
+								}else if(json.msg == 'noInfo'){
+									app.getId('entryCode').style.display = 'block';
+								}
+							},
+							error:function(xhr,type,errorThrown){
+								app.showToast(2);
+								plus.nativeUI.toast('服务器错误');
+							} 
+						});
+					},
+					renderStudioMember : function(list){
+						var str = '';
+						for(var i=0;i<list.length;i++){
+							str += '<li ntName="'+ list[i].ntName +'" freetrial="'+ list[i].freetrial +'" free="'+ list[i].free +'" pay="'+ list[i].pay +'">';
+							str += '<div class="headPic"><img src="'+ http_ +'/'+ list[i].ntPortrait +'"/></div>';
+							str += '<p class="ellip">'+ list[i].ntName +'</p>';
+							str += '</li>';
+						}
+						app.getId('listMember').innerHTML = str;
+					}
+				};
+				page.init();
+				document.addEventListener('upDateIsJoinStudio',function(e){
+					var isJoinFlag = e.detail.isJoinFlag;
+					if(isJoinFlag){
+						app.getId('entryCode').style.display = 'none';
+						page.loadMyJoinStudio();
+					}
+				});
+			});
+		</script>
+		
+	</body>
+</html>

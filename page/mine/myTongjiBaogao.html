@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/myLearningRecord.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/myTongjiBaogao.css"/>
+		<title>自助餐统计报告</title>
+	</head>
+	<body class="paddingTop">
+		<div class="comHeader otherBg">
+			<a id="backBtn" class="posL" href="javascript:mui.back();"><i class="iconfont icon-fanhui"></i></a>
+			<span class="headerTit">自助餐统计报告</span>
+			<input type="hidden" id="currSubId" value="0" />
+			<input type="hidden" id="stuIdInp"/>
+			<p id="stuWrap" class="subject">
+				<span id="stuTxt"></span>
+				<i class="iconfont icon-qiehuan"></i>
+			</p>
+			<p id="subject" class="subject">
+				<span id="subTxt">全部</span>
+				<i class="iconfont icon-qiehuan"></i>
+			</p>
+		</div>
+		<div id="buffetData" class="buffetData">
+			<div id="buffetData_abiility" class="buffetChart">
+				
+			</div>
+			<div id="buffetData_mind" class="buffetChart">
+				
+			</div>
+		</div>
+		
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../libs/echarts.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var userInfo = JSON.parse(localStorage.getItem('userInfo')),subField = [],subTxt = '全部',subStuTxt = '';
+			mui.plusReady(function(){
+				var jumpRole = plus.webview.currentWebview().jumpRole;
+				if(jumpRole == 'stPar'){
+					app.getId('subject').style.display = 'block';
+				}else{
+					app.getId('stuWrap').style.display = 'block';
+				}
+				var page = {
+					init : function(){
+						if(jumpRole == 'stPar'){
+							this.loadSubject();//获取学科
+							this.loadBuffetChart();
+							subStuTxt = '全部';
+						}else{
+							this.loadStuList();
+						}
+						this.bindEvent();
+					},
+					bindEvent : function(){
+						app.getId('subject').addEventListener('tap',function(){
+							app.openwin('subList.html',{subField:subField,subId:app.getId('currSubId').value});
+						});
+						app.getId('stuWrap').addEventListener('tap',function(){
+							app.openwin('../myAnswer_nt/stuList.html',{userId:userInfo.userId,jumpPos:'byTonjigRep'});
+						});
+					},
+					loadStuList : function(){
+						app.showToast(1);
+						var _this = this;
+						mui.ajax(http_ + '/common.do?action=getBindStu',{
+							data:{userId:userInfo.userId},
+							dataType:'json',
+							type:'post',
+							timeout:10000,
+							success:function(json){
+								if(json.result == 'success'){
+									app.getId('stuIdInp').value = json.stuId;
+									app.getId('stuTxt').innerHTML = json.stuName;
+									_this.loadBuffetChart();
+									subStuTxt = json.stuName;
+								}else if(json.result == 'noInfo'){
+									app.getId('stuWrap').style.display = 'none';
+									app.getId('buffetData').innerHTML = '<div id="noData" class="noData"><img src="../../images/noData.png" /><p>暂无学生</p></div>';
+								}
+							},
+							error:function(xhr,type,errorThrown){
+								app.showToast(2);
+								console.log(errorThrown)
+							} 
+						})
+					},
+					//加载学科信息
+					loadSubject : function(){
+						mui.ajax(http_ + '/baseInfo.do?action=getSelfSubjectData',{
+							data:{userId:userInfo.userId,roleId:userInfo.roleId},
+							dataType:'json',
+							type:'post',
+							timeout:10000,
+							success:function(json){
+								if(json.result == 'success'){
+									subField = json.subList;
+								}else if(json.result == 'noInfo'){
+									plus.nativeUI.toast('暂无科目信息');
+								}
+							},
+							error:function(xhr,type,errorThrown){
+							} 
+						});
+					},
+					//加载buffetInfo
+					loadBuffetChart : function(){
+						if(jumpRole == 'stPar'){
+							var subId = app.getId('currSubId').value,_this = this;
+							var field = {userId:userInfo.userId,roleId:userInfo.roleId,subId:subId};
+						}else{
+							var stuId = app.getId('stuIdInp').value,_this = this;
+							var field = {userId:userInfo.userId,roleId:userInfo.roleId,stuId:stuId};
+						}
+						mui.ajax(http_ + '/studyRecord.do?action=getBuffetChart',{
+							data:field,
+							dataType:'json',
+							type:'post',
+							timeout:10000,
+							success:function(json){
+								if(json.result == 'error'){
+									plus.nativeUI.toast('服务器错误');
+								}else{
+									_this.renderBuffChart_ability(json.result[0].allAbilityNumber,json.result[0].allAbilitySuccRate);
+									_this.renderBuffChart_mind(json.result[0].allMindNumber,json.result[0].allMindSuccRate);
+								}
+							},
+							error:function(xhr,type,errorThrown){
+							} 
+						});
+					},
+					renderBuffChart_mind : function(allMindNumber,allMindSuccRate){
+						//console.log("allMindNumber:"+allMindSuccRate)
+						var mindData = [allMindNumber,allMindSuccRate],
+							allMindNumberArr = allMindNumber.split(','),
+							ascNumberArr = allMindNumber.split(',').sort(function(a,b){
+								return a - b;
+							}),
+							maxNumber = ascNumberArr[ascNumberArr.length - 1],
+							allMindSuccRateArr = allMindSuccRate.split(','),
+							axisName = ['汇总自助思维正确率','汇总自助餐思维总数'],
+							myChart = echarts.init(app.getId('buffetData_mind'));
+						var option = {
+							title: {
+								x : 'center',
+								text: '自助餐思维统计图(' + subStuTxt + ')',
+								textStyle:{
+									fontSize:16
+								}
+							},
+							tooltip: {trigger: 'axis'},
+							legend: {
+								y : '30px',
+								data: axisName
+							},
+							grid: {
+								x: 40,
+								x2: 35,
+								y: 90,
+								y2: 30
+							},
+							toolbox: {
+								show : false,
+								orient:'vertical',
+								y:'center',
+								feature : {
+									dataView : {show: true, readOnly: true},
+									magicType : {show: true, type: ['line', 'bar']},
+									restore : {show: true}
+									//saveAsImage : {show: true}
+								}
+							},
+							calculable: false,
+							xAxis: {
+								type: 'category',
+								data: ['定向','发散','逆向','抽象','类比','移植','形象','联想']
+							},
+							yAxis : [
+								{
+									type : 'value',
+									name : '正确率',
+									min : 0,
+									max : 100,
+									interval : 20,
+									axisLabel : {
+										formatter: '{value}%'
+									}
+								},{
+									type : 'value',
+									name : '总数',
+									interval : maxNumber / 5,
+									axisLabel : {
+										formatter: '{value}'
+									}
+								}
+							],
+							series: [{
+								name: axisName[0],
+								type: 'bar',
+								data: allMindSuccRateArr
+							},{
+								name: axisName[1],
+								type: 'bar',
+								yAxisIndex: 1,
+								data: allMindNumberArr
+							}]
+						};
+						// 使用刚指定的配置项和数据显示图表。
+						myChart.setOption(option);
+					},
+					//自助餐能力
+					renderBuffChart_ability : function(allAbilityNumber,allAbilitySuccRate){
+						var myChart = echarts.init(app.getId('buffetData_abiility')),
+							allAbilityNumberArr = allAbilityNumber.split(','),
+							ascNumberArr = allAbilityNumber.split(',').sort(function(a,b){
+								return a - b;
+							}),
+							maxNumber = ascNumberArr[ascNumberArr.length - 1],
+							allAbilitySuccRateArr = allAbilitySuccRate.split(','),
+							axisName = ['汇总自助餐能力正确率','汇总自助餐能力总数'];
+						// 指定图表的配置项和数据
+						var option = {
+							title: {
+								x : 'center',
+								text: '自助餐能力统计图(' + subStuTxt + ')',
+								textStyle:{
+									fontSize:16
+								}
+							},
+							tooltip: {trigger: 'axis'},
+							legend: {
+								y : '30px',
+								data: axisName
+							},
+							grid: {
+								x: 40,
+								x2: 35,
+								y: 90,
+								y2: 30
+							},
+							toolbox: {
+								show : false,
+								orient:'vertical',
+								y:'center',
+								feature : {
+									dataView : {show: true, readOnly: true},
+									magicType : {show: true, type: ['line', 'bar']},
+									restore : {show: true}
+									//saveAsImage : {show: true}
+								}
+							},
+							calculable: true,
+							xAxis: {
+								type: 'category',
+								data: ['理解','分析','表达','实践','质疑','联想','综合','创新']
+							},
+							yAxis : [
+								{
+									type : 'value',
+									name : '正确率',
+									min : 0,
+									max : 100,
+									interval : 20,
+									axisLabel : {
+										formatter : '{value}%'
+									}
+								},{
+									type : 'value',
+									name : '总数',
+									interval : maxNumber / 5,
+									axisLabel : {
+										formatter : '{value}'
+									}
+								}
+							],
+							series: [{
+								name: axisName[0],
+								type: 'bar',
+								data: allAbilitySuccRateArr
+							},{
+								name: axisName[1],
+								type: 'bar',
+								yAxisIndex: 1,
+								data: allAbilityNumberArr
+							}]
+						};
+						// 使用刚指定的配置项和数据显示图表。
+						myChart.setOption(option);
+					}
+				};
+				page.init();
+				//切换学科加载chart
+				document.addEventListener('upBuffetChart',function(e){
+					var switchField = e.detail.switchField;
+					if(switchField.isUpFlag){
+						app.getId('currSubId').value = switchField.subId;
+						app.getId('subTxt').innerHTML = switchField.subName;
+						subStuTxt = switchField.subName;
+						page.loadBuffetChart();
+					}
+				});
+				//切换学生加载echart
+				document.addEventListener('switchStudent',function(e){
+					var stuName = e.detail.stuField.split(',')[0],
+						stuId = e.detail.stuField.split(',')[1];
+					app.getId('stuIdInp').value = stuId;
+					app.getId('stuTxt').innerHTML = stuName;
+					subStuTxt = stuName;
+					page.loadBuffetChart();
+				});
+			});
+		</script>
+	</body>
+</html>

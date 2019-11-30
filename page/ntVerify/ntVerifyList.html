@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/ntVerify.css"/>
+		<title>证件上传列表</title>
+	</head>
+	<body class="paddingTop" style="background: #fff;">
+		<div class="comHeader otherBg">
+			<a id="backBtn" class="posL" href="javascript:mui.back();"><i class="iconfont icon-fanhui"></i></a>
+			<span class="headerTit">证件上传</span>
+		</div>
+		<div class="accTypeList">
+			<div class="typeList"> 
+				<ul id="hwTypeUl">
+					<li id="myAccLi" class="hwTypeLi">
+						<i class="iconfont icon icon-shenfenzheng"></i>
+						<p>身份证正/反面<span id="iCardStaTxt"></span></p>
+						<i class="iconfont icon-more"></i>
+					</li>
+					<li id="myBankCard" class="hwTypeLi">
+						<i class="iconfont icon icon-xueli"></i>
+						<p>学历证书上传<span id="degreeStaTxt"></span></p>
+						<i class="iconfont icon-more"></i>
+					</li>
+					<li id="myBill" class="hwTypeLi">
+						<i class="iconfont icon icon-zhengshu"></i>
+						<p>教师资格证上传<span id="zgzStaTxt"></span></p>
+						<i class="iconfont icon-more"></i>
+					</li>
+				</ul>
+			</div>
+		</div>
+		
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var userInfo = JSON.parse( localStorage.getItem('userInfo') ),verifyInfo = null,isPassFlag = false;
+			var verifyInfo_xl = null,isPassFlag_xl = false;
+			var verifyInfo_zgz = null,isPassFlag_zgz = false;
+			mui.plusReady(function(){
+				var page = {
+					init : function(){
+						this.bindEvent();
+						this.loadVerifySta();
+					},
+					bindEvent : function(){
+						//上传身份证
+						app.getId('myAccLi').addEventListener('tap',function(){
+							app.openwin('iCardVerify.html',{verifyInfo:verifyInfo,isPassFlag:isPassFlag});
+						});
+						//上传学历证书
+						app.getId('myBankCard').addEventListener('tap',function(){
+							app.openwin('degreeVerify.html',{verifyInfo:verifyInfo_xl,isPassFlag:isPassFlag_xl});
+						});
+						//上传教师资格证
+						app.getId('myBill').addEventListener('tap',function(){
+							app.openwin('zgzVerify.html',{verifyInfo:verifyInfo_zgz,isPassFlag:isPassFlag_zgz});
+						});
+					},
+					loadVerifySta : function(){
+						var _this = this;
+						mui.ajax(http_ + '/netTeacher.do?action=getNtCerInfo',{
+							data:{userId:userInfo.userId,roleId:userInfo.roleId,loginStatus:userInfo.loginStatus},
+							dataType:'json',
+							type:'post',
+							timeout:10000,  
+							success:function(json){ 
+								//console.log(JSON.stringify( json ))
+								app.showToast(2);
+								if(json.result == 'success'){
+									app.getId('iCardStaTxt').innerHTML = '(' + json.iCardStatus + ')';
+									app.getId('degreeStaTxt').innerHTML = '(' + json.xlzStatus + ')';
+									app.getId('zgzStaTxt').innerHTML = '(' + json.zgzStatus + ')';
+									_this.addClassFun(json,json.iCardStatus,json.xlzStatus,json.zgzStatus);
+								}else if(json.result == 'error'){
+									plus.nativeUI.toast('服务器错误');
+								}else{
+									app.checkLoginStaInfo(json.result,userInfo.roleId);
+								}
+							},
+							error:function(xhr,type,errorThrown){
+								app.showToast(2);
+								plus.nativeUI.toast('服务器错误');
+							} 
+						});
+					},
+					addClassFun : function(json,iCardStatus,xlzStatus,zgzStatus){
+						if(iCardStatus == '未上传'){
+							isPassFlag = false;
+							app.getId('iCardStaTxt').className = 'noUp';
+						}else if(iCardStatus == '已上传审核未通过'){
+							verifyInfo = json;
+							app.getId('iCardStaTxt').className = 'noUp';
+						}else if(iCardStatus == '已上传未审核'){
+							verifyInfo = json;
+							app.getId('iCardStaTxt').className = 'noUp';
+						}else if(iCardStatus.indexOf('审核通过') >= 0){
+							isPassFlag = true;
+							verifyInfo = json;
+							app.getId('iCardStaTxt').className = 'passTxt';
+						}
+						if(xlzStatus == '未上传'){
+							isPassFlag_xl = false;
+							app.getId('degreeStaTxt').className = 'noUp';
+						}else if(xlzStatus == '已上传审核未通过'){
+							verifyInfo_xl = json;
+							app.getId('degreeStaTxt').className = 'noUp';
+						}else if(xlzStatus == '已上传未审核'){
+							verifyInfo_xl = json;
+							app.getId('degreeStaTxt').className = 'noUp';
+						}else if(xlzStatus.indexOf('审核通过') >= 0){
+							verifyInfo_xl = json;
+							isPassFlag_xl = true;
+							app.getId('degreeStaTxt').className = 'passTxt';
+						}
+						if(zgzStatus == '未上传'){
+							isPassFlag_zgz = false;
+							app.getId('zgzStaTxt').className = 'noUp';
+						}else if(zgzStatus == '已上传审核未通过'){
+							verifyInfo_zgz = json;
+							app.getId('zgzStaTxt').className = 'noUp';
+						}else if(zgzStatus == '已上传未审核'){
+							verifyInfo_zgz = json;
+							app.getId('zgzStaTxt').className = 'noUp';
+						}else if(zgzStatus.indexOf('审核通过') >= 0){
+							verifyInfo_zgz = json;
+							isPassFlag_zgz = true;
+							app.getId('zgzStaTxt').className = 'passTxt';
+						} 
+					}
+				};
+				page.init();
+				document.addEventListener('upDateVerifyStaInfo',function(e){
+					var isUpFlag = e.detail.isUpFlag;
+					if(isUpFlag){
+						page.loadVerifySta();
+					}
+				});
+			});
+		</script>
+		
+	</body>
+</html>

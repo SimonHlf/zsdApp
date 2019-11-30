@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/studyMap.css"/>
+		<title>知识讲解</title>
+	</head>
+	<body class="paddingTop">
+		<div class="comHeader hasBor">
+			<a id="backBtn" class="posL"><i class="iconfont icon-fanhui"></i></a>
+			<span class="headerTit">知识讲解</span>
+		</div>
+		<div id="noData" class="noData" style="display:none ;">
+			<img src="../../images/noData.png"/>
+			<p>该知识点暂无知识讲解视频信息</p>
+		</div>
+		
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var player = null;
+			mui.init({
+				beforeback : function(){
+					var currView = plus.webview.currentWebview(),
+						opener = currView.opener();
+					mui.fire(opener,'updateStepNum',{});
+					return true;
+				}
+			});
+			mui.plusReady(function () {
+			    var _self = plus.webview.currentWebview().field,
+					jumpPos = plus.webview.currentWebview().jumpPos;
+				var page = {
+					init : function(){
+						//app.backFun();
+						this.loadViedo();
+						this.bindEvent();
+					},
+					bindEvent : function(){
+						app.getId('backBtn').addEventListener('tap',function(){
+							mui.back();
+						});
+					},
+					loadViedo : function(){
+						//plus.nativeUI.showWaiting();
+						app.showToast(1);
+						if(jumpPos == 'study'){
+							var url = http_ + '/onlineStudy.do?action=getSourceDetail';
+						}else{//从家庭作业课前预习进来
+							var url = http_ + '/hw.do?action=getSourceDetail';
+						}
+						mui.ajax(url,{
+							data:_self, 
+							dataType:'json',
+							type:'post',
+							timeout:10000,
+							success:function(json){
+								if(json.result == 'success'){
+									app.showToast(2);
+									var videoSrc = http_ + '/' + json.sourceDetail.replace(".flv",".mp4");
+									if(!player){
+										player = plus.video.createVideoPlayer('videoplayer',{
+											src : videoSrc,
+											top:'43px',
+											left:'0px',
+											width: '100%',
+											height: '200px',
+											position: 'static',
+											poster:''
+										})
+										plus.webview.currentWebview().append(player);
+									}
+									
+								}else if(json.result == 'noInfo'){
+									app.getId('noData').style.display = 'block';
+									//plus.nativeUI.toast('该知识点暂无知识讲解视频信息');
+								}
+							},
+							error:function(xhr,type,errorThrown){
+								app.showToast(2);
+								plus.nativeUI.toast('服务器异常');
+							}
+						});
+					}
+				};
+				page.init();
+			});
+			
+		</script>
+	</body>
+</html>

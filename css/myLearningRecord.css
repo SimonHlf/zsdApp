@@ -1,0 +1,178 @@
+body{
+	background: #f2f2f2;
+}
+.mainRecord{
+	padding: 0 .2667rem;
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 2.5rem;
+	bottom: 0;
+	overflow: hidden;
+	overflow-y: auto;
+	-webkit-overflow-scrolling: touch;
+}
+.innerMainCon{
+	background: #fff;
+}
+.currTime{
+	height: 1.2rem;
+	font-size: .42rem;
+	padding:0 .25rem;
+	position: relative;
+	z-index: 2;
+	border-bottom: 1px solid #e6e6e6;
+}
+.currTime p.currDays{
+	width: 78%;
+	height: 100%;
+	color: #4d47f1;
+	line-height: 1.2rem;
+	float: left;
+	font-weight: 600;
+}
+.currTime .compStaBox{
+	width: 22%;
+	float: right;
+}
+.currTime .compStaBox p{
+	height: .6rem;
+	line-height: .6rem;
+	font-size: .4rem;
+}
+.currTime .compStaBox p span{
+	float: left;
+}
+.currTime .compStaBox p span.colSpan{
+	width: 10px;
+	height: 10px;
+	display: block;
+	margin:.12rem .15rem 0 0;
+	color: #333;
+}
+.currTime .compStaBox p span.colSpan.noCompCol{
+	background: #e10080;
+}
+.currTime .compStaBox p span.colSpan.hasComCol{
+	background: #28c8c6;
+}
+.listRecord li{
+	height: 1.2rem;
+	line-height: 1.2rem;
+	border-bottom: 1px solid #e6e6e6;
+	padding: 0 .25rem;
+	position: relative;
+}
+.listRecord li.active{
+	background: #f2f2f2;
+}
+.listRecord li span.currStaSpan{
+	width: 4px;
+	height: 100%;
+	position: absolute;
+	left: 0;
+	top:0
+}
+.listRecord li.compCol span.currStaSpan{
+	background: #29c7c6;
+} 
+.listRecord li.noCompCol span.currStaSpan{
+	background: #e10080;
+}
+.listRecord li p{
+	font-size: .4rem;
+	color: #666;
+	width: 100%;
+}
+/* 学习记录详情 */
+.recordDet{
+	margin-top: 1.6rem;
+	background: #fff;
+	margin-bottom: .35rem;
+}
+.recordTit{
+	height: 1.1rem;
+	line-height: 1.1rem;
+	border-bottom: 1px solid #e6e6e6;
+	padding: 0 .2667rem;
+	display: block;
+	font-size: .42rem;
+	color: #333;
+}
+.listRecordDet{
+	padding: .25rem .2667rem;
+}
+.listRecordDet p{
+	font-size: .4rem;
+	color: #333;
+	margin-bottom: .3rem;
+}
+.listRecordDet p:last-child{
+	margin-bottom: 0;
+}
+.listRecordDet p span{
+	float: left;
+}
+.listRecordDet p span.currSta{
+	width: 10px;
+	height: 10px;
+	margin:.14rem .2rem 0 0;
+}
+.listRecordDet p span.currSta.noPassSta{
+	background: #e10080;
+}
+.listRecordDet p span.currSta.passSta{
+	background: #28c8c6;
+}
+.btnGroup{
+	height: 1rem;
+	line-height: 1rem;
+	margin-bottom: .35rem;
+}
+.btnGroup span,
+.ntAdviceTxt span{
+	width: 46%;
+	height: 100%;
+	background: #4d47f1;
+	text-align: center;
+	border-radius: 4px;
+	font-size: .42rem;
+	color: #fff;
+}
+.goStudyBtn{
+	margin-left: 2%;
+}
+.viewAnsBtn{
+	margin-right: 2%;
+}
+.viewAnsBtn.trackGuideBtn,
+.ntAdviceTxt span{
+	width:60%;
+	margin:0 auto;
+	display:block;
+}
+.sysAssessment,
+.ntAdvice{
+	background: #fff;
+	margin-bottom: .35rem;
+}
+.sysTxt,
+.ntAdviceTxt{
+	font-size: .4rem;
+	padding: .25rem .2667rem;
+	color: #666;
+}
+.ntAdviceTxt textarea{
+	height: 3rem;
+	width: 100%;
+	border:none;
+	font-size: .4rem;
+	color: #333;
+}
+.ntAdviceTxt textarea::-webkit-input-placeholder{
+	color: #999;
+}
+.ntAdviceTxt span{
+	height: 1rem;
+	line-height: 1rem;
+}

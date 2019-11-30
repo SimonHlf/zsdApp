@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/buffetSend.css"/>
+		<title>自助餐发送</title>
+	</head>
+	<body class="paddingTop">
+		<div class="comHeader hasBor">
+			<a id="backBtn" class="posL" href="javascript:mui.back();"><i class="iconfont icon-fanhui"></i></a>
+			<span id="headerTit" class="headerTit">发布自助餐</span>
+			<p id="sellAllBtnWrap" class="sellAllBtn">
+				<input type="checkbox" id="sellAllBtn" />
+				<em id="sellAllEm">
+					<i class="iconfont icon-duihao"></i>
+				</em>
+			</p>
+		</div>
+		<div id="sendList" class="sendList"></div>
+		<!-- 查看详情 手动发送 -->
+		<div class="btnGroup">
+			<div class="innerBtnGroup">
+				<p id="showBuffetDetBtn">查看详情</p>
+				<p id="sendBuffetBtn">发送</p>
+			</div>
+		</div>
+		
+		
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			mui.plusReady(function () {
+			    var currField = plus.webview.currentWebview().currField,
+					studyLogId = currField.studyLogId,
+					userId = currField.userId,
+				    currQuoteLoreId = 0; 
+			    var page = {
+				   init : function(){
+					   this.loadBuffetList();
+					   this.bindEvent();
+				   },
+				   bindEvent : function(){
+					   app.getId('showBuffetDetBtn').addEventListener('tap',function(){
+						   var hasCheckResStr = getCheckBoxStatus('buffetInp');
+						   //获取兴趣激发
+						   app.openwin('viewBuffetDet.html',{currQuoteLoreId:currQuoteLoreId,studyLogId:studyLogId,hasCheckRes:hasCheckResStr});
+					   });
+					   //全选
+					   $('#sellAllBtnWrap').on('touchend',function(){
+						    if($("input[name='buffetInp']").length > 0){
+								var checkStatus = $('#sellAllBtn').prop("checked");
+								if(!checkStatus){
+								    $("input[name='buffetInp']").prop("checked",true);
+									$("input[name='buffetInp']").next().addClass('hasSelect'); 
+									$('#sellAllEm').addClass('hasSelect');
+								}else{
+									$("input[name='buffetInp']").prop("checked",false);
+									$("input[name='buffetInp']").next().removeClass('hasSelect');
+									$('#sellAllEm').removeClass('hasSelect');
+								}
+						    }else{
+								plus.nativeUI.toast('暂无试题');
+							}
+					   });
+					   //发送buffet
+					   app.getId('sendBuffetBtn').addEventListener('tap',function(){
+						   var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+						   var currStatus = app.checkLoginStatus(userInfo.userId,userInfo.loginStatus);
+						   if(currStatus){
+							    var bufdetIdArray = getCheckBoxStatus("buffetInp");
+							    if(bufdetIdArray != ''){
+									app.showToast(1);
+									mui.ajax(http_ + '/studyRecord.do?action=sendBuffet',{
+										data:{userId:userId,studyLogId:studyLogId,buffetIdArray:bufdetIdArray,sendMode:0},
+										dataType:'json',
+										type:'post',
+										timeout:10000,
+										success:function(json){
+											app.showToast(2);
+											if(json.status == 'success'){
+												plus.nativeUI.toast('发送成功');
+												setTimeout(function(){
+													var currView = plus.webview.currentWebview();
+													var opener = currView.opener();
+													currView.close();
+													//发送成功刷新studyLog页面的list状态
+													mui.fire(opener,'updateStudyLogList');
+												},1000);
+											}else if(json.status == 'fail'){
+												plus.nativeUI.toast('发送失败，请重试');
+											}
+										},
+										error:function(xhr,type,errorThrown){
+											app.showToast(2);
+											plus.nativeUI.toast('服务器错误');
+										} 
+									});
+							    }else{
+									app.showToast(2);
+									plus.nativeUI.toast('请选择培优试题');
+							    }
+						   }
+					   });
+				   },
+				   loadBuffetList : function(){
+					   var _this = this;
+					   app.showToast(1);
+						mui.ajax(http_ + '/studyRecord.do?action=getShowBuffetSend',{
+							data:{studyLogId:studyLogId},
+							dataType:'json',
+							type:'post',
+							timeout:10000,
+							success:function(json){
+								app.showToast(2);
+								//console.log( JSON.stringify( json ) )
+								if(json.result == 'success'){
+									app.getId('headerTit').innerHTML = json.loreName + '的培优知识点发送';
+									currQuoteLoreId = json.quoteLoreId;
+									_this.renderBuffetListHtml(json.buffetList);
+								}else if(json.result == 'error'){
+									plus.nativeUI.toast('服务器错误');
+								}else if(json.result == 'noInfo'){
+									app.getId('sendList').innerHTML = '<div class="noData"><img src="../../images/noData.png" /><p>暂无试题记录！</p></div>';
+								}
+							},
+							error:function(xhr,type,errorThrown){
+								app.showToast(2);
+								plus.nativeUI.toast('服务器错误');
+							} 
+						});
+					},
+					renderBuffetListHtml : function(list){
+						var str = '<ul>';
+					    for(var i=0;i<list.length;i++){
+							var len = list[i].bTypeName.length;
+							str += '<li><label for="buffetInp_'+ list[i].buffetId +'" onclick="selListBuffetItem('+ list[i].buffetId +')">';
+							str += '<input id="buffetInp_'+ list[i].buffetId +'" type="checkBox" name="buffetInp" value="'+ list[i].buffetId +'" />  ';
+							str += '<span id="currSelSpan_'+ list[i].buffetId +'" class="currSelSpan"><i class="iconfont icon-duihao"></i></span>';
+							str += '<div class="buffetTit"><div>';
+							if(list[i].bTypeName != '中/高考涉猎'){
+								str += '<p>'+ list[i].bTypeName.substring(0,2) +'</p>';
+								str += '<p>'+ list[i].bTypeName.substring(2,len) +'</p>';
+							}else{
+								str += '<p>'+ list[i].bTypeName.substring(0,4) +'</p>';
+								str += '<p>'+ list[i].bTypeName.substring(4,len) +'</p>';
+							}
+							str += '</div></div><div class="sendDetCon">';
+							str += '<p class="titP">';
+							str += '<span>名称：</span>';
+							str += '<strong>'+ list[i].title +'</strong>';
+							str += '</p>';
+							str += '<div class="smTit">';
+							str += '<p class="clearfix"><span>思维：</span>';
+							str += '<strong class="ellip">'+ list[i].mindName +'</strong></p></div>';
+							str += '<div class="smTit"><p class="clearfix"><span>能力：</span>';
+							str += '<strong class="ellip">'+ list[i].abilityName +'</strong></p>';
+							str += '</div></div>';
+							str += '</label></li>';
+						}
+						app.getId('sendList').innerHTML = str;
+					}
+			   };
+			   page.init();
+			   document.addEventListener('checkSelStatus',function(e){
+				   var buffetDetIdStr = e.detail.buffetDetIdStr;
+				   var checkObj = document.getElementsByName("buffetInp");
+				   var totalLen = $('input[name=buffetInp]').length;
+				   //清空选择框所有状态
+					for(var i = 0 ; i < checkObj.length ; i ++){
+						checkObj[i].checked = false;
+					}
+					$('.currSelSpan').removeClass('hasSelect');
+				    if(buffetDetIdStr != ''){
+					   var bufdetIdArray = buffetDetIdStr.split(",");
+						for(var i = 0 ; i < checkObj.length ; i ++){
+							for(var j = 0 ; j < bufdetIdArray.length ; j++){
+								if(checkObj[i].value == bufdetIdArray[j]){
+									checkObj[i].checked = "checked";
+									var hasCheckedLen = $('input[name=buffetInp]:checked').length
+									$("#currSelSpan_"+bufdetIdArray[j]).addClass("hasSelect"); //给选中的添加active状态
+									if(hasCheckedLen == totalLen){
+										$('#sellAllEm').addClass("hasSelect");
+										$('#sellAllBtn').prop("checked",true);
+									}else{
+										$('#sellAllEm').removeClass("hasSelect");
+										$('#sellAllBtn').prop("checked",false);
+									}
+									break;
+								}
+							}
+						}
+				   }else{
+					   $('#sellAllEm').removeClass("hasSelect");
+					   $('#sellAllBtn').prop("checked",false);
+				   }
+
+			   })
+			});
+			function getCheckBoxStatus(checkObj){
+				var selectOptions = document.getElementsByName(checkObj);
+				var resultStr = "";
+				for(var i = 0 ; i < selectOptions.length ; i++){
+					if(selectOptions[i].checked){
+						resultStr += selectOptions[i].value + ",";
+					}
+				}
+				if(resultStr != ""){
+					resultStr = resultStr.substring(0,resultStr.length - 1);
+				}
+				return resultStr;
+			}
+			//选择buffet
+			function selListBuffetItem(buffetId){
+				var checkStatus = $("#buffetInp_"+buffetId).prop("checked");
+				var totalLen = $('input[name=buffetInp]').length;
+				var hasCheckedLen = $('input[name=buffetInp]:checked').length;
+				if(checkStatus){
+					$("#currSelSpan_"+buffetId).addClass("hasSelect");
+				}else{
+					$("#currSelSpan_"+buffetId).removeClass("hasSelect");
+				}
+				if(hasCheckedLen == totalLen){
+					$('#sellAllEm').addClass("hasSelect");
+					$('#sellAllBtn').prop("checked",true);
+				}else{
+					$('#sellAllEm').removeClass("hasSelect");
+					$('#sellAllBtn').prop("checked",false);
+				}
+			}
+		</script>
+		
+		
+	</body>
+</html>

@@ -1,0 +1,105 @@
+body{
+	background: #F2F2F2;
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 1.2rem;
+}
+.titStrong{
+	display: block;
+	padding: 0 .2667rem;
+	height: 1.2rem;
+	line-height: 1.2rem;
+	background: #fff;
+	font-size: .42rem;
+	color: #333;
+}
+.titStrong.hasBorBot{
+	border-bottom: 1px solid #e6e6e6;
+}
+.titStrong.hasBorBot.hasFixed{
+	width: 100%;
+	position: fixed;
+	left: 0;
+	top: 1.32rem;
+	background: #fff;
+	z-index: 100;
+	border-bottom: none;
+	box-shadow: 0 3px 5px rgba(0,0,0,.05);
+}
+.listHw{
+	padding: .4rem 0 0;
+}
+.listHw ul{
+	width: 100%;
+	min-height:  2.9066rem;
+	padding-bottom: .4rem;
+	 display: -webkit-box;
+	overflow-x: scroll;
+	-webkit-overflow-scrolling:touch;
+}
+.listHw ul li{
+	width: 3.8rem;
+	height: 2.5rem;
+	background: #fff;
+	border-radius: 6px;
+	margin-left: .2667rem;
+	box-shadow: 0 6px 8px rgba(77,71,241,.2);
+	padding: .25rem;
+	position: relative;
+}
+.hwTypeName{
+	height: .7rem;
+	line-height: .7rem;
+	font-size: .42rem;
+	color:#4d47f1 ;
+}
+.listHw ul#listHwUl.hasAlign{
+	width: 100%;
+	display: flex;
+	justify-content: center;
+}
+.listHw ul#listHwUl.hasAlign img{
+	width: 3.4666rem;
+	height: 2.9066rem;
+}
+.listHw ul li .comStaSpan{
+	width: .2rem;
+	height: .2rem;
+	position: absolute;
+	right: .25rem;
+	top:.5rem;
+	border-radius: 50%;
+}
+.listHw ul li .comStaSpan.compSta{
+	background: #4d47f1;
+}
+.listHw ul li .comStaSpan.noCompSta{
+	background: #e10080;
+}
+.listHw ul li p.loreName{
+	font-size: .42rem;
+	color: #333;
+	-webkit-line-clamp: 2;
+}
+.loreName span.subNameTxt{
+	color:#4d47f1 !important;
+	font-weight: normal;
+}
+.listHw ul li .teaName {
+	height: .8rem;
+	line-height: .8rem;
+	position: absolute;
+	left: .25rem;
+	right: .25rem;
+	bottom: 0;
+}
+.listHw ul li .teaName p{
+	float: left;
+	font-size: .35rem;
+	color: #333;
+}
+.listHw ul li .teaName p:last-child{
+	float: right;
+}

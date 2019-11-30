@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/buffetStudyMain.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/mui.min.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/filterNav.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/mobileSelect.css"/>
+		<title>自助餐</title>
+	</head>
+	<body>
+		<div class="comHeader hasBor">
+			<a id="backBtn" class="posL" href="javascript:mui.back();"><i class="iconfont icon-fanhui"></i></a>
+			<span class="headerTit">自助餐</span>
+			<input type="hidden" id="currSubId" value="2" />
+			<p id="subject" class="subject buffet">
+				<span id="subTxt" class="comSelTxtCon">数学</span>
+				<i class="iconfont icon-xiala" style="color:#999;"></i>
+			</p>
+		</div>
+		<!-- 筛选条件 -->
+		<div class="filter fixedFilter"> 
+			<!-- 完成状态 -->
+			<input type="hidden" id="compStaInp" value="0" />
+			<p id="compSta" class="compSta fl">
+				<span id="compStaSpan">全部</span>
+				<i class="iconfont icon-xiala"></i>
+			</p>
+			<div class="timeInp typeOneWid">
+				<div class="innerTimeInp">
+					<input id="stDate" type="text" readonly placeholder="起始日期"/>
+					<i class="iconfont icon-rili"></i>
+				</div>
+				<span class="tilTxt">至</span>
+				<div class="innerTimeInp">
+					<input id="edDate" type="text"  readonly placeholder="结束日期"/>
+					<i class="iconfont icon-rili"></i>
+				</div>
+			</div>
+			<div id="searchBtn" class="search">
+				<i class="iconfont icon-sousuo"></i>
+			</div>
+		</div>
+		<div id="buffetContainer" class="buffetMain">
+			<div class="mui-scroll">
+				<ul id="buffetStudyList"></ul>
+			</div>
+			<div id="noData" class="noData" style="display: none;"><img src="../../images/noData.png" /><p>暂无自助餐学习记录</p></div>
+		</div>
+		
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/comMethod.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/mobileSelect.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var page = 1,isPullLoadFlag = false,noDataPage = 0;
+			var userInfo = JSON.parse( localStorage.getItem('userInfo') ),currOpt='';
+			mui.init({
+				pullRefresh : {
+					container : "#buffetContainer",
+					up : {
+						height:50,
+						auto:false,
+						contentrefresh : "正在加载...",
+						contentnomore:'没有更多数据了',
+						callback : getBuffetList_more
+					}
+				}
+			});
+			mui.plusReady(function(){
+				userId = plus.webview.currentWebview().userId;
+				function getBuffetList_init(){
+					getBuffetListData(null,'initLoad');
+				};
+				function bindEvent(){
+					//完成状态select 
+					new MobileSelect({
+						trigger: '#compStaSpan',
+						title: '请选择完成状态',
+						wheels: [ 
+							{data: compStatus}
+						],
+						position:[0], //初始化定位 打开时默认选中的哪个 如果不填默认为0
+						transitionEnd:function(indexArr, data){},
+						callback:function(indexArr, data){
+							app.getId('compStaInp').value = data[0].type;
+							page = 1;
+							getBuffetListData(null,'query');
+						}
+					});
+					//查询
+					app.getId('searchBtn').ontouchend = function(){
+						var compStaInp = app.getId('compStaInp').value,
+							subId = app.getId('currSubId').value,
+							stDateVal = app.getId('stDate').value,
+							edDataVal = app.getId('edDate').value;
+						if(stDateVal == '' && edDataVal != ''){
+							plus.nativeUI.toast('请选择开始日期');
+							return;
+						}
+						if(stDateVal != '' && edDataVal == ''){
+							plus.nativeUI.toast('请选择结束日期');
+							return;
+						}
+						if(stDateVal > edDataVal){
+							plus.nativeUI.toast('开始日期不能大于结束日期');
+							return;
+						}
+						page = 1;
+						isPullLoadFlag = false;
+						getBuffetListData(null,'query');
+					},
+					//起始日期
+					app.getId('stDate').ontouchend = function(){
+						comMet.showPickDate('stDate');
+					}
+					//结束日期
+					app.getId('edDate').ontouchend = function(){
+						comMet.showPickDate('edDate');
+					}
+				}
+				bindEvent();
+				getBuffetList_init();
+				document.addEventListener('upDateList',function(e){
+					if(isPullLoadFlag){//上拉加载了并且加载至返回noInfo
+						page = noDataPage;
+					}else{
+						page = e.detail.currPage;
+					}
+					currOpt = e.detail.currOpt;
+					if(currOpt == 'backLoad'){
+						getBuffetListData(null,'initLoad');
+					}
+				},false);
+				//二次登录进来刷新当前页面
+				document.addEventListener('upDatePageData',function(e){
+					if(e.detail.isLoginFlag){
+						location.reload();
+					}
+				});
+			});
+			comMet.loadSubject();//获取学科
+			function getBuffetListData(currObj,loadType){
+				var compStaInp = app.getId('compStaInp').value,
+					subId = app.getId('currSubId').value,
+					stDateVal = app.getId('stDate').value,
+					edDataVal = app.getId('edDate').value;
+				var field = {subId:subId,comStatus:compStaInp,roleId:userInfo.roleId,loginStatus:userInfo.loginStatus,sDate:stDateVal,eDate:edDataVal,pageNo:page,opt:currOpt,userId:userInfo.userId};
+				//console.log(JSON.stringify( field ))
+				mui.ajax(http_ + '/buffetStudy.do?action=getBuffetSendData',{
+					data:field, 
+					dataType:'json',
+					type:'post',
+					timeout:10000,
+					beforeSend : function(){ 
+						app.showToast(1);
+					},
+					success:function(json){
+						app.showToast(2);
+						//console.log(JSON.stringify( json ))
+						currOpt = '';
+						app.getId('stDate').value = json.sDate;
+						app.getId('edDate').value = json.eDate;
+						if(json.result == 'success'){
+							app.getId('noData').style.display = 'none';
+							renderBuffetStudyList(json.studyList,currObj);
+							if(loadType == 'query'){
+								$('.mui-pull').show();
+								mui('#buffetContainer').pullRefresh().refresh(true);
+							}
+						}else if(json.result == 'noInfo'){
+							if(currObj != null){
+								isPullLoadFlag = true;
+								noDataPage = page-1;
+								currObj.endPullupToRefresh(true);
+							}else{
+								$('.mui-pull').hide();
+								$('#buffetStudyList').html('');
+								app.getId('noData').style.display = 'block';
+							}
+						}else{
+							app.checkLoginStaInfo(json.result,userInfo.roleId);
+						}
+					},
+					error:function(xhr,type,errorThrown){
+						app.showToast(2);
+						plus.nativeUI.toast('服务器异常');
+					}
+				}); 
+			}
+			function getBuffetList_more(){
+				page++;
+				getBuffetListData(this,'pullLoad');
+			}
+			function renderBuffetStudyList(list,currObj){
+				var str = '';
+				for(var i=0;i<list.length;i++){
+					var buttonValue = "";
+					str += '<li>';
+					str += '<div class="loreNamePart"><p class="loreName ellip">'+ list[i].loreName +'</p>'
+					if(list[i].studyResult == 1){
+						str += '<p class="comStaTxt noCompTxt">未完成</p>';
+					}else if(list[i].studyResult == 2){
+						str += '<p class="comStaTxt hasCompTxt">已完成</p>';
+					}
+					str += '</div>';
+					str += '<div class="progress">';
+					str += '<div class="progressTxt">完成进度<span class="comPleteNumSpan">'+ list[i].comNumber +'</span>/<span class="allNum">'+ list[i].allNumber +'</span></div>';
+					str += '<div class="progressBarPar"><div class="progressBar"></div></div></div>';
+					str += '<div class="botFun">';
+					str += '<p class="sendPeo ellip">发布人：<span>'+ list[i].sendUserInfo +'</span></p>';
+					str += '<p class="sendTime ellip">发布时间：<span>'+ list[i].sendDate +'</span></p>';
+					if(list[i].studyResult == 1){
+						str += '<p bsId="'+ list[i].bsId +'" class="goStudyBtn">去学习</p>';
+					}else if(list[i].studyResult == 2){
+						str += '<p bsId="'+ list[i].bsId +'" class="viewStudyBtn">查看</p>';
+					}
+					str += '</div></li>';
+				}
+				if(currObj != null){
+					$('#buffetStudyList').append(str);
+					currObj.endPullupToRefresh(false);
+				}else{
+					$('#buffetStudyList').html(str);
+				}
+				completeProgBox();
+			}
+			mui('#buffetStudyList').on('tap','.goStudyBtn',function(){
+				var bsId = this.getAttribute('bsId');
+				app.openwin('buffetQuestionList.html',{bsId:bsId,currPage:page,currOpt:'backLoad',studyRes:1});
+				/*var currStatus = app.checkLoginStatus(userInfo.userId,userInfo.loginStatus);
+				if(currStatus){
+					app.openwin('buffetQuestionList.html',{bsId:bsId,currPage:page,currOpt:'backLoad',studyRes:1});
+				}*/
+			});
+			mui('#buffetStudyList').on('tap','.viewStudyBtn',function(){
+				var bsId = this.getAttribute('bsId');
+				//app.openwin('buffetQuestionList.html',{bsId:bsId,currPage:page,currOpt:'backLoad',studyRes:2});
+				app.openwin('buffetQuestionList.html',{bsId:bsId,currPage:page,currOpt:'',studyRes:2});
+			});
+			
+			function completeProgBox(){
+				$("#buffetStudyList li").each(function(i){
+					var nowExp = parseInt($(".comPleteNumSpan").eq(i).html());
+					var totalExp = parseInt($(".allNum").eq(i).html());
+					var perScale = nowExp/totalExp;
+					$(".progressBar").eq(i).width(perScale * $(".progressBarPar").width());
+				});
+			}
+		</script>
+	</body>
+</html>

@@ -1,0 +1,152 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../fonts/iconfont.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/mine.css"/>
+		<title>我的</title>
+	</head>
+	<body>
+		<div class="header">
+			<div class="headTit">
+				我的
+				<a id="settingBtn"><i class="iconfont icon-shezhi"></i></a>
+			</div>
+			<div id="userInfo" class="userInfo">
+				<img id="headPic_noLog" src="../../images/head.png"/>
+				<img id="headPic" src=""/>
+				<!-- 登录前 -->
+				<div class="infoBox noLogin"> 
+					<h2>未登录</h2>
+					<p class="noLoginTxt">登录体验更多功能</p>
+				</div>
+				<!-- 登录后 -->
+				<div class="infoBox hasLogin">
+					<strong id="account"></strong>
+					<p id="jzAcc" class="jzAcc"></p>
+				</div>
+			</div>
+		</div>
+		<!-- 我的学习 -->
+		<div class="myLearning hasMargTop">
+			<!-- <p class="accTit"><span></span><strong>我的学习</strong></p> -->
+			<div class="list">
+				<ul>
+					<li id="renjiao">
+						<span class="iconBox"><i class="iconfont icon-banji"></i></span>
+						<span class="perCenItemTxt">任教班级</span
+						<i class="iconfont icon-more"></i>
+					</li>
+					<li id="jiaoxuekemu">
+						<span class="iconBox"><i class="iconfont icon-xueke"></i></span>
+						<span class="perCenItemTxt">教学科目</span
+						<p id="subjectName">数学</p>
+					</li>
+					<li id="qinfenRep">
+						<span class="iconBox"><i class="iconfont icon-baogao"></i></span>
+						<span class="perCenItemTxt">勤奋报告</span
+						<i class="iconfont icon-more"></i>
+					</li>
+					<li id="jieguan">
+						<span class="iconBox"><i class="iconfont icon-jiaojieban"></i></span>
+						<span class="perCenItemTxt">接管班级</span
+						<i class="iconfont icon-more"></i>
+					</li>
+				</ul>
+			</div>
+		</div>
+		
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/h.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var userId = 0,loginStatus=0;
+			mui.plusReady(function () { 
+				set_userinfo();
+				app.getId('userInfo').addEventListener('tap',function(){
+					var loginView = plus.webview.getWebviewById('login');
+					var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+					var currStatus = userInfo == null ? false : true;
+					if(currStatus){
+						app.openwin('setting.html',{userId:userInfo.userId});
+					}else{
+						mui.fire(loginView,"noLoginCheck",{opt:'noLogin_user'});
+						app.doLogin();
+					}
+				}); 
+				//跳转至设置页面
+				app.getId('settingBtn').addEventListener('tap',function(){
+					var loginView = plus.webview.getWebviewById('login');
+					var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+					var currStatus = userInfo == null ? false : true;
+					if(currStatus){
+						app.openwin('setting.html',{userId:userInfo.userId});
+					}else{
+						mui.fire(loginView,"noLoginCheck",{opt:'noLogin_user'});//从app内除了人为退出为login页面绑定的opt
+						app.doLogin();
+					}
+				}); 
+				//接管班级
+				app.getId('jieguan').addEventListener('tap',function(){
+					var loginView = plus.webview.getWebviewById('login');
+					var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+					var currStatus = userInfo == null ? false : true;
+					if(currStatus){
+						app.openwin('../transferTakeClasses/transferTakeList.html',{jumpPagePos:'byMine',isDealFlag:false});
+					}else{
+						mui.fire(loginView,"noLoginCheck",{opt:'noLogin_user'});//从app内除了人为退出为login页面绑定的opt
+						app.doLogin();
+					}
+				});
+				app.getId('qinfenRep').addEventListener('tap',function(){
+					var loginView = plus.webview.getWebviewById('login');
+					var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+					var currStatus = userInfo == null ? false : true;
+					if(currStatus){
+						app.openwin('./qinfenReport.html');
+					}else{
+						mui.fire(loginView,"noLoginCheck",{opt:'noLogin_user'});//从app内除了人为退出为login页面绑定的opt
+						app.doLogin();
+					}
+				});
+				//任教班级
+				app.getId('renjiao').addEventListener('tap',function(){
+					var loginView = plus.webview.getWebviewById('login');
+					var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+					var currStatus = userInfo == null ? false : true;
+					if(currStatus){
+						app.openwin('../transferTakeClasses/teachingClass.html');
+					}else{
+						mui.fire(loginView,"noLoginCheck",{opt:'noLogin_user'});//从app内除了人为退出为login页面绑定的opt
+						app.doLogin();
+					}
+				});
+				function set_userinfo(){
+					if(localStorage.getItem("userInfo") != null){
+						document.querySelector('.noLogin').style.display = 'none';
+						app.getId('headPic_noLog').style.display = 'none';
+						document.querySelector('.hasLogin').style.display = 'block';
+						app.getId('headPic').style.display = 'block';
+						var userInfo=JSON.parse(localStorage.getItem("userInfo"));
+						app.getId('account').innerText = userInfo.userName; 
+						app.getId('jzAcc').innerText = '担任科目：' + userInfo.subName;
+						app.getId('headPic').src = userInfo.portrait;
+					}else{ 
+						document.querySelector('.noLogin').style.display = 'block';
+						document.querySelector('.hasLogin').style.display = 'none';
+						app.getId('headPic_noLog').style.display = 'block';
+						app.getId('headPic').style.display = 'none';
+					}
+				} 
+				document.addEventListener('upDateUserInfo',function(){
+					set_userinfo();
+				}); 
+			});
+		</script> 
+	</body>
+
+</html>

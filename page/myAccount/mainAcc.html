@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/myAccount.css"/>
+		<title>我的账户</title>
+	</head>
+	<body class="paddingTop" style="background: #fff;">
+		<div class="comHeader otherBg">
+			<a id="backBtn" class="posL" href="javascript:mui.back();"><i class="iconfont icon-fanhui"></i></a>
+			<span class="headerTit">我的账户</span>
+		</div>
+		<div class="accTypeList">
+			<div class="typeList"> 
+				<ul id="hwTypeUl">
+					<li id="myAccLi" class="hwTypeLi">
+						<i class="iconfont icon icon-zhanghucaozuo"></i>
+						<p style="margin-left: -.05rem;">我的账户</p>
+						<i class="iconfont icon-more"></i>
+					</li>
+					<li id="myBankCard" class="hwTypeLi">
+						<i class="iconfont icon icon-yinhangqia"></i>
+						<p>我的银行卡</p>
+						<i class="iconfont icon-more"></i>
+					</li>
+					<li id="myBill" class="hwTypeLi">
+						<i class="iconfont icon icon-yueguanli"></i>
+						<p>我的账单</p>
+						<i class="iconfont icon-more"></i>
+					</li>
+				</ul>
+			</div>
+		</div>
+		
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			mui.plusReady(function(){
+				var page = {
+					init : function(){
+						this.bindEvent();
+					},
+					bindEvent : function(){
+						//我的账户
+						app.getId('myAccLi').addEventListener('tap',function(){
+							app.openwin('myAccount.html');
+						});
+						//我的银行卡
+						app.getId('myBankCard').addEventListener('tap',function(){
+							app.openwin('myBankCard.html');
+						});
+						//我的账单
+						app.getId('myBill').addEventListener('tap',function(){
+							app.openwin('myBill.html');
+						});
+					}
+				};
+				page.init();
+			});
+		</script>
+	</body>
+</html>

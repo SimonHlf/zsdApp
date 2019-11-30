@@ -1,0 +1,153 @@
+body{
+	background: #ededed;
+}
+.totalTongjiTxt{
+	height: 1.3rem;
+	position: fixed;
+	left: .2667rem;
+	right: .2667rem;
+	top:2.75rem;
+	background: #fff;
+	padding:0 0.25rem;
+	font-size: .4rem;
+	color: #4d47f1;
+	display: flex;
+	align-items: center;
+}
+.studyLogList{
+	position: absolute;
+	left: .2667rem;
+	right:.2667rem;
+	top:4.28rem ;
+	bottom: .2667rem;
+	background: pink;
+}
+.innerList{
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 1.2rem;
+	top: 0;
+	background: #fff;
+	overflow: hidden;
+	overflow-y: auto;
+	-webkit-overflow-scrolling: touch;
+}
+.innerList li{
+	height: 1.2rem;
+	line-height: 1.2rem;
+	border-bottom: 1px solid #e6e6e6;
+	padding: 0 .25rem;
+	position: relative;
+}
+.innerList li span.currStaSpan{
+	width: 4px;
+	height: 100%;
+	position: absolute;
+	left: 0;
+	top:0
+}
+.innerList li.compCol span.currStaSpan{
+	background: #29c7c6;
+} 
+.innerList li.noCompCol span.currStaSpan{
+	background: #e10080;
+}
+.innerList li div.loreNameBox{
+	float: left;
+	width: 85%;
+}
+.innerList li div.loreNameBox.noPubBox{
+	width: 100%;
+}
+.innerList li.noPub p.loreName,
+.innerList li.hasPub p.loreName{
+	font-size: .4rem;
+	color: #666;
+	float: left;
+}
+.innerList li.noPub p.loreName{
+	width: 82%;
+}
+.innerList li.hasPub p.loreName{
+	width: 52%;
+}
+.innerList li p.currPubState{
+	float: left;
+	font-size: .4rem;
+}
+.innerList li.noPub p.currPubState.noPubTxt,
+.innerList li.hasPub p.currPubState.hasPubTxt{
+	color: #999999;
+}
+.innerList li.noPub p.currPubState.noPubTxt{
+	width: 18%;
+}
+.innerList li.hasPub p.currPubState.hasPubTxt{
+	width: 48%;
+}
+.innerList li.hasPub p.currPubState.hasPubTxt span{
+	float: left;
+}
+.innerList li.hasPub p.currPubState.hasPubTxt span.noCompleteTxt{
+	color: #e10080;
+	margin-right: .2rem;
+}
+.innerList li.hasPub p.currPubState.hasPubTxt span.hasCompleteTxt{
+	color: #28c8c6;
+	margin-right: .2rem;
+}
+.innerList li.hasPub .pubTime{
+	color:#28c8c6 ;
+}
+.innerList li p.tongjiBtn{
+	width: 15%;
+	font-size: .4rem;
+	color: #4d47f1;
+	float: left;
+	text-align: center;
+}
+.botIntroTxt{
+	width: 100%;
+	height: 1.2rem;
+	line-height: 1.2rem;
+	position: absolute;
+	left: 0;
+	bottom: 0;
+	/* border-top: 2px solid #e6e6e6; */
+	background: #fff;
+	box-shadow: 0 -3px 5px #eee;
+}
+.botIntroTxt p{
+	width: 50%;
+	height: 100%;
+	float: left;
+	font-size: .4rem;
+	color: #333333;
+}
+.botIntroTxt p span{
+	float: left;
+}
+.botIntroTxt p span.stateBg{
+	width: .3rem;
+	height: .3rem;
+	display: block;
+	margin:.48rem .15rem 0 .25rem;
+}
+.botIntroTxt p span.stateBg.noCompStaBg{
+	background: #e10080;
+}
+.botIntroTxt p span.stateBg.hasCompStaBg{
+	background: #28c8c6;
+}
+.stuTongjiBtn{
+	width: 1.4rem;
+	height: 1.4rem;
+	background: url(../images/tongjiIcon.png) no-repeat;
+	background-size:cover;
+	position: fixed;
+	left: .5rem;
+	bottom: 2rem;
+	z-index: 100;
+	display: none;
+}

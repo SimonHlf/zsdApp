@@ -1,0 +1,60 @@
+html,body{
+	overflow: hidden !important;
+}
+/* iscroll下拉刷新公共样式 */
+#pullUp{
+	width:100%;
+	height:35px;
+	line-height:35px;
+	position:relative;
+	text-align:center;
+	color:#666;
+	background:#f5f5f5;
+	display: no-ne;
+	font-size: .42rem;
+	color: #666;
+}
+#pullUp .pullup-icon{
+	width:25px;
+	height:25px;
+	position:absolute;
+	left:50%;
+	margin-left:-85.5px;
+	top:5px;
+	background:url(../images/groupIcon.png) no-repeat 0 0px;
+	background-size:cover;
+	-webkit-transition-property:-webkit-transform;
+	-webkit-transition-duration:250ms;	
+	-webkit-transform:rotate(-180deg) translateZ(0);
+	transform:rotate(-180deg) translateZ(0);
+}
+#pullUp.flip .pullup-icon {
+	-webkit-transform:rotate(0deg) translateZ(0);
+}
+#pullUp.loading .pullup-icon{
+	background:url(../images/groupIcon.png) no-repeat 0 -25px;
+	background-size:cover;
+	-webkit-transform:rotate(0deg) translateZ(0);
+	-webkit-transition-duration:0ms;
+	-webkit-animation:2s loading linear infinite;
+}
+@-webkit-keyframes loading {
+	from { -webkit-transform:rotate(0deg) translateZ(0); }
+	to { -webkit-transform:rotate(360deg) translateZ(0); }
+}
+.loadingIcon{
+	width:30px;
+	height:30px;
+	background:url(../images/groupIcon.png) no-repeat 0 -60px;
+	background-size:cover;
+	position:absolute;
+	left:50%;
+	margin-left:-15px;
+	top:50%;
+	margin-top:-22px;
+	-webkit-animation:2s loadingIcon linear infinite;
+}
+@-webkit-keyframes loadingIcon{
+	from { -webkit-transform:rotate(0deg) translateZ(0); }
+	to { -webkit-transform:rotate(360deg) translateZ(0); }
+}

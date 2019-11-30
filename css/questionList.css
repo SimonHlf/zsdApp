@@ -1,0 +1,756 @@
+body{
+	background: #f2f2f2;
+}
+.headerTit em{
+	font-style: normal;
+	display: block;
+	text-overflow: ellipsis;
+	overflow: hidden;
+	white-space: nowrap;
+	max-width: 96%;
+	text-align: left;
+}
+.headerTit em.bigTit{
+	height: .6rem;
+	line-height: .6rem;
+	color:#333;
+	margin-top: .1rem;
+}
+.headerTit em.smTit{
+	height: .6rem;
+	line-height: .6rem;
+	font-size: .38rem;
+	color: #999;
+	border-bottom: none;
+	padding: 0;
+	margin-bottom: 0;
+	font-weight: normal;
+}
+.comHeader .jiucuoBox{
+	width: 12%;
+	position: absolute;
+	height: 100%;
+	right: 0;
+	top: 0;
+}
+.comHeader span.jiucuoBtn{
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	left: 0;
+	top:0;
+	text-align: center;
+	display:none;
+}
+.comHeader span.jiucuoBtn i{
+	font-size: .7rem;
+	color: #333;
+}
+.currPercent{
+	height: 1rem;
+	line-height: 1rem;
+	background: #fff;
+	box-shadow: 0 2px 3px rgba(0,0,0,.1);
+	padding: 0 .2667rem;
+	position: relative;
+	z-index: 2;
+}
+.percent{
+	width:80%;
+	float: left;
+}
+.totalPercent{
+	width: 100%;
+	height: .15rem;
+	background: #cccccc;
+	float:left;
+	margin-top: .45rem;
+	position: relative;
+	border-radius: 20px;
+}
+.totalPercent span{
+	width: 0;
+	height: 100%;
+	position: absolute;
+	left: 0;
+	top:0;
+	background: #4d47f1;
+	border-radius: 20px;
+}
+.totalQuesNum{
+	width: 20%;
+	float: left;
+	font-size: .4rem;
+	color: #666666;
+	text-align: center;
+}
+/* 答题区结构 */
+.mainQuesArea{
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 2.3rem;
+	bottom: 0;
+	overflow: hidden;
+}
+/* 主要答题区 */
+.quesArea,
+.quesArea ul{
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 0;
+}
+.quesArea{
+	bottom: 0rem;
+}
+.quesArea ul{
+	bottom: 0;
+	overflow: hidden;
+}
+.quesArea li{
+	width: 100%;
+	height: 100%;
+	float: left; 
+	opacity: 0;
+	display: none;
+	position: relative;
+} 
+.quesArea li .queAnsBox{
+	position: absolute;
+	left: 0;
+	right: 0;
+	top:0;
+	bottom: 1.3rem;
+	overflow: hidden;
+	overflow-y: auto;
+	-webkit-overflow-scrolling: touch;
+}
+.quesArea.studyPart li .queAnsBox{
+	bottom: 1.45rem;
+}
+.quesArea li .quesTypeSub{
+	padding: 0 .2667rem;
+	margin-bottom: .25rem;
+	background: #fff;
+}
+.quesArea li .quesTypeSub .quesTypeTxt{
+	display: block;
+	width: 100%;
+	height: 1rem;
+	line-height: 1rem;
+	font-size: .48rem;
+	color: #4d47f1;
+	font-weight: 600;
+	padding-top: .2rem;
+}
+.queSubBox{
+	font-size: .42rem;
+	color: #333333;
+	padding-bottom: .2rem;
+	line-height: .65rem;
+}
+.queSubBox img{
+	max-width: 100%;
+	margin:.2rem 0 0;
+}
+/* 选项区域 */
+.quesArea li .optionsBox{
+	padding: 0 .2667rem;
+	margin-bottom: .25rem;
+	padding-bottom:0.01rem;
+}
+.quesArea li .optionsBox.hwOptsBox{
+	display: none;
+}
+.optionList{
+	border:2px solid #e6e6e6;
+	border-radius: 4px;
+	position: relative;
+	margin-bottom: .25rem;
+	background: #fff;
+}
+.optionList.active{
+	border:2px solid #4d47f1;
+}
+.optionList.rightAns.active{
+	border:2px solid #28c8c6;
+}
+.optionList.errorAns.active{
+	border:2px solid #e10080;
+}
+.optionList.rightAns.active span.optionsWord{
+	background: #28c8c6;
+	color: #fff;
+}
+.optionList.errorAns.active span.optionsWord{
+	background: #e10080;
+	color: #fff;
+}
+.optionList input{
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	left: 0;
+	top:0;
+	z-index: 5;
+}
+.optionList span.optionsWord{
+	width:1rem;
+	height: 100%;
+	background: #ededed;
+	position: absolute;
+	left: 0;
+	top: 0;
+	border-radius: 2px 0 0  2px;
+	font-size: .42rem;
+	color: #666666;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+.optionList div.optionsCon{
+	width: 8rem;
+	margin-left: 1.2rem;
+	font-size: .42rem;
+	color: #666;
+	padding: .1rem 0;
+	min-height: 1rem;
+	display: flex;
+	align-items: center;
+}
+.optionList div.optionsCon img{
+	max-width: 100%;
+}
+/* 填空问答结构 */
+.tkWdWrap{
+	display: none;
+}
+.tkWdNoticeTxt{
+	padding: .2667rem;
+	background: #fff;
+	font-size: .42rem;
+	color: #666;
+}
+.tkWdNoticeTxt i{
+	color: #4d47f1;
+	font-size: .45rem;
+}
+.tkWdRightAns,
+.tkWdMyAns{
+	padding: 0 .2667rem;
+}
+.tkWdRightAns{
+	margin-top: .25rem;
+}
+.tkWdRightAns strong,
+.tkWdMyAns strong{
+	font-size: .4rem;
+	font-weight: 600;
+	color: #333;
+	display: block;
+	width: 100%;
+	background: #fff;
+	text-indent: .2667rem;
+	padding: .2rem 0;
+}
+.rightTkWdAns{
+	background: #fff;
+	padding-left: .5rem;
+	font-size: .42rem;
+	color: #333333;
+	border-bottom: 1px solid #e6e6e6;
+}
+.rightTkWdAns p{
+	padding: .15rem 0;
+}
+.noticeTxt{
+	font-size: .38rem;
+	color:#999999 ;
+	font-weight: normal;
+	float: right;
+	margin-right: .2667rem;
+}
+.selectTkWdAns {
+	background: #fff;
+	padding-bottom: .2rem;
+}
+.selectTkWdAns .myWdAns{
+	width: 50%;
+	height: 1rem;
+	line-height: 1rem;
+	background: #fff;
+	position: relative;
+}
+.selectTkWdAns .myWdAns span{
+	margin-top: .15rem !important;
+}
+.selectTkWdAns .myWdAns span i{
+	top:-.2rem !important;
+	left:.03rem !important;
+}
+.selectTkWdAns .myWdAns p{
+	font-size: .4rem !important;
+	margin-left:1.5rem ;
+}
+.selectTkWdAns .myWdAns input{
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	left: 0;
+	top:0;
+}
+/* 填空问题提交答案后显示我的解答 */
+.mySelAnsRes{
+	height: 1.5rem;
+	line-height: 1.5rem;
+	background: #fff;
+	padding: 0 .2667rem;
+	display: none;
+}
+.tkWdRightAns,
+.tkWdMyAns{
+	display: none;
+}
+.mySelAnsRes p{
+	float: left;
+	font-size: .42rem;
+}
+.mySelAnsRes p:first-child{
+	color: #666;
+}
+.mySelAnsRes p.rightAnsSta{
+	color:#28c8c6 ;
+	font-weight: 600;
+}
+.mySelAnsRes p.errAnsSta{
+	color:#e10080 ;
+	font-weight: 600;
+}
+/* 填空选择结构 */
+.listTkxz,
+.hwAnsOptWrap{
+	height: 1.2rem;
+	line-height: 1.2rem;
+	border-bottom: 2px solid #f2f2f2;
+	padding: 0 .2667rem;
+	margin-bottom: .25rem;
+	background:#fff;
+}
+.listTkxz span.titSpan,
+.hwAnsOptWrap span.titSpan{
+	width: 1.2rem;
+	font-size: .4rem;
+	color: #333;
+	float: left;
+	color: #666;
+}
+.listTkxz .tkxzOpt,
+.hwAnsOptWrap .hwAnsOpt,
+.listTkxz .tkxzOpt .tkxzOptList,
+.hwAnsOptWrap .hwAnsOpt .hwOptlist,
+.listTkxz .tkxzOpt .tkxzOptList p,
+.hwAnsOptWrap .hwAnsOpt .hwOptlist p,
+.hwAnsOptWrap .hwAnsOpt .hwOptlist span,
+.listTkxz .tkxzOpt .tkxzOptList span,
+.myWdAns,
+.myWdAns p,.myWdAns span{
+	float: left;
+}
+.listTkxz .tkxzOpt .tkxzOptList,
+.hwAnsOptWrap .hwAnsOpt .hwOptlist{
+	line-height: 1.2rem;
+	margin-right: .4rem;
+	position: relative;
+}
+.listTkxz .tkxzOpt .tkxzOptList input,
+.hwAnsOptWrap .hwAnsOpt .hwOptlist input{
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	left: 0;
+	top:0;
+	z-index: 10;
+}
+.hwAnsOptWrap .hwAnsOpt .hwOptlist:last-child,
+.listTkxz .tkxzOpt .tkxzOptList:last-child{
+	margin-right: 0;
+}
+.hwAnsOptWrap .hwAnsOpt .hwOptlist span,
+.listTkxz .tkxzOpt .tkxzOptList span,
+.selectTkWdAns .myWdAns span{
+	width: .5rem;
+	height: .5rem;
+	border:1px solid #cccccc;
+	background: #f2f2f2;
+	border-radius: 50%;
+	display: block;
+	margin-top: .3rem;
+	position: relative;
+}
+.hwAnsOptWrap .hwAnsOpt .hwOptlist.hwChecOptList span{
+	border-radius: 2px;
+}
+.hwAnsOptWrap .hwAnsOpt .hwOptlist span i,
+.listTkxz .tkxzOpt .tkxzOptList span i,
+.selectTkWdAns .myWdAns span i{
+	position: absolute;
+	left: .03rem;
+	top:-.35rem;
+	font-size: .45rem;
+	color: #999;
+	display: none;
+}
+.hwAnsOptWrap .hwAnsOpt .hwOptlist.active span,
+.listTkxz .tkxzOpt .tkxzOptList.active span,
+.selectTkWdAns .myWdAns.active span{
+	background: #4d47f1;
+	border:1px solid #4d47f1;
+}
+.hwAnsOptWrap .hwAnsOpt .hwOptlist.active span i,
+.listTkxz .tkxzOpt .tkxzOptList.active span i,
+.selectTkWdAns .myWdAns.active span i{
+	display: block;
+	color: #fff;
+}
+.hwAnsOptWrap .hwAnsOpt .hwOptlist p,
+.listTkxz .tkxzOpt .tkxzOptList p,
+.selectTkWdAns .myWdAns p{
+	font-size: .42rem;
+	margin-right: .15rem;
+}
+/* 答题卡区域 */
+.quesCardArea{
+	width: 100%;
+	height: 1.5rem;
+	background: #fff;
+	position: fixed;
+	left: 0;
+	bottom: 0;
+}
+.quesCardArea span.comSubBtn{
+	width: 5.8rem;
+	height: 1rem;
+	line-height: 1rem;
+	display: block;
+	background: #4d47f1;
+	color: #fff;
+	font-size: .48rem;
+	text-align: center;
+	margin-top: .25rem;
+	margin-left: 1.7rem;
+	border-radius: 4px;
+	display: none;
+}
+.quesNum{
+	max-width: 2.4rem;
+	height: 1rem;
+	line-height: 1rem;
+	position: absolute;
+	right: .2667rem;
+	bottom:.25rem;
+	overflow: hidden;
+}
+.quesNum i,
+.quesNum p{
+	float: left;
+}
+.quesNum i,
+.quesNumTxt i{
+	color: #999;
+	margin-left: .25rem;
+	margin-right: .1rem;
+	font-size:.45rem
+}
+.quesNum p,
+.quesNumTxt p {
+	color: #666;
+	font-size: .42rem;
+}
+.quesNum p em.currQuesNum,
+.quesNumTxt p em.currQuesNum{
+	font-style: normal;
+	color: #333;
+}
+/* 答题卡列表 */
+.quesCardList{
+	position: fixed;
+	height: 10rem;
+	left: 0;
+	right: 0;
+	bottom:-100%;
+	background: #fff;
+	z-index: 1000;
+}
+#quesCardList{
+	-webkit-animation-timing-function:cubic-bezier(0.25,0.1,0.25,1);
+	-webkit-animation-fill-mode:forwards;
+	animation-timing-function:cubic-bezier(0.25,0.1,0.25,1);
+	animation-fill-mode:forwards;
+}
+.quesNumTxt{
+	height: 1.2rem;
+	line-height: 1.2rem;
+	text-align: right;
+	box-shadow: 0 3px 3px rgba(0,0,0,.1);
+	padding: 0 .2667rem;
+}
+.quesNumTxt p,
+.quesNumTxt i{
+	float: right;
+}
+.innerQuesCardlist{
+	position: absolute;
+	left: 0rem;
+	right: 0rem;
+	top: 1.6rem;
+	bottom: 0;
+	padding: 0 .2667rem;
+	overflow: hidden;
+	overflow-y: auto;
+	-webkit-overflow-scrolling: touch;
+}
+.innerQuesCardlist li{
+	width: 1.2rem;
+	height: 1.2rem;
+	line-height: 1.2rem;
+	border:1px solid #999;
+	text-align: center;
+	border-radius: 50%;
+	float: left;
+	font-size: .45rem;
+	color: #999;
+	margin-right: .37rem;
+	margin-bottom: .35rem;
+}
+.innerQuesCardlist li:nth-of-type(6n){
+	margin-right: 0;
+}
+.innerQuesCardlist li.active{
+	border:1px solid #4d47f1;
+	color: #4d47f1;
+}
+.innerQuesCardlist li.rightAns,
+.innerQuesCardlist li.rightAns.active{
+	border:1px solid #30cac8;
+	color: #30cac8;
+}
+.innerQuesCardlist li.errorAns,
+.innerQuesCardlist li.errorAns.active{
+	border:1px solid #e10080;
+	color: #e10080;
+}
+.myAnsOpt{
+	display: none;
+} 
+.myAnsOpt{
+	height: 1rem;
+	line-height: 1rem;
+	padding: 0 .2667rem;
+	font-size: .4rem;
+	color: #333;
+}
+.myAnsOpt.hwTypeTk{
+	background: #fff;
+	color: #666;
+}
+.myAnsOpt p.hwTypeAns{
+	float: left;
+	margin-right: .25rem;
+}
+.myAnsOpt span{
+	margin-right: .1rem;
+	float: left;
+}
+.myAnsOpt span.myHwAnsTkTxt{
+	color: #333;
+}
+.myAnsOpt i{
+	float: left;
+}
+.myAnsOpt i.wrongIcon{
+	font-size: .6rem;
+	color: #e10080;
+	font-weight: 600;
+}
+.rightIcon{
+	font-size: .6rem;
+	color: #30cac8;
+	font-weight: 600;
+}
+/* 最后提交时的遮罩层 */
+.maskLayer{
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	background:transparent;
+	z-index: 100;
+	display: none;
+}
+/* 答题对错提示层 */
+#tipInfoBox{
+	width: 100%;
+	height: 2.6rem;
+	background: #fff;
+	position: fixed;
+	left: 0;
+	bottom: 0;
+	z-index: 100;
+	transition:0.3s ease-out;
+	-webkit-transition:0.5s ease-out;
+	-webkit-transform:translateY(3rem);
+	transform:translateY(3rem);
+	z-index: 101;
+}
+.rightErrorImg{
+	float: left;
+	width:1.8533rem ;
+	height: 2rem;
+	background: url(../images/rightError.png) no-repeat;
+	background-size: 1.8533rem 4.24rem;
+	margin:.3rem 0 0 .2667rem;
+}
+.rightErrorImg.rightImg{
+	background-position: 0 0;
+}
+.rightErrorImg.errorImg{
+	background-position: 0 -2.24rem;
+}
+.errRightInfoTxt{
+	margin:.3rem 0 0 .2rem;
+	height: 2rem;
+	width: 7.3rem;
+	float: left;
+	text-align: center;
+}
+.errRightInfoTxt .infoState{
+	font-size: .45rem;
+	font-weight: 600;
+}
+.errRightInfoTxt .infoState i{
+	font-size: .6rem;
+	margin-right: .1rem;
+	float: left;
+	margin-left: 1.6rem;
+}
+.errRightInfoTxt .infoState span{
+	float: left;
+}
+.errRightInfoTxt .infoState.rightState{
+	color: #28c8c6;
+}
+.info{
+	color: #333;
+	font-size: .42rem;
+	margin-top: .3rem;
+}
+.errRightInfoTxt .infoState.errState{
+	color: #e10080;
+}
+.animation{
+	-webkit-animation:mymove .5s; /* Safari and Chrome */
+	animation:mymove .5s;
+}
+.animationClose{
+	animation:myMoveClose .5s;
+	-webkit-animation:myMoveClose .5s; /* Safari and Chrome */
+}
+@keyframes mymove{
+	from {bottom:-100%;}
+	to {bottom:0%;}
+}
+@-webkit-keyframes mymove { /* Safari and Chrome */
+	from {bottom:-100%;}
+	to {bottom:0%;}
+}
+@keyframes myMoveClose{
+	from {bottom:0%;}
+	to {bottom:-100%;}
+}
+@-webkit-keyframes myMoveClose {/* Safari and Chrome */
+	from {bottom:0%;}
+	to {bottom:-100%;}
+}
+/* 解析 */
+.analysis_div{
+	padding: .2rem .2667rem;
+	margin-top: .25rem;
+	background: #fff;
+	display: none;
+}
+.analysisTit{
+	line-height: .8rem;
+	font-size: .42rem;
+	color: #4d47f1;
+	display: block;
+}
+.analysisCon{
+	font-size: .4rem;
+	color: #333;
+	line-height: .65rem;
+}
+/* 家庭作业我的答案以及正确答案 */
+.myHwAnsTxt{
+	padding: 0 .2667rem;
+	height: 1.2rem;
+	line-height: 1.2rem;
+	font-size: .4rem;
+	background: #fff;
+	display: none;
+}
+.myHwAnsTxt p{
+	float: left;
+	margin-right: .25rem;
+	color: #666;
+}
+.myHwAnsTxt p span.ansSuccTxt,
+.myAnsOpt span.ansSuccTxt{
+	color: #28c8c6;
+	font-weight: 600;
+	font-size: .42rem;
+}
+.myHwAnsTxt p span.errAnsTxt,
+.myAnsOpt span.errAnsTxt{
+	color: #e10080;
+	font-weight: 600;
+	font-size: .42rem;
+}
+/* 家庭作业解析 */
+.hwAnalyTxt{
+	padding: 0 .2667rem .25rem;
+	background: #fff;
+	margin-top: .25rem;
+	display: none;
+}
+.hwAnalyTxt strong.titStrong{
+	display: block;
+	height: 1rem;
+	line-height: 1rem;
+	color: #4d47f1;
+	font-size: .4rem;
+}
+.hwAnalyCon{
+	color: #333;
+	font-size: .4rem;
+}
+.noAnsWrap{
+	display: none;
+	padding: 0 .2667rem;
+	width: 5.3333rem;
+	margin:.5rem auto 0;
+	text-align: center;
+}
+.noAnsTxt{
+	font-size: .4rem;
+	line-height: .8rem;
+	color: #999;
+}
+.noAnsDec{
+	width: 5.3333rem;
+	height: 3.0533rem;
+	background: url(../images/noAns.png) no-repeat;
+	background-size: cover;
+	display: block;
+}

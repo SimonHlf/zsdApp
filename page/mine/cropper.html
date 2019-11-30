@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/cropper.min.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/mui.min.css"/>
+		<title>裁剪头像</title>
+		<style>
+			#imgBox{ 
+				height:300px!important;
+				width: 300px!important;
+				background: url('../../images/bg.png');
+				margin:1.8rem auto .5rem;
+			}
+			.btnGroup{
+				padding: 0 .2667rem;
+			}
+			.smFunBtn{
+				margin-bottom: .4rem;
+			}
+			.smFunBtn button{
+				width: 30%;
+				border:1px solid #ff5e5e;
+				background: #ff5e5e !important;
+			}
+			.smFunBtn button:nth-of-type(3n-1){
+				margin:0 .32rem;
+			} 
+			.subBtn button{
+				width: 100%;
+				height:1.5rem;
+				line-height: 1.5rem;
+				background: #4d47f1 !important;
+				border:1px solid #4d47f1;
+				padding:0;
+			}
+			.selectImgBtn{
+				width: 15%;
+				height: 100%;
+				position: absolute;
+				right: .2667rem;
+				top:0;
+				text-align: right;
+			}
+			.selectImgBtn i{color: #fff;display: block;font-size: .6rem;}
+		</style>
+	</head>
+	<body> 
+		<div class="comHeader otherBg">
+			<a id="backBtn" class="posL"><i class="iconfont icon-fanhui"></i></a>
+			<span class="headerTit">添加图片</span>
+			<span id="selectImgBtn" class="selectImgBtn"><i class="iconfont icon-tianjia"></i></span>
+		</div>
+		<div id="imgBox">
+			<img id="userImage_id" src="../../images/bggif.gif" />
+		</div>
+		<div class="btnGroup">
+			<div class="smFunBtn">
+				<button type="button" disabled id="scaleX_id" class="mui-btn mui-btn-blue toolbutton">左右变换</button>
+				<button type="button" disabled id="scaleY_id" class="mui-btn mui-btn-blue toolbutton">上下变换</button>
+				<button type="button" disabled id="rotateMax_id" class="mui-btn mui-btn-blue toolbutton">旋转90°</button>
+			</div>
+			<div class="subBtn">
+				<button type="button" disabled id="confirm_id" class="mui-btn mui-btn-green mui-btn-block toolbutton">保存头像</button>
+			</div>
+		</div>
+		
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/jquery-3.1.1.slim.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/cropper.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var cropper = null;
+			mui.plusReady(function () {
+				var _self = plus.webview.currentWebview();
+			    var page = {
+				    init : function(){
+						app.backFun();
+						//this.selectImgWays();
+						this.initImageCropper();
+						this.bindEvent();
+				    }, 
+					selectImgWays : function(){
+						var _this = this;
+						if(mui.os.plus){
+							var a=[{
+								title:'拍照'
+							},{
+								title:'从手机相册选择'
+							}];
+							plus.nativeUI.actionSheet({
+								cancel:'取消',
+								buttons:a
+							},function(b){
+								switch(b.index){
+									case 0:
+										break;
+									case 1:
+										//拍照
+										_this.getImages();
+									break;
+									case 2:
+										//打开相册
+										_this.galleryImages();
+									break;
+									default:
+										break;
+								}
+							},false); 
+						}
+					},
+					getImages : function(){
+						var mobileCamera=plus.camera.getCamera(),_this = this;;
+						mobileCamera.captureImage(function(e){
+							plus.io.resolveLocalFileSystemURL(e,function(entry){
+								var path=entry.toLocalURL()+'?version='+new Date().getTime();
+								//app.openwin('cropper.html',{userId:_self.userId,path:path});
+								_this.loadImage(path);
+							},function(err){
+								console.log("读取拍照文件错误");
+							});
+						},function(e){
+							console.log("er",e);
+						},function(){
+							filename:'_doc/head.png';
+						});
+					},
+					galleryImages : function(){
+						var _this = this;
+						plus.gallery.pick(function(a) { 
+							plus.io.resolveLocalFileSystemURL(a, function(entry) {//entry为图片原目录（相册）流 
+								var path=entry.toLocalURL()+'?version='+new Date().getTime();
+								_this.loadImage(path);
+								//_this.cutImage(path); 
+							}, function(e) { 
+								console.log("读取图片错误：" + e.message); 
+							}); 
+						}, function(a) {}, { 
+							filter: "image" 
+						}) 
+					},
+					bindEvent : function(){
+						var _this = this;
+						app.getId('selectImgBtn').addEventListener('tap',function(){
+							_this.selectImgWays();
+						});
+						//左右变换
+						app.getId("scaleX_id").addEventListener("tap" , function(){
+							window._scaleX = window._scaleX * -1;
+							$("#userImage_id").cropper("scaleX" , window._scaleX);
+							
+						});
+						//上下变换
+						app.getId("scaleY_id").addEventListener("tap" , function(){
+							window._scaleY = window._scaleY * -1;
+							$("#userImage_id").cropper("scaleY" , window._scaleY);
+						});
+						//旋转90°
+						app.getId("rotateMax_id").addEventListener("tap" , function(){
+							$("#userImage_id").cropper("rotate" , 90);
+						});
+						//确认裁切
+						app.getId('confirm_id').addEventListener('tap',function(){
+							mui("#confirm_id").button('loading');
+							//裁减图片大小
+							var dataURL=$("#userImage_id").cropper("getCroppedCanvas" ,{
+								width:120 , height:120
+							});  
+							var imgUrl = dataURL.toDataURL("image/png", 1); //生成一个 Base64 编码的图片
+							window.imageDisable = true; 
+							$("#userImage_id").cropper("replace" ,imgUrl);
+							$("#userImage_id").cropper("clear");//裁切完成取消显示裁切框
+							$("#userImage_id").cropper("disable");
+							//确定裁切后销毁裁切组件，标记一下，下次继续裁切时需要初始化一下裁切组件
+							window.imageDisable = true;
+							//禁用几个功能按钮
+							$("button.toolbutton").prop("disabled" , true);
+							_this.uploadFile(imgUrl);
+						});
+					},
+					uploadFile : function(imgUrl){
+						var field = {userId:_self.userId,portrait:imgUrl};
+						mui.ajax(http_ + '/user.do?action=updateUserByPortrait',{
+							data:field, 
+							dataType:'json',
+							type:'post',
+							timeout:10000,
+							beforeSend : function(){
+								app.showToast(1,'设置中...');
+							},
+							success:function(json){
+								app.showToast(2);
+								if(json.msg == 'success'){
+									mui.toast('设置头像成功'); 
+									//更新setting中的头像  更新mine中的头像
+									var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+									var userPic = http_ + '/' + json.imgUrl;
+									userInfo.portrait = userPic;//更新userInfo下的头像
+									localStorage.setItem("userInfo",JSON.stringify(userInfo));
+									if(userInfo.roleId == stu_role_id){//学生
+										var mine= plus.webview.getWebviewById('page/mine/mine.html');
+									}else if(userInfo.roleId == tea_role_id){//班内老师
+										var mine= plus.webview.getWebviewById('page/mine/mine_tea.html');
+									}else if(userInfo.roleId == ntTea_role_id){
+										var mine= plus.webview.getWebviewById('page/mine/mine_nt.html');
+									}else if(userInfo.roleId == stuPar_role_id){
+										var mine= plus.webview.getWebviewById('page/mine/mine_par.html');
+									}
+									var opener = plus.webview.currentWebview().opener();
+									mui.fire(mine,'upDateUserInfo',{}); //更新我的页面下的头像
+									mui.fire(opener,'updateUserHeadImg',{userPic:userPic});
+									setTimeout(function(){
+										plus.webview.currentWebview().close('pop-out');
+									},300);
+									
+								}else if(json.msg == 'fail'){
+									app.showToast(2);
+									mui.toast('设置头像失败');
+								} 
+							},
+							error:function(xhr,type,errorThrown){
+								app.showToast(2);
+								mui.toast('服务器连接失败');
+							}
+						});
+					},
+					initImageCropper : function(){
+						$("#userImage_id").cropper({
+							aspectRatio:1/1, 
+							modal:false,
+							guides:false,
+							movable:false,
+							dragCrop:false,
+							resizable:false,
+							crop: function(data){
+								//初始化
+								window._scaleX = data.scaleX;
+								window._scaleY = data.scaleY;
+							}
+						});
+					},
+					loadImage : function(path){
+						var img = document.getElementById("userImage_id");
+						img.src = path;
+						//禁用几个功能按钮
+						$("button.toolbutton").prop("disabled" , true);
+						
+						if(window.imageDisable == true){
+							$("#userImage_id").cropper("enable");
+						}
+						$("#userImage_id").cropper("replace" , path);
+						//启用几个功能按钮
+						$("button.toolbutton").prop("disabled" , false);
+					}
+			   }; 
+			   page.init();
+			});
+			
+		</script>
+	</body>
+</html>

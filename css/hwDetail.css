@@ -1,0 +1,271 @@
+body{
+	background: #f2f2f2;
+}
+.hasMargBot{
+	margin-bottom: 1.2rem;
+}
+.innerDetCon{
+	display: none;
+}
+.hwDetIntro{
+	height: 1.2rem;
+	line-height: 1.2rem;
+	background: #fff;
+	padding: 0 .2667rem;
+	font-size: .4rem;
+	color: #333;
+	margin-bottom: .25rem;
+}
+.hwDetIntro p:first-child{
+	float: left;
+}
+.hwDetIntro p:last-child{
+	float: right;
+	color: #4d47f1;
+}
+.hwDetNav{
+	height: 1.3rem;
+	line-height: 1.3rem;
+	padding: 0 .2667rem;
+	background: #fff;
+	font-size: .45rem;
+	color: #333;
+}
+.hwDetNav p{
+	width: 50%;
+	float: left;
+	text-align: center;
+}
+.hwDetNav p.active{
+	color: #4d47f1;
+	font-weight: bold;
+}
+.hwDetCon{
+	border-top: 1px solid #e6e6e6;
+}
+.stuComp{
+	display: none;
+}
+.averageLore{
+	height: 3rem;
+	box-sizing: border-box;
+	padding:.2rem .2667rem 0;
+	background: #fff;
+}
+.averageScore,
+.loreName{
+	width: 50%;
+	height: 100%;
+	float: left;
+	position: relative;
+}
+.loreName{
+	width: 45%;
+	padding: 0 2%;
+}
+.averageScore{
+	border-right: 1px solid #e6e6e6;
+}
+.averageScore .scoreNum,
+.averageScore .scoreTxt{
+	text-align: center;
+	color: #666666;
+	font-size: .4rem;
+}
+.averageScore .scoreNum strong{
+	font-size: 2rem;
+	font-style: italic;
+}
+.loreName{
+	text-align: center;
+	font-size: .42rem;
+	color: #333;
+}
+.loreName .loreNameTxt{
+	width: 100%;
+	height: 1.6rem;
+	margin-top: .3rem;
+	-webkit-box-pack: center;
+	-webkit-line-clamp: 2;
+}
+.loreName .loreNameTit{
+	font-size: .4rem;
+	color: #666;
+}
+.averageScore .scoreTxt,
+.loreName .loreNameTit{
+	width: 100%;
+	height: .8rem;
+	line-height: .8rem;
+	position: absolute;
+	left: 0;
+	bottom: 0;
+}
+.completePeoWrap{
+	padding: .35rem 0;
+	background: #fff;
+}
+.sameBox{
+	width: 33.33%;
+	float: left;
+	text-align: center;
+	font-size: .4rem;
+	color: #666;
+}
+.sameBox p:first-child{
+	height: .9rem;
+	line-height: .9rem;
+	font-weight: 600;
+}
+.compPeo p:first-child{
+	color: #4d47f1;
+}
+.buzuoCompPeo p:first-child{
+	color: #29c7c6;
+}
+.noCompPeo p:first-child{
+	color: #e10080;
+}
+/* 学生情况 */
+.stuListWrap {
+	background: #fff;
+	margin-top: .25rem;
+}
+.stuListWrap strong,
+.stuListNav{
+	height: 1.1rem;
+	line-height: 1.1rem;
+	display: block;
+	font-size: .42rem;
+	color: #333;
+	display: block;
+	border-bottom: 1px solid #e6e6e6;
+}
+.stuListWrap strong,
+.innerStuListNav{
+	padding: 0 .2667rem;
+}
+.stuListNav.hasFixed{
+	width: 100%;
+	position: fixed;
+	left: 0;
+	top: 1.3rem;
+	background: #fff;
+	box-shadow: 0 3px 5px rgba(0,0,0,.1);
+}
+.stuListNav p,
+.stuList li p{
+	float: left;
+	text-align: center;
+	font-size: .42rem;
+	color: #333;
+}
+.stuListNav p.oneWid,
+.stuList li p.oneWid{
+	width:20% ;
+}
+.stuListNav p.towWid,
+.stuList li p.towWid{
+	width: 16%;
+}
+.stuList li p.towWid.score{
+	color: #4d47f1;
+}
+.stuList li p.towWid.rightCol{
+	color: #29c7c6;
+}
+.stuList li p.towWid.errCol{
+	color: #e10080;
+}
+.stuList li{
+	height: 1rem;
+	line-height: 1rem;
+	padding: 0 .2667rem;
+}
+.oddBgColor{
+	background: #f2f2f2;
+}
+.stuList li p:last-child.topPercent{
+	color: #4d47f1;
+}
+.stuList li p:last-child.midPercent{
+	color: #29c7c6;
+}
+.stuList li p:last-child.lowPercent{
+	color: #e10080;
+}
+.checkHwBtn{
+	width: 100%;
+	height: 1.2rem;
+	line-height: 1.2rem;
+	text-align: center;
+	font-size: .45rem;
+	color: #fff;
+	background:#4d47f1 ;
+	position: fixed;
+	left: 0;
+	bottom: 0;
+	display: none;
+}
+.accuracy{
+	padding: 0 .2667rem;
+	background: #fff;
+}
+.rightPercentTit{
+	height: 1.2rem;
+	line-height: 1.2rem;
+	position: relative;
+}
+.rightPercentTit span.lineSpan{
+	height: 50%;
+	width: 3px;
+	background: #4d47f1;
+	position: absolute;
+	left: 0rem;
+	top: 25%;
+	border-radius: 4px;
+}
+.rightPercentTit p{
+	margin-left: .25rem;
+	font-size: .42rem;
+	color: #333;
+}
+.tongji{
+	padding-top:.3rem ;
+	min-height: 1.5rem;
+	background: #fff;
+}
+.tongji li{
+	width: 20%;
+	text-align: center;
+	float: left;
+	margin-bottom: .25rem;
+}
+.tongji li div.percent{
+	width: 1.2rem;
+	height: 1.2rem;
+	border-radius: 50%;
+	margin:0 auto;
+}
+.tongji li p{
+	font-size: .4rem;
+	color: #333;
+	margin-top: .1rem;
+}
+.circles-text{
+	font-size: 14px !important;
+	color: #333;
+}
+.noDataTxt{
+	color: #999;
+	width: 100%;
+	text-align: center;
+	font-size: .4rem;
+	margin-top: .3rem;
+}
+.noDataTxt_stu{
+	text-align: center;
+	padding: 1rem 0;
+	font-size: .4rem;
+	color: #999;
+}

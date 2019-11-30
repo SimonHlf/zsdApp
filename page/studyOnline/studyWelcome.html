@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/stepStudy.css"/>
+		<title>五步学习</title>
+		<style>
+			.headerTit em{
+				font-style: normal;
+				display: block;
+				text-overflow: ellipsis;
+				overflow: hidden;
+				white-space: nowrap;
+				max-width: 100%;
+				text-align: left;
+			}
+			.headerTit em.bigTit{
+				height: .6rem;
+				line-height: .6rem;
+				margin-top: .1rem;
+				color:#333;
+			}
+			.smTit{
+				height: .6rem;
+				line-height: .6rem;
+				font-size: .38rem;
+				color: #666;
+				font-weight: normal;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="comHeader hasBor">
+			<a id="backBtn" class="posL" href="javascript:mui.back();"><i class="iconfont icon-fanhui"></i></a>
+			<span id="headerTit" class="headerTit">
+				<em id="bigTit" class="bigTit"></em>
+				<em id="smTit" class="smTit"></em>
+			</span>
+		</div>
+		<div class="stepWelcome">
+			<ul>
+				<li>
+					<div class="innerPart">
+						<p class="infoTxt">一线老师精心制作，短小精悍、内容丰富。认真听讲、彻底掌握</p> 
+						<p class="hasAlign video"><img class="video" src="images/video.png" alt="知识讲解"/></p>
+						<em>01</em>
+						<strong>知识讲解</strong>
+					</div>
+				</li>
+				<li>
+					<div class="innerPart">
+						<p class="infoTxt">了解重点、难点、关键点、易混点</p> 
+						<p class="hasAlign dianbo"><img class="dianbo" src="images/dianbozhidao.png" alt="点拨指导"/></p>
+						<em>02</em>
+						<strong>点拨指导</strong>
+					</div>
+				</li>
+				<li>
+					<div class="innerPart">
+						<p class="infoTxt">背会定理、公理、概念、定义，抓牢基础是关键</p> 
+						<p class="hasAlign zhishi"><img class="zhishi" src="images/zhishiqingdan.png" alt="知识清单"/></p>
+						<em>03</em>
+						<strong>知识清单</strong>
+					</div>
+				</li>
+				<li>
+					<div class="innerPart">
+						<p class="infoTxt">跟着老师学习做题，掌握解题方法、学习解题思路，规范解题过程</p> 
+						<p class="hasAlign"><img class="jieti" src="images/jietishifan.png" alt="解题示范"/></p>
+						<em>04</em>
+						<strong>解题示范</strong>
+					</div>
+				</li>
+				<li>
+					<div class="innerPart">
+						<p class="infoTxt">通过习题巩固一下刚才通过视频讲解、点拨指导、知识清单、解题示范，学到的知识</p> 
+						<p class="hasAlign"><img class="gonggu" src="images/gongguxunlian.png" alt="巩固训练"/></p>
+						<em>05</em>
+						<strong>巩固训练</strong>
+					</div>
+				</li>
+				<li>
+					<span id="goStudy" class="beginStudyBtn">开始学习</span>
+				</li>
+			</ul>
+		</div>
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			mui.init({
+				beforeback : function(){
+					var currPage = plus.webview.currentWebview();
+					var mapPage = currPage.opener(); 
+					mui.fire(mapPage,'upDataMapData',{});//更新mapData
+					return true;
+				}
+			});
+			mui.plusReady(function(){
+				//console.log( JSON.stringify( _self ) )
+				var _self = plus.webview.currentWebview().currField;
+				app.getId('bigTit').innerHTML = _self.loreName;
+				app.getId('smTit').innerHTML = _self.loreTaskName;
+				var byComPos = plus.webview.currentWebview().byComPos;
+				app.getId('goStudy').addEventListener('tap',function(){
+					app.openwin('stepStudy.html',{currField:_self,byComPos:byComPos});
+				},false);
+			});
+		</script>
+	</body>
+</html>

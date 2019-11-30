@@ -1,0 +1,427 @@
+body{
+	background: #f2f2f2;
+}
+body.hasMargBot{
+	margin-bottom: 1.5rem;
+}
+.filter{
+	width: 100%;
+	height: 1.2rem;
+	line-height: 1.2rem;
+	background: #fff;
+	left: 0;
+	top:1.3rem;
+	box-shadow: 0 3px 5px rgba(0,0,0,.05);
+	display: flex;
+	justify-content: space-between;
+	position: fixed;
+	z-index: 100;
+}
+.stuName{
+	font-size: .4rem;
+	margin-left: .2667rem;
+	color: #333;
+}
+.ansSta{
+	font-size: .4rem;
+}
+.searchBtn{
+	width: 12%;
+	height: .8rem;
+	line-height: .8rem;
+	margin-top: .2rem;
+	margin-right: .25rem;
+	text-align: center;
+	background: #4d47f1;
+	border-radius: 4px;
+}
+.searchBtn i{
+	font-size: .5rem;
+	display: block;
+	color: #fff;
+}
+.myAnsList{
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 2.5rem;
+	bottom: 0;
+	overflow: hidden;
+	overflow-y: auto;
+	-webkit-overflow-scrolling: touch;
+	z-index: 1;
+}
+.myAnsList ul{
+	padding: .25rem .2667rem 0;
+}
+.myAnsList li{
+	position: relative;
+	background: #fff;
+	border-radius: 4px;
+	margin-bottom: .25rem;
+	padding: .2rem 0;
+	box-shadow: 0 3px 5px rgba(0,0,0,.05);
+}
+.myAnsList li .headPic{
+	width:20%;
+	height: 100%;
+	position: absolute;
+	left:0;
+	top: 0;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+.myAnsList li .headPic img{
+	width: 1.4rem;
+	height: 1.4rem;
+	border-radius: 50%;
+}
+.myAnsList li .ansCon{
+	width: 79%;
+	margin-left: 21%;
+	height: 2rem;
+	position: relative;
+}
+.myAnsList li .ansCon.noImg{
+	width: 100%;
+	margin-left: 2%;
+}
+.ansConTxt{
+	font-size: .4rem;
+	color: #333;
+}
+.ansState{
+	width: 100%;
+	height: .8rem;
+	line-height: .8rem;
+	position: absolute;
+	left: 0;
+	bottom: 0;
+	font-size: .38rem;
+}
+.ansState span:first-child{
+	float: left;
+}
+.ansState span.noAnsSta,
+.queDet .queTitPart p.ansStaTime span.noAnsSta{
+	color: #e10080;
+}
+.ansState span.hasAnsSta,
+.queDet .queTitPart p.ansStaTime span.hasAnsSta{
+	color: #29c7c6;
+}
+.ansState span:last-child{
+	float: right;
+	color: #999;
+	margin-right: .4rem;
+}
+/* 我的答疑详情 */
+.queDet{
+	padding: 0 .2667rem;
+	background: #fff;
+}
+.queDet.hasMargBot{
+	margin-bottom: .25rem;
+}
+.queDet .queTitPart{
+	padding: .2rem 0 0;
+}
+.queDet .queTitPart p.queTit{
+	font-size: .42rem;
+	color: #333;
+	font-weight: 650;
+	-webkit-line-clamp: 2;
+}
+.queDet .queTitPart p.ansStaTime{
+	height:1rem;
+	line-height: 1rem;
+	font-size: .38rem;
+	color: #999;
+}
+.queDet .queTitPart p.ansStaTime span:first-child{
+	float: left;
+}
+.queDet .queTitPart p.ansStaTime span:last-child{
+	float: right;
+}
+.queConPart{
+	padding-bottom: .25rem;
+}
+.queConPart p{
+	margin-bottom: .25rem;
+}
+.queConPart .queCon{
+	font-size: .4rem;
+	color: #333;
+	line-height: .65rem;
+}
+.ansQueImg li{
+	float: left;
+	width: 2.2rem;
+	height: 2.2rem;
+	margin-right: .22rem;
+	margin-bottom: .25rem;
+	position: relative;
+}
+.ansQueImg li:nth-of-type(4n){
+	margin-right: 0;
+}
+.ansQueImg li img{
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	left: 0;
+	top:0;
+	background:yellow;
+	border:none;
+	opacity: 0;
+	z-index: 10;
+}
+.ansQueImg li em{
+	width: 100%;
+	height: 0;
+	display: block;
+	overflow: hidden;
+	padding-bottom: 100%; /* 关键就在这里 */
+	background-position: center;
+	background-repeat: no-repeat;
+	background-size: cover;
+}
+/* 我的解答详情 */
+.ansTit{
+	height: 1.2rem;
+	line-height: 1.2rem;
+	font-size: .42rem;
+	color: #333;
+	font-weight: 650;
+	padding:0 .2667rem;
+	background: #fff;
+	position: relative;
+}
+.ansTit span.dec{
+	width: 4px;
+	height: .5rem;
+	background: #4d47f1;
+	border-radius: 4px;
+	float: left;
+	margin:.32rem .2rem 0 0;
+}
+.ansDetCon,
+.ansDetCon_nt{
+	padding: 0 .2667rem .25rem;
+	background: #fff;
+	color: #333;
+	font-size: .4rem;
+	line-height: .65rem;
+}
+.ansDetCon{
+	display: none;
+}
+.ansDetCon p,
+.ansDetCon p img,
+.ansDetCon_nt p,
+.ansDetCon_nt p img{
+	margin-bottom: .25rem;
+}
+.ansDetNt{
+	display: none;
+}
+/* 解答按钮 */
+.ansBtnWrap{
+	width: 100%;
+	height: 1.5rem;
+	line-height: 1.5rem;
+	background: #fff;
+	box-shadow: 0 -3px 5px rgba(0,0,0,.05);
+	position: fixed;
+	left: 0;
+	bottom: 0;
+	z-index: 10;
+	display: none;
+}
+.ansBtnWrap span{
+	width: 55%;
+	height: 1rem;
+	line-height: 1rem;
+	display: block;
+	margin:.25rem auto 0;
+	background: #4d47f1;
+	color: #fff;
+	font-size: .45rem;
+	text-align: center;
+	border-radius: 4px;
+}
+/* 我要解答form */
+.ansForm{
+	padding: .2667rem;
+}
+.ansForm textarea{
+	width: 100%;
+	height: 5rem;
+	border:none;
+	font-size: .4rem;
+	color: #333;
+	background:transparent;
+	display: block;
+}
+.addWrap textarea::-webkit-input-placeholder,
+.formPartCon textarea::-webkit-input-placeholder,
+.formPart input[type="text"]::-webkit-input-placeholder{
+	color: #999;
+}
+.fujian strong{
+	line-height: .8rem;
+	display: block;
+	font-size: .42rem;
+	color: #333;
+	font-weight: 650;
+}
+.fujian li{
+	width: 2.2rem;
+	height: 2.2rem;
+	float: left;
+	margin-right: .22rem;
+	background: #e6e6e6;
+	border-radius: 4px;
+	position: relative;
+	margin-bottom: .35rem;
+}
+.fujian li:nth-of-type(4n){
+	margin-right: 0;
+}
+.fujian li.addBtn{
+	line-height: 2.2rem;
+	text-align: center;
+}
+.fujian li.addBtn i{
+	color: #999;
+	font-size: .9rem;
+	display: block;
+}
+.fujian li img{
+	width: 100%;
+	height: 100%;
+	border-radius: 4px;
+}
+.fujian .delBtn {
+	width: .5rem;
+	height: .5rem;
+	line-height: .5rem;
+	position: absolute;
+	right: 0;
+	top: 0;
+	background: #e10080;
+	text-align: center;
+	border-radius: 0 4px 0 0;
+}
+.fujian .delBtn i {
+	font-size: .4rem;
+	display: block;
+	color: #fff;
+	font-weight: bold;
+}
+.fujian a.addFujianBtn {
+	width: 2.16rem;
+	height: 2.16rem;
+	line-height: 2.16rem;
+	text-align: center;
+	float: left;
+	background: #e6e6e6;
+	border-radius: 4px;
+}
+.fujian a.addFujianBtn i {
+	font-size: 1.2rem;
+	color: #999999;
+}
+.submitBtn{
+	width: 60%;
+	height: 1rem;
+	line-height: 1rem;
+	background: #4d47f1;
+	font-size: .45rem;
+	color: #fff;
+	text-align: center;
+	display: block;
+	margin:.3rem auto 0;
+	border-radius: 4px;
+}
+/* 我的提问 添加提问 */
+.addQueBtn{
+	width: 15%;
+	height: 100%;
+	position: absolute;
+	right: 0;
+	top:0;
+	text-align: center;
+}
+.addQueBtn i{
+	color: #fff;
+	font-size: .55rem;
+	display: block;
+}
+.addQueWrap{
+	background: #fff;
+}
+.formPart{
+	border-bottom: 1px solid #E6E6E6;
+	height: 1.4rem;
+	line-height: 1.4rem;
+	padding: 0 .2667rem;
+}
+.formPart input[type="text"],
+.formPart p{
+	float: left;
+	width: 100%;
+	height: 100%;
+	border:none;
+	color:#333;
+	font-size: .4rem;
+}
+.formPart p span,
+.formPart p i{
+	float: left;
+}
+.formPart p i{
+	float: right;
+	font-size: .55rem;
+}
+.formPart p span{
+	width: 90%;
+	height: 100%;
+	color: #999;
+}
+.formPart p span.hasSel{
+	color: #333;
+}
+.formPartCon{
+	padding: .2rem .2667rem;
+	border-bottom: 1px solid #E6E6E6;
+}
+.formPartCon textarea{
+	height: 5rem;
+	width: 100%;
+	border:none;
+	background: transparent;
+	font-size: .4rem;
+	display: block;
+}
+/* 等待老师解答中... */
+.waitAns{
+	text-align: center;
+	padding: .25rem 0;
+	color: #999;
+	display: none;
+}
+.waitAns i{
+	font-size: 1.4rem;
+	display: block;
+}
+.waitAns p{
+	font-size: .4rem;
+	margin-top: .1rem;
+}
+.noteTxt{
+	font-size: .35rem;
+	color: #999;
+}

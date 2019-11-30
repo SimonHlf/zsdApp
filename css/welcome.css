@@ -1,0 +1,117 @@
+body{
+	background: #f2f2f2;
+}
+.subject{
+	height: 100%;
+	position: absolute;
+	right: .2667rem;
+	top:0;
+	font-size: .45rem;
+	color: #333333;
+	font-weight: 600;
+}
+.filter{
+	line-height: 1.2rem;
+	height: 1.2rem;
+	background: #fff;
+	padding: 1.3rem .2667rem 0;
+	margin-bottom: .25rem;
+	font-weight: 600;
+}
+.subject i,
+.comSel i{
+	color: #666;
+	font-weight: normal;
+}
+.comSel span{
+	display: block;
+	float: left;
+	padding: 0 .25rem;
+}
+.comSel span.noSel{
+	color: #999;
+	font-weight: normal;
+}
+.comSel{
+	font-size: .45rem;
+	color: #333333;
+}
+.subjectList li {
+	padding:.25rem .2667rem;
+	background: #fff;
+	margin-bottom: .25rem;;
+}
+.subjectList li .subImg{
+	width:2.6rem;
+	height: 2.6rem;
+	border-radius:6px;
+	background:#4d47f1 ;
+}
+.subjectList li .subImg img{
+	border-radius: 4px;
+}
+.subjectList li .subCon{
+	margin-left: .2rem;
+	width: 6.6rem;
+	height: 2.6rem;
+}
+.subjectList li .subCon p{
+	font-size: .4rem;
+	color: #333;
+	margin-bottom: .08rem;
+}
+.subjectList li .subCon p.overDateTxt{
+	color: #e10080;
+}
+.subjectList li .subCon p span{
+	color: #666;
+}
+.subjectList li .subCon p span.oneBlank{
+	width: .84rem;
+	display: inline-block;
+}
+.subjectList li .subCon p span.towBlank{
+	width: .2rem;
+	display: inline-block;
+}
+.linearBg_shuxue{
+	background: -webkit-linear-gradient(#00dbd8, #00aaff); /* Safari 5.1 - 6.0 */
+    background: -o-linear-gradient(#00dbd8, #00aaff); /* Opera 11.1 - 12.0 */
+    background: -moz-linear-gradient(#00dbd8, #00aaff); /* Firefox 3.6 - 15 */
+    background: linear-gradient(#00dbd8, #00aaff); /* 标准的语法 */
+}
+.tipInfo{
+	width: 100%;
+	height: 1.5rem;
+	line-height: 1.5rem;
+	position: fixed;
+	background: #fff;
+	left:0;
+	bottom: 0;
+	display: none;
+}
+.tipInfo span.iconSpan{
+	width: 12%;
+	height: 100%;
+	float:left;
+	text-align: center;
+	position: relative;
+}
+.tipInfo span.iconSpan i{
+	font-size: .5rem;
+	color: #4d47f1;
+}
+.tipInfo span.iconSpan em{
+	width: 1px;
+	height: .6rem;
+	background: #ccc;
+	position: absolute;
+	right: .1rem;
+	top: .45rem;
+}
+.tipTxt{
+	float: left;
+	font-size: .38rem;
+	color: #333;
+	margin-left: .25rem;
+}

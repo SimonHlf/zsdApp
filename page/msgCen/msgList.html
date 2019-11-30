@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/msgList.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/mui.min.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/mobileSelect.css"/>
+		<title>消息中心</title>
+	</head>
+	<body id="hwBody" class="paddingTop">
+		<div class="comHeader hasBor">
+			<a id="closeSel" class="posL" href="javascript:void(0)"><i class="iconfont icon-wrong"></i></a>
+			<a id="backBtn" class="posL" href="javascript:void(0)"><i class="iconfont icon-fanhui"></i></a>
+			<span class="headerTit">消息中心</span>
+			<input type="hidden" id="emailTypeInp"/>
+			<p id="emailTypeSel" class="emailTypeSel hasPosRea">
+				<span id="emailTypeTxt" class="comSelTxtCon">全部</span>
+				<i class="iconfont icon-xiala"></i> 
+			</p>
+		</div>
+		
+		<div id="msgListContainer" class="msgList">
+			<div class="mui-scroll">
+				<ul id="msgListUl"></ul>
+			</div>
+			<div id="noData" class="noData" style="display: none;"><img src="../../images/noData.png" /><p>暂无消息</p></div>
+		</div>
+		<div id="botFun" class="botFun">
+			<div id="yiduBtn">
+				<span><i class="iconfont icon-yidu"></i></span>
+				<p>标记已读</p>
+			</div>
+			<div id="delBtn">
+				<span><i class="iconfont icon-shanchu"></i></span>
+				<p>删除</p>
+			</div>
+			<div id="selAllBtn">
+				<input id="sellAllInp" type="checkbox" name="sellAllInp"/>
+				<span><i id="sellAllIcon" class="iconfont icon-quanxuan"></i></span>
+				<p id="selAllTxt">全选</p>
+			</div>
+		</div>
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/mobileSelect.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var pageNum = 1;
+			var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+			var isLongTagFlag = false;
+			mui.init({
+				gestureConfig:{
+					longtap: true
+				},
+				pullRefresh : {
+					container : "#msgListContainer",
+					up : {
+						height:50,
+						auto:false,
+						contentrefresh : "正在加载...",
+						contentnomore:'没有更多数据了',
+						callback : getMsgList_more
+					}
+				},
+				beforeback : function(){
+					var opener = plus.webview.currentWebview().opener();
+					mui.fire(opener,'upDateUnReadMsgFun',{});
+					return true;
+				} 
+			});
+			var emailTypeData = [
+				{"type":"","value":"全部"},
+				{"type":"sys","value":"系统邮件"},
+				{"type":"per","value":"个人邮件"}
+			];
+			mui.plusReady(function(){
+				var page = {
+					init : function(){
+						loadMsgList(null,'initload');
+						this.bindeEvent();
+						new MobileSelect({
+							trigger: '#emailTypeTxt',
+							title: '请选择邮件类型',
+							wheels: [ 
+								{data: emailTypeData}
+							],
+							position:[0], //初始化定位 打开时默认选中的哪个 如果不填默认为0
+							transitionEnd:function(indexArr, data){},
+							callback:function(indexArr, data){
+								app.getId('emailTypeInp').value = data[0].type;
+								pageNum = 1;
+								loadMsgList(null,'query');
+							}
+						});
+					},
+					closeLongTap : function(){
+						$('#botFun').addClass('animationClose').removeClass('animation');
+						$('.conBody').removeClass('hasSel');
+						$('.selWrap').hide();
+						$('#selectAll').hide();
+						$('#closeSel').hide();
+						$('#backBtn').show();
+						$('#emailTypeSel').show();
+						$('.selWrap').find('label').removeClass('active');
+						$('.selMsgInp').hide().prop('checked',false);
+						isLongTagFlag = false;
+					},
+					//已读
+					hasReadFun : function(field){
+						mui.ajax(http_ + '/email.do?action=updateBatchEmail',{
+							data:field,
+							dataType:'json',
+							type:'post',
+							timeout:10000,
+							success:function(json){
+								app.showToast(2);
+								if(json.result == 'success'){
+									mui.toast('标记已读成功');
+									setTimeout(function(){
+										location.reload();
+									},300);
+								}else if(json.result == 'error'){
+									mui.toast('服务器错误');
+								}
+							},
+							error:function(xhr,type,errorThrown){
+								app.showToast(2);
+								console.log(errorThrown)
+							} 
+						})
+					},
+					bindeEvent : function(){
+						var _this = this;
+						app.getId('backBtn').addEventListener('tap',function(){
+							mui.back();
+						});
+						//关闭已选择几项
+						app.getId('closeSel').addEventListener('tap',function(){
+							_this.closeLongTap();
+						});
+						mui('#msgListUl').on('longtap','li',function(){
+							$(this).find('label').addClass('active');
+							$('.selMsgInp').show();
+							$(this).find('input').prop('checked',true);
+							$('#botFun').addClass('animation').removeClass('animationClose');
+							$('#selectAll').show();
+							$('#closeSel').show();
+							$('#backBtn').hide();
+							$('.conBody').addClass('hasSel');
+							$('.selWrap').show();
+							$('#emailTypeSel').hide();
+							isLongTagFlag = true;
+						});
+						mui('#msgListUl').on('tap','.showDet',function(){
+							var readStatus = this.getAttribute('readStatus'),
+								emailId = this.getAttribute('emailId'),
+								isUpFlag = false;
+							if(readStatus == 0){
+								isUpFlag = true;
+							}
+							app.openwin('msgDet.html',{emailId:emailId,isUpFlag:isUpFlag});
+						});
+						//复选框动作
+						mui('#msgListUl').on('tap','.selMsgInp',function(){
+							var checkStatus = $(this).prop('checked');
+							if(!checkStatus){
+								$(this).parent().find('label').addClass('active');
+							}else{
+								$(this).parent().find('label').removeClass('active');
+								
+								$('#sellAllInp').prop('checked',false);
+								$('#sellAllIcon').removeClass('icon-quanxuan1').addClass('icon-quanxuan');
+								$('#selAllTxt').html('全选');
+							}
+							// setTimeout(function(){
+							// 	var hasCheckedLen =  $('input[name=selMsgInp]:checked').length;
+							// 	alert(hasCheckedLen)
+							// },1);
+						});
+						
+						//标记已读
+						app.getId('yiduBtn').addEventListener('tap',function(){
+							var emailIdArray = [];
+							var hasCheckedLen =  $('input[name=selMsgInp]:checked').length;
+							if(hasCheckedLen == 0){
+								mui.toast('请选择要标记已读的信息');
+								return;
+							}
+							$('.selMsgInp').each(function(i){
+								var checkStatus = $('.selMsgInp').eq(i).prop('checked');
+								if(checkStatus){
+									emailIdArray.push( $('.selMsgInp').eq(i).val() );
+								}
+							});
+							app.showToast(1);
+							var strEmailId = emailIdArray.join(',');
+							var field = {userId:userInfo.userId,emailId:strEmailId};
+							_this.hasReadFun(field);
+						});
+						//删除邮件
+						app.getId('delBtn').addEventListener('tap',function(){
+							var hasCheckedLen =  $('input[name=selMsgInp]:checked').length;
+							var emailIdArray = [];
+							if(hasCheckedLen == 0){
+								mui.toast('请选择要删除的消息');
+								return;
+							}
+							$('.selMsgInp').each(function(i){
+								var checkStatus = $('.selMsgInp').eq(i).prop('checked');
+								if(checkStatus){
+									emailIdArray.push( $('.selMsgInp').eq(i).val() );
+								}
+							});
+							var btnArray = ['确定','取消'];
+							mui.confirm('确认要删除当前选中消息?', '删除消息提示', btnArray, function(e){
+								if(e.index == 0){
+									app.showToast(1);
+									var strEmailId = emailIdArray.join(',');
+									var field = {userId:userInfo.userId,emailId:strEmailId};
+									mui.ajax(http_ + '/email.do?action=delBatchEmail',{
+										data:field,
+										dataType:'json',
+										type:'post',
+										timeout:10000,
+										success:function(json){
+											app.showToast(2);
+											if(json.result == 'success'){
+												mui.toast('删除消息成功');
+												setTimeout(function(){
+													location.reload();
+												},300);
+											}else if(json.result == 'error'){
+												mui.toast('服务器错误');
+											}
+										},
+										error:function(xhr,type,errorThrown){
+											app.showToast(2);
+											console.log(errorThrown)
+										} 
+									})
+								}
+							});
+						});
+						//全选
+						app.getId('sellAllInp').addEventListener('tap',function(){
+							var checkStatus = $(this).prop('checked');
+							if(!checkStatus){
+								$('#sellAllIcon').removeClass('icon-quanxuan').addClass('icon-quanxuan1');
+								$('#selAllTxt').html('取消全选');
+							}else{
+								$('#sellAllIcon').removeClass('icon-quanxuan1').addClass('icon-quanxuan');
+								$('#selAllTxt').html('全选');
+							}
+							$('.selMsgInp').each(function(i){
+								if(!checkStatus){
+									$('.selMsgInp').eq(i).prop('checked',true);
+									$('.selMsgInp').eq(i).parent().find('label').addClass('active');
+								}else{
+									$('.selMsgInp').eq(i).prop('checked',false);
+									$('.selMsgInp').eq(i).parent().find('label').removeClass('active');
+									
+								}
+							});
+						});
+						
+					}
+				};
+				page.init();
+				document.addEventListener('upDateMsgList',function(e){
+					var isUpFlag = e.detail.isUpFlag;
+					if(isUpFlag){
+						location.reload();
+					}
+				});
+			});
+			function loadMsgList(currObj,loadType){
+				app.showToast(1);
+				var emailTypeInp = $('#emailTypeInp').val();
+				//userId(移动端传递),title,emailType,sDate,eDate,page,limit
+				var field = {userId:userInfo.userId,page:pageNum,limit:10,emailType:emailTypeInp,sDate:'',eDate:''};
+				//console.log(JSON.stringify( field ))
+				mui.ajax(http_ + '/email.do?action=getEmailData',{
+					data:field,
+					dataType:'json',
+					type:'post',
+					timeout:10000,
+					success:function(json){
+						app.showToast(2);
+						//console.log(JSON.stringify( json ))
+						if(json.msg == 'success'){
+							mui('#msgListContainer').pullRefresh().refresh(true);
+							app.getId('noData').style.display = 'none';
+							$('#sellAllInp').prop('checked',false);
+							$('#sellAllIcon').removeClass('icon-quanxuan1').addClass('icon-quanxuan');
+							$('#selAllTxt').html('全选');
+							renderMsgList(json.data,currObj);
+							if(loadType == 'query'){
+								$('.mui-pull').show();
+								mui('#msgListContainer').pullRefresh().refresh(true);
+							}
+						}else if(json.msg == 'error'){
+							mui.toast('服务器错误');
+						}else if(json.msg == 'noInfo'){
+							if(currObj != null){
+								currObj.endPullupToRefresh(true);
+							}else{
+								$('.mui-pull').hide();
+								$('#msgListUl').html('');
+								app.getId('noData').style.display = 'block';
+							}
+						}
+					},
+					error:function(xhr,type,errorThrown){
+						app.showToast(2);
+						console.log(errorThrown)
+					} 
+				})
+			}
+			function renderMsgList(list,currObj){
+				var str = '';
+				for(var i=0;i<list.length;i++){
+					str += '<li class="clearfix">';
+					if(isLongTagFlag){
+						str += '<input type="checkbox" value="'+ list[i].emailId +'" class="selMsgInp" name="selMsgInp" style="display:block;"/>';
+					}else{
+						str += '<input type="checkbox" value="'+ list[i].emailId +'" class="selMsgInp" name="selMsgInp"/>';
+					}
+					str += '<div class="showDet" readStatus="'+ list[i].readStatus +'" emailId="'+ list[i].emailId +'"></div>';
+					if(list[i].readStatus == 0){//未读
+						str += '<span class="newMsgTips"></span>';
+					}
+					str += '<div class="msgIcon">';
+					if(list[i].emailType == 'sys'){
+						str += '<span><i class="iconfont icon-bell"></i></span>';
+					}else{
+						str += '<span><i class="iconfont icon-zhanghao"></i></span>';
+					}
+					str += '</div>';
+					str += '<div class="msgCon clearfix">';
+					if(isLongTagFlag){
+						str += '<div class="conBody hasSel">';
+					}else{
+						str += '<div class="conBody">';
+					}
+					str += '<strong>'+ list[i].title +'</strong>';
+					str += '<div class="msgConBot clearfix">';
+					if(list[i].emailType == 'sys'){
+						str += '<p>系统邮件</p>';
+					}else if(list[i].emailType == 'per'){
+						str += '<p>个人邮件</p>';
+					}
+					str += '<span>'+ list[i].sendDate +'</span>';
+					str += '</div></div>';
+					if(isLongTagFlag){
+						str += '<div class="selWrap" style="display:block;">';
+					}else{
+						str += '<div class="selWrap">';
+					}
+					str += '<label>';
+					str += '<span><i class="iconfont icon-duihao"></i></span>';
+					str += '</label>';
+					str += '</div></div>';
+					str += '</li>';
+				}
+				if(currObj != null){
+					$('#msgListUl').append(str);
+					currObj.endPullupToRefresh(false);
+				}else{
+					$('#msgListUl').html(str);
+				}
+				
+			}
+			function getMsgList_more(){
+				pageNum++;
+				loadMsgList(this,'pullLoad');
+			}
+		</script>
+		
+	</body>
+</html>

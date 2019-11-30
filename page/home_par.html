@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../css/index.css"/>
+		<link rel="stylesheet" type="text/css" href="../css/hwAnswerList.css"/>
+		<title>家长端首页</title>
+	</head>
+	<body class="paddingTop">
+		<div class="comHeader">
+			<span class="headerTit">知识典</span>
+		</div> 
+		<div class="mui-slider">
+			<div class="mui-slider-group">
+				<div class="mui-slider-item"><img src="../images/parBanner.jpg" style="border-radius: 10px;"/></div>
+			</div>
+		</div>
+		<!-- 导航 -->
+		<div class="navWrap">
+			<ul class="clearfix">
+				<li id="learnRecLi">
+					<a class="blockA">
+						<span class="iconBox jiluParBg">
+							<i class="iconfont icon-learning"></i>
+						</span>
+						<strong>学习记录</strong>
+					</a>
+				</li>
+				<li id="doHw">
+					<a class="blockA">
+						<span class="iconBox zuoyePar">
+							<img src="../images/taideng.png"/>
+						</span>
+						<strong>作业记录</strong>
+					</a>
+				</li>
+				<li id="buffetSend">
+					<a class="blockA">
+						<span class="iconBox zzcBgPar">
+							<i class="iconfont icon-xuexi"></i>
+						</span>
+						<strong>自助餐记录</strong>
+					</a>
+				</li>
+			</ul>
+		</div> 
+		
+		<!-- 今日作业 -->
+		<div class="learnRecord">
+			<div class="recTit clearfix">
+				<strong>孩子今日作业</strong>
+			</div>
+			<div class="recordList">
+				<ul id="listRec"></ul>
+			</div>
+		</div>
+		
+		<script src="../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+			mui.plusReady(function(){
+				var page = {
+					init : function(){
+						this.bindEvent();
+						this.loadTodyHwList();
+					},
+					bindEvent : function(){
+						var loginView = plus.webview.getWebviewById('login');
+						//学习记录
+						app.getId('learnRecLi').addEventListener('tap',function(){
+							var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+							var currStatus = userInfo == null ? false : true;
+							if(currStatus){
+								app.openwin('mine/myLearningRecord.html');
+							}else{
+								mui.fire(loginView,"noLoginCheck",{opt:'noLogin_user'});//从app内除了人为退出为login页面绑定的opt
+								app.doLogin();
+							}
+						});
+						//孩子作业记录 
+						app.getId('doHw').addEventListener('tap',function(){
+							var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+							var currStatus = userInfo == null ? false : true;
+							if(currStatus){
+								app.openwin('stuDoHw/doHwMainList.html',{userId:userInfo.userId});
+							}else{
+								mui.fire(loginView,"noLoginCheck",{opt:'noLogin_user'});//从app内除了人为退出为login页面绑定的opt
+								app.doLogin();
+							}
+						});
+						//孩子自助餐记录 
+						app.getId('buffetSend').addEventListener('tap',function(){
+							var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+							var currStatus = userInfo == null ? false : true;
+							if(currStatus){
+								app.openwin('buffetSend/buffetStudyLog.html',{userId:userInfo.userId});
+							}else{
+								mui.fire(loginView,"noLoginCheck",{opt:'noLogin_user'});//从app内除了人为退出为login页面绑定的opt
+								app.doLogin();
+							}
+						});
+						//查看孩子今日家庭作业
+						mui('#listRec').on('tap','li',function(){
+							var tjId = this.getAttribute('tjId'),
+								hwType = this.getAttribute('hwType'),
+								loreName = this.getAttribute('loreName'),
+								comStatus = this.getAttribute('comStatus');
+							var userInfo = JSON.parse(localStorage.getItem('userInfo'));
+							var currStatus = userInfo == null ? false : true;
+							if(currStatus){
+								var field = {userId:userInfo.userId,tjId:tjId};
+								app.openwin('stuDoHw/hwStudyQueList.html',{field:field,currPage:1,studyRes:1,currPos:'byHome'});
+							}else{
+								mui.fire(loginView,"noLoginCheck",{opt:'noLogin_user'});//从app内除了人为退出为login页面绑定的opt
+								app.doLogin();
+							}
+						});
+					},
+					loadTodyHwList : function(){
+						var field = {userId:userInfo.userId,opt:0,roleId:userInfo.roleId,loginStatus:userInfo.loginStatus,showLsStatus:1},_this = this;
+						mui.ajax(http_ + '/hw.do?action=getSelfHwData',{
+							data:field,
+							dataType:'json',
+							type:'post',
+							timeout:10000,  
+							success:function(json){ 
+								app.showToast(2);
+								if(json.result == 'success'){ 
+									_this.renderCurrHwList(json.currHwList);
+								}else if(json.result == 'error'){ 
+									plus.nativeUI.toast('服务器错误');
+								}else{
+									setTimeout(function(){
+										app.checkLoginStaInfo(json.result,userInfo.roleId);
+									},500);
+									
+								}
+							},
+							error:function(xhr,type,errorThrown){
+								app.showToast(2);
+								plus.nativeUI.toast('服务器错误');
+							} 
+						});
+					},
+					renderCurrHwList : function(list){
+						var str = '';
+						if(list.length > 0){
+							for(var i=0;i<list.length;i++){
+								str += '<li tjId="'+ list[i].tjId +'" hwType="'+ list[i].hwType +'" comStatus="'+ list[i].comStatus +'" loreName="'+ list[i].loreName +'" class="viewDetBtn">';
+									str += '<div class="subImg"><i class="iconfont '+ app.switchIconBySubName(list[i].subName) +'"></i></div>';
+									str += '<div class="detCon">';
+									str += '<div class="detConTit"><p class="loreName ellip">'+ list[i].loreName +'</p>';
+									if(list[i].comStatus == 0 || list[i].comStatus == -1){//未完成
+										str += '<p class="currSta"><span class="compTxt noCompCol">未完成</span><span class="staBg noCompBg"></span></p></div>';
+									}else if(list[i].comStatus == 1){//按时完成
+										str += '<p class="currSta"><span class="compTxt compCol">已完成</span><span class="staBg compBg"></span></p></div>';
+									}else if(list[i].comStatus == 2){//补做完成
+										str += '<p class="currSta"><span class="compTxt buzuoCompCol">补做完成</span><span class="staBg buzuoCompBg"></span></p></div>';
+									}
+									str += '<div class="detConBot clearfix">';
+									str += '<p class="subTeaName"><span>'+ list[i].subName +'老师</span>：'+ list[i].teaName +'</p>';
+									str += '<p class="currHwTit">'+ list[i].hwTitle +'</p>';
+									str += '</div></div>';
+								str += '</li>';
+							}
+							app.getId('listRec').innerHTML = str;
+						}else{
+							app.getId('listRec').className = 'hasAlign';
+							app.getId('listRec').innerHTML = '<img src="../images/noHwRec.png" alt="暂无家庭作业记录"/>';
+						}
+					}
+				};
+				page.init();
+				document.addEventListener('upDateTodayHwList',function(e){
+					page.loadTodyHwList();
+				});  
+			});
+		</script>
+	</body>
+</html>

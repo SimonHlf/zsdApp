@@ -1,0 +1,85 @@
+/** 清除内外边距 **/
+body,ul,ol,li,p,h1,h2,h3,h4,h5,h6,form,fieldset,table,td,img,dl,dt,dd,input,select,textarea,label,input{margin:0;padding:0;}
+
+/** 设置默认字体 **/
+body{font-family:Helvetica;-webkit-user-select: none !important;-webkit-text-size-adjust: 100% !important;--webkit-overflow-scrolling:touch !important;}
+
+/** 重置图片元素 **/
+img{border:none;vertical-align:top;display:block;max-width:100%;}
+
+/** 重置列表元素 **/
+li{list-style:none;}
+
+/** 重置超链接元素 **/
+a{
+	text-decoration:none;
+	color: inherit;
+}
+a:active{
+	color:#fff !important;
+}
+button.active{
+	background: transparent !important;
+}
+/** 去除textarea、input文本框的resize outline样式 **/
+textarea{resize:none;outline: none;}
+input{outline:none;}
+
+/**通用浮动类元素 **/
+.fl{float:left;}
+.fr{float:right;}
+
+/*清浮动*/
+.clearfix{zoom:1;}
+.clearfix:after{content:"";display:block;clear:both;}
+/* 多余文字...显示（单行） */
+.ellip{
+	overflow: hidden;
+	white-space:nowrap;
+	text-overflow: ellipsis;
+}
+/* 多余文字...显示（多行） */
+.multiEllip{
+	overflow : hidden;
+	text-overflow: ellipsis;
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	color: #333;
+}
+/* 清除a标签touchend时默认的灰色背景 */
+a,input,textarea,button,p,label,strong,li{
+	-webkit-tap-highlight-color:transparent;
+}
+button,input,textarea {
+  /* 解决ios下自带的圆角 */
+  -webkit-appearance: none;
+  border-radius: 0px;
+}
+input[type="radio"],
+input[type="checkbox"]{
+	opacity:0;
+}
+/* 英文下强制换行 */
+.breakAll{
+	word-wrap:break-word;
+	overflow:hidden;
+	word-break:break-all;
+}
+.layer{
+	width:100%;
+	height:100%;
+	display:none;
+	position:fixed;
+	left:0;
+	top:0;
+	z-index:980;
+	/*opacity:0;*/
+	background:rgba(0,0,0,.6);
+}
+/* blockA */
+.blockA{
+	width: 100%;
+	height: 100%;
+	display: block;
+	position: relative;
+}

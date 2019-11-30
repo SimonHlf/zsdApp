@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/welcome.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/mobileSelect.css"/>
+		<title>在线学习</title>
+	</head>
+	<body>
+		<div class="comHeader hasBor">
+			<a id="backBtn" class="posL" href="javascript:mui.back()"><i class="iconfont icon-fanhui"></i></a>
+			<span class="headerTit">在线学习</span>
+			<input type="hidden" id="gradeInp" />
+			<div id="gradeSel" class="subject">
+				<span id="gradeTxt"></span>
+				<i id="gradeIcon" class="iconfont icon-xiala"></i>
+			</div>
+		</div>
+		<!-- 年级 出版社选择 -->
+		<div class="filter">
+			<input type="hidden" id="subjectInp" />
+			<input type="hidden" id="ediInp" />
+			<p id="subject" class="comSel fl">
+				<span id="subTxt"></span>
+				<i id="subIcon" class="iconfont icon-xiala"></i>
+			</p>
+			<div id="editSel" class="comSel fr">
+				<span id="editTxt" class="noSel">请选择出版社</span>
+				<i class="iconfont icon-xiala"></i>
+			</div>
+		</div>
+		<!-- 科目 -->
+		<div class="subjectList"></div>
+		<!-- 高三初三复习阶段提示选择年级进行复习 -->
+		<div id="tipInfo" class="tipInfo">
+			<span class="iconSpan">
+				<i class="iconfont icon-gonggao"></i>
+				<em></em>
+			</span>
+			<p id="tipTxt" class="tipTxt"></p>
+		</div>
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/mobileSelect.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var isLoadFlag = true,globalSubId=0;//初始化进来加载一次年级 学科 出版社
+			var userInfo = JSON.parse( localStorage.getItem('userInfo') )
+			mui.plusReady(function(){
+				var page = {
+					init : function(){
+						this.getInitStudyData();
+					},
+					//获取初始数据
+					getInitStudyData : function(){
+						var _this = this,subId = $('#subjectInp').val(),
+							ediId = $('#ediInp').val(),
+							gradId = $('#gradeInp').val();
+						var field = {userId:userInfo.userId,roleId:userInfo.roleId,loginStatus:userInfo.loginStatus,subId:subId,ediId:ediId,gradeNumber:gradId};
+						app.showToast(1);
+						$.ajax({
+							url : http_ + '/onlineStudy.do?action=getInitStudyData',
+							data:field, 
+							dataType:'json',
+							type:'post',
+							timeout:10000,
+							success:function(json){
+								app.showToast(2);
+								if(json.result == 'success' || json.result == 'noInfo' || json.result == 'error'){
+									if(isLoadFlag){//只创建一次模拟select
+										var ediList = json.ediList,gradeList = json.gradeList,subList = json.subList;
+										_this.createGradeSel(gradeList);
+										_this.createSubSel(subList);
+										_this.createEdiSel(ediList);
+									}
+									isLoadFlag = false;
+								}
+								if(json.result == 'success'){
+									var studyList = json.studyList;
+									_this.renderSubjectHtml(studyList);
+								}else if(json.result == 'noInfo'){
+									$('.subjectList').html('<div class="noData"><img src="../../images/noData.png"/><p>暂无教材，请选择学科或出版社</p></div>');
+								}else if(json.result == 'error'){
+									plus.nativeUI.toast('获取教材信息失败');
+								}else{
+									app.checkLoginStaInfo(json.result,userInfo.roleId);
+								}
+							},
+							error:function(xhr,type,errorThrown){
+								app.showToast(2);
+								plus.nativeUI.toast('服务器异常');
+							}
+						}); 
+					},
+					getSubjectImg : function(subName,eduVolume){
+						var subNameStr = '';
+						if(subName == '语文'){
+							if(eduVolume == '上册'){
+								subNameStr = 'yuwenUp';
+							}else{
+								subNameStr = 'yuwenDown';
+							}
+						}else if(subName == '数学'){
+							if(eduVolume == '上册'){
+								subNameStr = 'shuxueUp';
+							}else{
+								subNameStr = 'shuxueDown';
+							}
+						}else if(subName == '英语'){
+							if(eduVolume == '上册'){
+								subNameStr = 'yingyuUp';
+							}else{
+								subNameStr = 'yingyuDown';
+							}
+						}else if(subName == '物理'){
+							if(eduVolume == '上册'){
+								subNameStr = 'wuliUp';
+							}else{
+								subNameStr = 'wuliDown';
+							}
+						}else if(subName == '化学'){
+							if(eduVolume == '上册'){
+								subNameStr = 'huaxueUp';
+							}else{
+								subNameStr = 'huaxueDown';
+							}
+						}else if(subName == '地理'){
+							if(eduVolume == '上册'){
+								subNameStr = 'diliUp';
+							}else{
+								subNameStr = 'diliDown';
+							}
+						}else if(subName == '生物'){
+							if(eduVolume == '上册'){
+								subNameStr = 'shengwuUp';
+							}else{
+								subNameStr = 'shengwuDown';
+							}
+						}else if(subName == '历史'){
+							if(eduVolume == '上册'){
+								subNameStr = 'lishiUp';
+							}else{
+								subNameStr = 'lishiDown';
+							}
+						}else if(subName == '生命科学'){
+							if(eduVolume == '上册'){
+								subNameStr = 'smkxUp';
+							}else{
+								subNameStr = 'smkxDown';
+							}
+						}else if(subName == '科学'){
+							if(eduVolume == '上册'){
+								subNameStr = 'kexueUp';
+							}else{
+								subNameStr = 'kexueDown';
+							}
+						}
+						return subNameStr;
+					},
+					//存在教材时搭建结构
+					renderSubjectHtml : function(list){
+						var _this = this;
+						var str = '<ul>'; 
+						for(var i=0;i<list.length;i++){
+							str += '<li eduId="'+ list[i].eduId +'" eduVol="'+ list[i].eduVolume +'" class="eduListli clearfix">';
+							str += '<div class="subImg fl">';
+							str += '<img src="../../images/subject/'+ _this.getSubjectImg(list[i].subName,list[i].eduVolume) +'.png"/>';
+							str += '</div>';
+							str += '<div class="subCon fl">';
+							str += '<p class="currSta"><span>当前状态：</span>'+ list[i].freeStatus +'</p>';
+							str += '<p class="hasUse"><span>已<span class="towBlank"></span>使<span class="towBlank"></span>用：</span>'+ list[i].studyDays +'天</p>';
+							if(list[i].remainDays > 0){
+								str += '<p class="remind"><span>还<span class="oneBlank"></span>剩：</span>'+ list[i].remainDays +'天</p>';
+							}else{
+								var remainDaysStr = (list[i].remainDays).toString().replace('-','');
+								str += '<p class="remind overDateTxt">已<span class="towBlank"></span>过<span class="towBlank"></span>期：'+ remainDaysStr +'天</p>';
+							}
+							
+							str += '<p class="remind"><span>使用期限：</span>'+ list[i].date_range +'</p>';
+							str += '</div></li>';
+						}
+						str += '</ul>';
+						$('.subjectList').html(str); 
+						this.goToEducEvent();//跳转至教材章节页面
+					},
+					goToEducEvent : function(obj){
+						$('.eduListli').on('touchend',function(){
+							var educId = $(this).attr('eduId'),
+								eduVol = $(this).attr('eduVol'),
+								gradeTxt = $('#gradeTxt').html(),
+								subTxt = $('#subTxt').html(),
+								editTxt = $('#editTxt').html(),
+								field = {userId:userInfo.userId,educId:educId,eduVol:eduVol,gradeTxt:gradeTxt,subTxt:subTxt,editTxt:editTxt};
+							var chapterView = plus.webview.getWebviewById('chapterList.html');
+							if(!chapterView){
+								chapterView = plus.webview.create(
+									'chapterList.html',
+									'chapterList.html',{},
+									{field:field}
+								);
+								chapterView.show('pop-in');
+							}  
+						});
+					
+					},
+					//创建年级sel
+					createGradeSel : function(list){
+						var _this = this,currSelGradNum=0;
+						if(list.length == 1){//直接显示并去除下拉
+							$('#gradeTxt').html(list[0].gradeNanme);
+							$('#gradeInp').val(list[0].gradeNumber);
+							$('#gradeIcon').hide();
+						}else if(list.length > 1){//模拟sel
+							app.getId('tipInfo').style.display = 'block';
+							for(var i=0;i<list.length;i++){
+								if(list[i].selFlag){
+									currSelGradNum = i;
+									app.getId('tipTxt').innerHTML = '您已进入'+ list[i].gradeName +'复习阶段，可切换年级进行复习!';
+									$('#gradeTxt').html(list[i].gradeName);
+									$('#gradeInp').val(list[i].gradeNumber);
+								}
+							}
+							var gradeSel = new MobileSelect({
+								trigger: '#gradeTxt',
+								title: '选择年级',
+								wheels: [ 
+									{data: list}
+								],
+								position:[currSelGradNum], //初始化定位 打开时默认选中的哪个 如果不填默认为0
+								transitionEnd:function(indexArr, data){},
+								keyMap:{"id":"gradeNumber","value":"gradeName"},
+								callback:function(indexArr, data){
+									$('#gradeInp').val(data[0].gradeNumber);
+									app.showToast(1);
+									_this.getInitStudyData();
+								}
+							});
+						}
+					}, 
+					//创建学科sel
+					createSubSel : function(list){
+						var currSelNum = 0,_this = this;
+						if(list.length == 1){
+							$('#subTxt').html(list[0].subName);
+							$('#subjectInp').val(list[0].subId);
+							$('#subIcon').hide();
+						}else if(list.length > 1){
+							for(var i=0;i<list.length;i++){
+								if(list[i].selFlag){
+									currSelNum = i;
+									$('#subTxt').html(list[i].subName);
+									$('#subjectInp').val(list[i].subId);
+								}
+							}
+							var subSel = new MobileSelect({
+								trigger: '#subTxt',
+								title: '选择学科',
+								wheels: [ 
+									{data: list}
+								],
+								position:[currSelNum], //初始化定位 打开时默认选中的哪个 如果不填默认为0
+								transitionEnd:function(indexArr, data){},
+								//subImg
+								keyMap:{"id":"subId","value":"subName"},
+								callback:function(indexArr, data){
+									$('#subjectInp').val(data[0].subId);
+									app.showToast(1);
+									_this.getInitStudyData();
+								}
+							});
+						}
+					},
+					createEdiSel : function(list){
+						var currSelNum = 0,_this = this;
+						for(var i=0;i<list.length;i++){
+							if(list[i].selFlag){
+								currSelNum = i;
+								$('#editTxt').html(list[i].ediName).removeClass('noSel');
+								$('#ediInp').val(list[i].ediId);
+							}
+						}
+						var ediSel = new MobileSelect({
+							trigger: '#editTxt',
+							title: '选择出版社',
+							wheels: [ 
+								{data: list}
+							],
+							position:[currSelNum], //初始化定位 打开时默认选中的哪个 如果不填默认为0
+							transitionEnd:function(indexArr, data){},
+							keyMap:{"id":"ediId","value":"ediName"},
+							callback:function(indexArr, data){
+								$('#editTxt').removeClass('noSel');
+								$('#ediInp').val(data[0].ediId);
+								app.showToast(1);
+								_this.getInitStudyData();
+							}
+						});
+					}
+				}; 
+				page.init();
+				//二次登录进来刷新当前页面
+				document.addEventListener('upDatePageData',function(e){
+					if(e.detail.isLoginFlag){
+						location.reload();
+					}
+				});
+			});
+		</script>
+	</body>
+</html>

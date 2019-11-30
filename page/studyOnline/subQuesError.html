@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/subQuesError.css"/>
+		<title>我要纠错</title>
+	</head>
+	<body class="paddingTop">
+		<div class="comHeader hasBor">
+			<a id="backBtn" class="posL" href="javascript:mui.back();"><i class="iconfont icon-fanhui"></i></a>
+			<span class="headerTit">我要纠错</span>
+		</div>
+		<div class="tips">
+			<i class="iconfont icon-gonggao"></i>
+			<span>欢迎提出宝贵的意见和建议</span>
+		</div>
+		<div class="subErrorWrap">
+			<div class="sub">
+				<strong>纠错标题：</strong>
+				<p id="currTit" class="ellip"></p>
+			</div>
+			<div class="subErrType clearfix">
+				<strong>纠错类型：</strong>
+				<!-- 
+				 （noPicError,contentError,anserError,otherError）
+				 -->
+				<ul id="errTypeUl" class="clearfix">
+					<li errType="noPicError" isClick="0">图片错误</li>
+					<li errType="contentError" isClick="0">语句不通顺</li>
+					<li errType="anserError" isClick="0">答案不正确</li>
+					<li errType="otherError" isClick="0">其他</li>
+				</ul>
+			</div>
+			<div class="subErrType clearfix">
+				<strong>纠错内容：</strong>
+				<div class="textAreaWrap">
+					<textarea id="detConTxt" placeholder="请输入您对当前知识点所存在的问题的内容(200字以内)..." maxlength="200"></textarea>
+				</div>
+			</div>
+		</div>
+		<p class="noteTxtErr">注：一人一天对同一个知识点只能提交一次!<span id="notSubTxt"></span></p>
+		<div class="subErrBtn">
+			<span id="subMitErrBtn">提交纠错</span>
+		</div>
+		<div class="notice">
+			<p>您提交的问题审核通过后系统会给予您10金币奖励！工作人员修改成功后会再次给予您10金币奖励！</p>
+		</div>
+		
+		
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var isCanSubFlag = false;
+			mui.plusReady(function(){
+				var lqId = plus.webview.currentWebview().lqId,
+					userId = plus.webview.currentWebview().userId,
+					currIndex = plus.webview.currentWebview().currIndex,
+					currLoreName = plus.webview.currentWebview().currLoreName;
+				var page = {
+					init : function(){
+						app.getId('currTit').innerHTML = "“" + currLoreName + "”知识点第" + currIndex + "题";
+						this.bindEvent();
+						this.checkCurrSubmitErrNum();
+					},
+					checkCurrSubmitErrNum : function(){
+						mui.ajax(http_ + '/lqe.do?action=checkCurrSubmitError',{
+							data:{lqId:lqId,userId:userId}, 
+							dataType:'json',
+							type:'post',
+							timeout:10000,
+							success:function(json){
+								if(json.result == 'submit'){
+									isCanSubFlag = true;
+								}else if(json.result == 'noSubmit'){
+									isCanSubFlag = false;
+									app.getId('notSubTxt').innerHTML = '当前知识点您已提交一次纠错，不能重复提交喔~';
+								}else if(json.result == 'error'){
+									isCanSubFlag = false;
+									plus.nativeUI.toast('服务器异常');
+								}
+							},
+							error:function(xhr,type,errorThrown){
+								plus.nativeUI.toast('服务器异常');
+							}
+						});
+					},
+					bindEvent : function(){
+						var errTypeArr = [];
+						mui('#errTypeUl').on('tap','li',function(){
+							var errType = this.getAttribute('errType'),
+								isClick = this.getAttribute('isClick');
+							if(isClick == '0'){
+								this.className = 'active';
+								this.setAttribute('isClick','1');
+								errTypeArr.push(errType);
+							}else{
+								this.className = '';
+								this.setAttribute('isClick','0');
+								if(errTypeArr.length !=0 ){
+									for(var i=0;i<errTypeArr.length;i++){
+										if(errType == errTypeArr[i]){
+											errTypeArr.splice(i,1);
+										}
+									}
+								}
+							}
+						});
+						app.getId('subMitErrBtn').addEventListener('tap',function(){
+							var detConTxt = app.trim(app.getId('detConTxt').value);
+							if(!isCanSubFlag){
+								plus.nativeUI.toast('一人一天对同一个知识点只能提交一次');
+								return;
+							}
+							if(errTypeArr.length == 0){
+								plus.nativeUI.toast('请选择纠错类型');
+								return;
+							}
+							if(detConTxt == ''){
+								plus.nativeUI.toast('请输入纠错内容');
+								return;
+							}
+							if(app.isEmojiCharacter(detConTxt)){
+								plus.nativeUI.toast('内容中不能带有特殊表情');
+								return;
+							}
+							var errType = errTypeArr.join(',');
+							var field = {lqId:lqId,userId:userId,errorType:errType,contentError:escape(detConTxt)};
+							app.showToast(1);
+							mui.ajax(http_ + '/lqe.do?action=addLqe',{
+								data:field, 
+								dataType:'json',
+								type:'post',
+								timeout:10000,
+								success:function(json){
+									app.showToast(2);
+									if(json.result == 'success'){
+										plus.nativeUI.toast('提交成功，等待后台审核中...');
+										var currView = plus.webview.currentWebview();
+										setTimeout(function(){
+											currView.close();
+										},400);
+									}else if(json.result == 'error'){
+										plus.nativeUI.toast('服务器异常');
+									}else if(json.result == 'noSubmit'){
+										plus.nativeUI.toast('一人一天对同一个知识点只能提交一次');
+									}
+								},
+								error:function(xhr,type,errorThrown){
+									app.showToast(2);
+									plus.nativeUI.toast('服务器异常');
+								}
+							});
+							
+						});
+					}
+				};
+				page.init();
+			});
+		</script>
+		
+	</body>
+</html>

@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/myLearningRecord.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/filterNav.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/mobileSelect.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/fadeInOut.css"/>
+		<link rel="stylesheet" type="text/css" href="com"/>
+		<title>学习记录(在线答题)</title> 
+	</head>
+	<body class="paddingTop">
+		<div class="comHeader otherBg">
+			<a id="backBtn" class="posL"><i class="iconfont icon-fanhui"></i></a>
+			<span class="headerTit">学习记录</span>
+			<input type="hidden" id="currSubId" value="0" />
+			<p id="subject" class="subject">
+				<span id="subTxt" class="comSelTxtCon"></span>
+				<i class="iconfont icon-xiala"></i>
+			</p>
+		</div>
+		<!-- 筛选条件 -->
+		<div class="filter fixedFilter"> 
+			<!-- 完成状态 -->
+			<input type="hidden" id="compStaInp" value="0" />
+			<p id="compSta" class="compSta hasPosRea fl">
+				<span id="compStaSpan">全部</span>
+				<i class="iconfont icon-xiala"></i>
+			</p>
+			<div class="timeInp typeOneWid">
+				<div class="innerTimeInp">
+					<input id="stDate" type="text" readonly placeholder="起始日期"/>
+					<i class="iconfont icon-rili"></i>
+				</div>
+				<span class="tilTxt">至</span>
+				<div class="innerTimeInp">
+					<input id="edDate" type="text"  readonly placeholder="结束日期"/>
+					<i class="iconfont icon-rili"></i>
+				</div>
+			</div>
+			<div id="searchBtn" class="search">
+				<i class="iconfont icon-sousuo"></i>
+			</div>
+		</div>
+		<!-- 学习记录主要内容 -->
+		<div class="mainRecord">
+			<div class="innerMainCon">
+				<!-- 最近时间 -->
+				<div class="currTime">
+					<p class="currDays ellip"></p>
+					<div class="compStaBox">
+						<p><span class="colSpan noCompCol"></span><span>未完成</span></p>
+						<p><span class="colSpan hasComCol"></span><span>已完成</span></p>
+					</div>
+				</div>
+				<div id="listRecord" class="listRecord"></div>
+			</div>
+		</div>
+		<div class="layer"></div>
+		<span class="tongjiBtn"></span>
+		<div id="tongjiInfo">
+			<div class="tongjiTop"></div>
+			<div class="tongjiDetInfo">
+				<p class="txt">最近</p>
+				<p class="daysNum"><span id="days"></span>天</p>
+				<p class="tongjInfo">共学习知识点：<span id="totalNum"></span></p>
+				<p class="tongjInfo">已完成知识点：<span id="hasCompNum"></span></p>
+				<p class="tongjInfo">未完成知识点：<span id="noCompNum"></span></p>
+				<p class="tongjInfo">知识点完成率：<span id="compPercent"></span></p>
+			</div>
+		</div> 
+		
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/comMethod.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/mobileSelect.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			mui.plusReady(function(){
+				var page = {
+					init : function(){
+						app.backFun();
+						comMet.loadSubject();//获取学科
+						this.bindEvent();
+						this.loadLearnRecordList();
+					},
+					bindEvent : function(){ 
+						var _this = this; 
+						//完成状态select 
+						new MobileSelect({
+							trigger: '#compStaSpan',
+							title: '',
+							wheels: [ 
+								{data: compStatus}
+							],
+							position:[0], //初始化定位 打开时默认选中的哪个 如果不填默认为0
+							transitionEnd:function(indexArr, data){},
+							callback:function(indexArr, data){
+								app.getId('compStaInp').value = data[0].type;
+								_this.loadLearnRecordList();
+							}
+						});
+						//查询
+						app.getId('searchBtn').ontouchend = function(){
+							var subId = $('#currSubId').val(),
+								stDateVal = $('#stDate').val(),
+								edDataVal = $('#edDate').val();
+							if(stDateVal == '' && edDataVal != ''){
+								plus.nativeUI.toast('请选择开始日期');
+								return;
+							}
+							if(stDateVal != '' && edDataVal == ''){
+								plus.nativeUI.toast('请选择结束日期');
+								return;
+							}
+							if(stDateVal > edDataVal){
+								plus.nativeUI.toast('开始日期不能大于结束日期');
+								return;
+							}
+							_this.loadLearnRecordList();
+						},
+						//起始日期
+						app.getId('stDate').ontouchend = function(){
+							comMet.showPickDate('stDate');
+						}
+						//结束日期
+						app.getId('edDate').ontouchend = function(){
+							comMet.showPickDate('edDate');
+						}
+					},
+					//加载学习记录
+					loadLearnRecordList : function(){
+						var compStaInp = $('#compStaInp').val(),
+							subId = $('#currSubId').val()
+							stDateVal = $('#stDate').val(),
+							edDataVal = $('#edDate').val(),_this = this;
+						var field = {userId:userInfo.userId,roleId:userInfo.roleId,subId:subId,isfinish:compStaInp,logType:1,sDate:stDateVal,eDate:edDataVal};
+						$.ajax({
+							url : http_ + '/studyRecord.do?action=StuLogListByOption',
+							data:field, 
+							dataType:'json',
+							type:'post',
+							timeout:10000,
+							beforeSend : function(){ 
+								app.showToast(1);
+							},
+							success:function(json){
+								app.showToast(2);
+								$('#days').html(json.diffday);
+								$('#stDate').val(json.sDate);
+								$('#edDate').val(json.eDate);
+								$('#subTxt').html(json.subName);
+								$('#totalNum').html(json.allStudyLog + '个');
+								$('#hasCompNum').html(json.finish + '个');
+								$('#noCompNum').html(json.noFinish + '个');
+								$('#compPercent').html(json.comRate);
+								if(userInfo.roleId == stu_role_id){
+									$('.currDays').html('最近'+ json.diffday +'天您共学习'+ json.subName +'知识点'+ json.allStudyLog +'个:');
+								}else if(userInfo.roleId == stuPar_role_id){
+									$('.currDays').html('最近'+ json.diffday +'天您孩子共学习'+ json.subName +'知识点'+ json.allStudyLog +'个:');
+								}
+								_this.renderLearnRecordlist(json.studyList);
+							},
+							error:function(xhr,type,errorThrown){
+								app.showToast(2);
+								plus.nativeUI.toast('服务器异常');
+							}
+						}); 
+					},
+					renderLearnRecordlist : function(list){
+						if(list.length > 0){
+							var str = '<ul>';
+							for(var i=0;i<list.length;i++){
+								if(list[i].isFinish == 1){//未完成
+									str += '<li class="noCompCol" onclick="goToStudyResult(this)" studyLogId="'+ list[i].studyLogId +'">';
+								}else if(list[i].isFinish == 2){//完成
+									str += '<li class="compCol" onclick="goToStudyResult(this)" studyLogId="'+ list[i].studyLogId +'">';
+								}
+								str += '<span class="currStaSpan"></span>';
+								str += '<p class="ellip">'+ list[i].loreName +'</p>';
+								str += '</li>';
+							}
+							str += '</ul>';
+							$('#listRecord').html(str);
+						}else{
+							$('#listRecord').html('<div class="noData"><img src="../../images/noData.png"/><p>暂无学习记录</p></div>')
+						}
+					}
+				};
+				page.init();
+				document.addEventListener('upStudyRecData',function(){
+					page.loadLearnRecordList();
+				},false);
+			});
+			function prevent(e){
+				e.preventDefault();
+			}
+			$('.tongjiBtn').on('touchend',function(){
+				$('.layer').show();
+				$('#tongjiInfo').show().animate({'opacity':1},600);
+				document.addEventListener('touchend', prevent, {passive:false});
+			});
+			$('.layer').on('touchend',function(){
+				$('#tongjiInfo').animate({'opacity':0},300,function(){
+					$('#tongjiInfo').hide();
+					$('.layer').hide();
+					document.removeEventListener('touchend',prevent, {passive:false});
+				});
+			});
+			function goToStudyResult(obj){
+				var studyLogId = $(obj).attr('studyLogId');
+				$(obj).addClass('active').siblings().removeClass('active');
+				var studyResView = plus.webview.getWebviewById('learnRecordDet.html');
+				if(!studyResView){
+					studyResView = plus.webview.create('learnRecordDet.html','learnRecordDet.html',{},{studyLogId:studyLogId,jumpPos:'stuLearnRec'});
+					studyResView.show('pop-in');
+				} 
+			}
+		</script>
+	</body>
+</html>

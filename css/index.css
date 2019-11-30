@@ -1,0 +1,317 @@
+body{
+	background: #f2f2f2;
+}
+#unReadMsg{
+	display: none;
+}
+.mui-slider{
+	padding-bottom: .5rem;
+	background: #fff;
+	text-align: center;
+}
+.mui-slider-group img{
+	width: 96% !important;
+	box-shadow: 0 2px 5px #ccc;
+	border-radius: 4px;
+	display: inline-block;
+	margin-top:.2rem;
+}
+/* 导航 */
+.navWrap{
+	padding: 0 .2667rem;
+	height: 2.8rem;
+	background: #fff;
+	margin-bottom: .25rem;
+}
+.navWrap li{
+	width: 33.33%;
+	height: 2.8rem; 
+	float: left;
+}
+.navWrap li a span.iconBox{
+	width: 1.6rem;
+	height: 1.6rem;
+	line-height: 1.6rem;
+	border-radius: 18px;
+	text-align: center;
+	display: block;
+	margin:0.25rem auto 0;
+	background: #ff5e5e;
+}
+.navWrap li a span.iconBox.wodedayiBg{
+	background: -webkit-linear-gradient(30deg, #00aaff, #00dbd8); /* Safari 5.1 - 6.0 */
+	background: -o-linear-gradient(30deg, #00aaff, #00dbd8); /* Opera 11.1 - 12.0 */
+	background: -moz-linear-gradient(30deg, #00aaff, #00dbd8); /* Firefox 3.6 - 15 */
+	background: linear-gradient(30deg, #00aaff, #00dbd8); /* 标准的语法 */
+}
+.navWrap li a span.iconBox.gzBg{
+	background: -webkit-linear-gradient(-30deg, #d27efa, #b721ff); /* Safari 5.1 - 6.0 */
+	background: -o-linear-gradient(-30deg, #d27efa, #b721ff); /* Opera 11.1 - 12.0 */
+	background: -moz-linear-gradient(-30deg, #d27efa, #b721ff); /* Firefox 3.6 - 15 */
+	background: linear-gradient(-30deg, #d27efa, #b721ff); /* 标准的语法 */
+}
+.navWrap li a span.iconBox.zzcBg{
+	background: -webkit-linear-gradient(30deg, #ff859b, #e10080); /* Safari 5.1 - 6.0 */
+	background: -o-linear-gradient(30deg, #ff859b, #e10080); /* Opera 11.1 - 12.0 */
+	background: -moz-linear-gradient(30deg, #ff859b, #e10080); /* Firefox 3.6 - 15 */
+	background: linear-gradient(30deg, #ff859b, #e10080); /* 标准的语法 */
+}
+.navWrap li a span.iconBox.jiluParBg{
+	background: -webkit-linear-gradient(30deg, #00aaff, #00dbd8); /* Safari 5.1 - 6.0 */
+	background: -o-linear-gradient(30deg, #00aaff, #00dbd8); /* Opera 11.1 - 12.0 */
+	background: -moz-linear-gradient(30deg, #00aaff, #00dbd8); /* Firefox 3.6 - 15 */
+	background: linear-gradient(30deg, #00aaff, #00dbd8); /* 标准的语法 */
+}
+.navWrap li a span.iconBox.zuoyePar{
+	background: -webkit-linear-gradient(30deg, #fcc798, #ff809b); /* Safari 5.1 - 6.0 */
+	background: -o-linear-gradient(30deg, #fcc798, #ff809b); /* Opera 11.1 - 12.0 */
+	background: -moz-linear-gradient(30deg, #fcc798, #ff809b); /* Firefox 3.6 - 15 */
+	background: linear-gradient(30deg, #fcc798, #ff809b); /* 标准的语法 */
+}
+.navWrap li a span.iconBox.zzcBgPar{
+	background: -webkit-linear-gradient(30deg, #00c6fb, #005bea); /* Safari 5.1 - 6.0 */
+	background: -o-linear-gradient(30deg, #00c6fb, #005bea); /* Opera 11.1 - 12.0 */
+	background: -moz-linear-gradient(30deg, #00c6fb, #005bea); /* Firefox 3.6 - 15 */
+	background: linear-gradient(30deg, #00c6fb, #005bea); /* 标准的语法 */
+}
+.navWrap li a span.iconBox i{
+	color: #fff;
+	font-size: 1.1rem;
+	display: block;
+	text-shadow:  0 0 2px rgba(0,0,0,.3);
+}
+.navWrap li a span.iconBox img{
+	width: 56%;
+	float: left;
+	margin:.28rem 0 0 .28rem;
+}
+.navWrap li a span.iconBox i.icon-wodedayi1{
+	font-size: .85rem;
+}
+.navWrap li a strong{
+	width: 100%;
+	height: .4rem;
+	line-height: .4rem;
+	text-align: center;
+	display: block;
+	font-size: .42rem;
+	font-weight: 650;
+	color: #333333;
+	margin-top: .25rem;
+}
+/* 学习记录 */
+.learnRecord{
+	background: #fff;
+}
+.recTit{
+	height: 1.3rem;
+	line-height: 1.3rem;
+	border-bottom: 1px solid #f2f2f2;
+	padding: 0 .2667rem;
+}
+.recTit strong{
+	font-size: .45rem;
+	color: #333;
+	font-weight: 650;
+	float: left;
+}
+.recTit strong i{
+	font-style: normal;
+	font-size: .35rem;
+	color: #e10080;
+}
+.recTit span{
+	width: 15%;
+	height: 100%;
+	float: right;
+	text-align: right;
+}
+.recTit span i{
+	font-size: .6rem;
+	color: #999;
+}
+.chapterCon strong{
+	width: 100%;
+	font-size: .45rem;
+	font-weight: 600;
+	color: #333;
+	display: block;
+	margin-bottom: .15rem;
+}
+.chapterCon  p{
+	font-size: .4rem;
+	color: #666;
+	height: .6rem;
+	line-height: .6rem;
+}
+.chapterCon  p span.loreName{
+	width: 76%;
+}
+/* 我的答疑 */
+.myStudioList{
+	background: #fff;
+}
+.myAnsList ul{
+	padding: .25rem .2667rem 0;
+}
+.myAnsList li{
+	position: relative;
+	background: #fff;
+	padding: .2rem 0;
+	border-bottom: 1px solid #f2f2f2;
+}
+.myAnsList li .headPic{
+	width:20%;
+	height: 100%;
+	position: absolute;
+	left:0;
+	top: 0;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+.myAnsList li .headPic img{
+	width: 1.2rem;
+	height: 1.2rem;
+	border-radius: 50%;
+}
+.myAnsList li .ansCon{
+	width: 79%;
+	margin-left: 21%;
+	height: 1.5rem;
+	position: relative;
+}
+.myAnsList li .ansCon.noImg{
+	width: 100%;
+	margin-left: 2%;
+}
+.ansConTxt{
+	font-size: .4rem;
+	color: #333;
+}
+.ansState{
+	width: 100%;
+	height: .8rem;
+	line-height: .8rem;
+	position: absolute;
+	left: 0;
+	bottom: 0;
+	font-size: .38rem;
+}
+.ansState span:first-child{
+	float: left;
+	color: #999;
+}
+.ansState span.noAnsSta,
+.queDet .queTitPart p.ansStaTime span.noAnsSta{
+	color: #e10080;
+}
+.ansState span.hasAnsSta,
+.queDet .queTitPart p.ansStaTime span.hasAnsSta{
+	color: #29c7c6;
+}
+.ansState span:last-child{
+	float: right;
+	color: #999;
+	margin-right: .4rem;
+}
+/* 当天家庭作业 */
+#listRec.hasAlign{
+	width: 100%;
+	display: flex;
+	justify-content: center;
+	padding:1rem 0;
+}
+#listRec.hasAlign img{
+	width: 3.4666rem;
+	height: 2.9066rem;
+}
+#listRec li{
+	border-bottom: 1px solid #e6e6e6;
+	position: relative;
+	padding: .2rem .2667rem .25rem;
+}
+.subTeaName{
+	float: left;
+	font-size: .4rem;
+}
+.currHwTit{
+	float: right;
+	font-size: .4rem;
+	color: #999;
+}
+.subImg{
+	width: 12%;
+	height: 100%;
+	position: absolute;
+	left:.2667rem;
+	top: 0;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+.subImg i{
+	font-size: .65rem;
+	color: #4d47f1;
+}
+/* 暂无答疑记录 */
+.noDyRecData{
+	font-size: .4rem;
+	color: #ccc;
+	width: 2.5rem;
+	height: 3rem;
+	margin:0 auto;
+	text-align: center;
+	padding: 1rem 0;
+}
+.noDyRecData i{
+	font-size: 2rem;
+}
+/* 导师审核 */
+.ntVerify{
+	width: 7.4rem;
+	height: 9.6rem;
+	background: #fff;
+	position: fixed;
+	left: 1.3rem;
+	top: 50%;
+	z-index: 1000;
+	border-radius: 4px;
+	margin-top: -4rem;
+	display: none;
+}
+.verifyTop{
+	width: 7.4rem;
+	height: 3.4rem;
+	background: url(../images/verify.png) no-repeat;
+	background-size: cover; 
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 4px 4px 0 0;
+}
+.verifyTop strong{
+	font-size: .55rem;
+	color: #fff;
+	font-weight: 620;
+}
+.verifyMid{
+	height:3rem ;
+}
+.verifyMid{
+	font-size: .42rem;
+	color: #333;
+	padding: 1rem .5rem 0;
+}
+.upIdCard{
+	height: 1.1rem;
+	line-height: 1.1rem;
+	width: 70%;
+	display: block;
+	margin:.55rem auto 0;
+	border-radius: 6px;
+	text-align: center;
+	color: #fff;
+	background: #4d47f1;
+	font-size: .45rem;
+}

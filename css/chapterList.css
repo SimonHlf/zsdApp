@@ -1,0 +1,133 @@
+body{
+	background: #f2f2f2;
+}
+.chapterWrap{
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 1.6rem;
+	bottom: 0;
+	background: #fff;
+}
+.currChapNote{
+	padding: 0 .2667rem;
+	height: 2.3733rem;
+	/* border-bottom: 2px solid #f2f2f2; */
+	box-shadow: 0 3px 3px #e6e6e6;
+}
+.currChapBox{
+	height:100%;
+	float: left;
+}
+.currChap{
+	font-size: .45rem;
+	color: #333;
+	font-weight: 600;
+	margin:.55rem 0 .1rem 0;
+}
+.currEdit{
+	color: #666;
+	font-size: .4rem;
+}
+.chapterNote{
+	float: right;
+}
+.chapterNote p{
+	font-size: .42rem;
+	color: #666;
+	margin-bottom: .15rem;
+}
+.chapterNote p:first-child{
+	margin-top: .15rem;
+}
+.chapterNote p span{
+	float: left;
+}
+.chapterNote p i{
+	font-size: .5rem;
+	float: left;
+	margin:0.02rem .15rem 0 0;
+}
+.hasZhangwo,
+.chapt li span.currSta.hasZhangwo i{
+	color: #4d47f1;
+}
+.noZhangwo,
+.chapt li span.currSta.noZhangwo i{
+	color: #fbd022;
+}
+.noLearn,
+.chapt li span.currSta.noLearn i{
+	color: #999;
+}
+.chapterList{
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	top:2.44rem;
+	overflow: hidden;
+	overflow-y: auto;
+	-webkit-overflow-scrolling:touch ;
+}
+.chapt h3,
+.chapt li{
+	height: 1.2rem;
+	line-height: 1.2rem;
+	border-bottom:1px solid #f2f2f2 ;
+	padding: 0 .2667rem;
+	position: relative;
+}
+.chapt h3{
+	font-size: .45rem;
+	font-weight: 600;
+	color: #333;
+}
+.chapt ul{
+	display: none;
+}
+.chapt li{
+	text-indent: .25rem;
+	font-size: .4rem;
+	color:#666;
+}
+.chapt h3 span.chaptName,
+.chapt li span.loreName{
+	height: 100%;
+	display: block;
+}
+.chapt h3 span.chaptName{
+	width: 95%;
+}
+.chapt li span.loreName{
+	width: 90%;
+}
+.chapt h3 span.tri{
+	width: 0;
+	height: 0;
+	border-width: .18rem;
+	position: absolute;
+}
+.chapt h3 span.tri.hasSel{
+	top:.52rem;
+	right: .3rem;
+	border-style: solid dashed dashed dashed;
+	border-color: #4d47f1 transparent transparent transparent;
+}
+.chapt h3 span.tri.noSel{
+	top:.45rem;
+	right: .15rem;
+	border-style: dashed dashed dashed solid;
+	border-color: transparent transparent transparent #999 ;
+}
+.chapt li span.currSta{
+	width: 10%;
+	position: absolute;
+	right: .2rem;
+	top:0;
+	height: 100%;
+	text-indent: 0;
+}
+.chapt li span.currSta i{
+	font-size: .5rem;
+}

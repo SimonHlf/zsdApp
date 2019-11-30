@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/selLoreList.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/mobileSelect.css"/>
+		<title>选择知识点</title>
+	</head>
+	<body class="paddingTop">
+		<div class="comHeader otherBg">
+			<a id="backBtn" class="posL" href="javascript:mui.back();"><i class="iconfont icon-fanhui"></i></a>
+			<span class="headerTit">选择知识点</span>
+		</div>
+		<!-- 当前教材 -->
+		<div class="currJiaocai">
+			<input type="hidden" id="ediIdInp" />
+			<input type="hidden" id="eduVolumeInp" />
+			<div class="jiaocai hasPosRea">
+				<strong id="eduVolTxt" class="comSelTxtCon"></strong>
+				<i class="iconfont icon-xiala"></i>
+			</div>
+			<div class="chubanshe hasPosRea">
+				<strong id="editTxt" class="comSelTxtCon"></strong>
+				<i class="iconfont icon-xiala"></i>
+			</div>
+		</div>
+		<!-- 选择章节 -->
+		<div id="chapterList" class="chapterList"></div>
+		
+		<!-- 选择知识点后跳转的按钮 -->
+		<div class="selQuesListBtn">
+			<span id="getLoreDetBtn">前往选题</span>
+		</div>
+		
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/h.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/mobileSelect.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var isLoadFlag = true;
+			mui.plusReady(function(){
+				var classIdStr = plus.webview.currentWebview().classIdStr,
+					hwType = plus.webview.currentWebview().hwType,
+					userId = plus.webview.currentWebview().userId,
+					currLoreId = 0;
+				var page = {
+					init : function(){
+						this.loadChaptList();
+						app.getId('getLoreDetBtn').addEventListener('tap',function(){
+							if(currLoreId == 0){
+								plus.nativeUI.toast('请选择一个知识点');
+								return;
+							}
+							var field = {hwType:hwType,userId:userId,classId:classIdStr,loreId:currLoreId};
+							app.openwin('selQueList.html',{currField:field});
+						});
+					},
+					loadChaptList : function(){
+						app.showToast(1);
+						var eduVolumeVal = h('#eduVolumeInp').val(),
+							ediIdInpVal = h('#ediIdInp').val();
+						var _this = this;
+						var field = {userId:userId,hwType:hwType,classId:classIdStr,eduVolume:escape( eduVolumeVal ),ediId:ediIdInpVal};
+						mui.ajax(http_ + '/hw.do?action=getChapterLoreData',{
+							data:field,
+							dataType:'json',
+							type:'post',
+							timeout:10000,
+							success:function(json){
+								app.showToast(2);
+								if(isLoadFlag){
+									_this.createEduVolume(json.eduVolumeList);
+									_this.createEdiSel(json.ediList);
+								}
+								isLoadFlag = false;
+								if(json.result == 'success'){
+									_this.renderChapterHtml(json.cptList);
+								}else if(json.result == 'noInfo'){
+									app.getId('chapterList').innerHTML = '<div class="noData"><img src="../../images/noData.png"/><p>暂无章节</p></div>';
+								}else if(json.result == 'error'){
+									plus.nativeUI.toast('服务器错误');
+								}
+							},
+							error:function(xhr,type,errorThrown){
+								app.showToast(2);
+								plus.nativeUI.toast('服务器错误');
+							} 
+						});
+					},
+					//生成章节列表结构
+					renderChapterHtml : function(list){
+						var str = '';
+						/*
+						
+							for(var j=0;j<list[0].loreList.length;j++){
+								str += '<li onclick="goToStudyMapPage(this)" currCptId='+ list[0].cptId +' loreName="'+ list[0].loreList[j].loreName +'" loreId="'+ list[0].loreList[j].loreId +'" studyStatus="'+ list[0].loreList[j].studyStatus +'" studyLogId="'+ list[0].loreList[j].studyLogId +'">';
+								str += '<span class="loreName ellip">'+ list[0].loreList[j].loreName +'</span>';
+								if(list[0].loreList[j].studyStatus == 0){//0:未学习 1未通过 2:已经掌握
+									str += '<span class="currSta"><i class="iconfont icon-wujiaoxing noLearn"></i></span>';
+								}else if(list[0].loreList[j].studyStatus == 1){
+									str += '<span class="currSta"><i class="iconfont icon-wujiaoxing noZhangwo"></i></span>';
+								}else{
+									str += '<span class="currSta"><i class="iconfont icon-wujiaoxing hasZhangwo"></i></span>';
+								}
+								str += '</li>'
+							}
+						*/
+						for(var i=0;i<list.length;i++){
+							str += '<div class="chapt"><h3 class="chaptH3" cptId="'+ list[i].cptId +'">';
+							str += '<span class="chaptName ellip">'+ list[i].cptName +'</span>';
+							if(i == 0){
+								str += '<span id="tri_'+ list[i].cptId +'" class="tri hasSel"></span>';
+							}else{
+								str += '<span id="tri_'+ list[i].cptId +'" class="tri noSel"></span>';
+							}
+							str += '</h3>';
+							if(i == 0){ 
+								str += '<ul id="loreListUl_'+ list[0].cptId +'" class="loreListUl" style="display:block;">';
+									for(var j=0;j<list[0].loreList.length;j++){
+										str += '<li loreName="'+ list[0].loreList[j].loreName +'" loreId="'+ list[0].loreList[j].loreId +'">';
+										str += '<span class="loreName ellip">'+ list[0].loreList[j].loreName +'</span>';
+										str += '</li>'
+									}
+								str += '</ul>';
+							}else{
+								str += '<ul id="loreListUl_'+ list[i].cptId +'" class="loreListUl">';
+									for(var j=0;j<list[i].loreList.length;j++){
+										str += '<li loreName="'+ list[i].loreList[j].loreName +'" loreId="'+ list[i].loreList[j].loreId +'">';
+											str += '<span class="loreName ellip">'+ list[i].loreList[j].loreName +'</span>';
+										str += '</li>'
+									}
+								str += '</ul>';
+							}
+							str += '</div>';
+						}
+						app.getId('chapterList').innerHTML = str;
+						this.getLoreList();
+						mui('#chapterList').on('tap','li',function(){
+							var aLi = document.getElementsByTagName('li');
+							for(var i=0;i<aLi.length;i++){
+								aLi[i].className = '';
+							}
+							currLoreId = this.getAttribute('loreId');
+							this.className = 'active';
+						});
+					},
+					getLoreList : function(){
+						var chaptEle = document.querySelectorAll('.chaptH3'),_this = this;
+						for(var i=0;i<chaptEle.length;i++){
+							chaptEle[i].addEventListener('click',function(){
+								var cptId = this.getAttribute('cptId');
+								h('.loreListUl').hide();
+								h('.tri').removeClass('hasSel').addClass('noSel');
+								h('#tri_' + cptId).addClass('hasSel').removeClass('noSel');
+								h('#loreListUl_' + cptId).show();
+							},false);
+						}
+					},
+					//创建年级上下册
+					createEduVolume : function(list){
+						var currSelNum = 0,_this = this;
+						for(var i=0;i<list.length;i++){
+							if(list[i].selFlag){
+								currSelNum = i;
+								h('#eduVolTxt').html(list[i].eduVolumeShow);
+								h('#eduVolumeInp').val(list[i].eduVolumeValue);
+							}
+						}
+						var eduVoSel = new MobileSelect({
+							trigger: '#eduVolTxt',
+							title: '选择上下册',
+							wheels: [ 
+								{data: list}
+							],
+							position:[currSelNum], //初始化定位 打开时默认选中的哪个 如果不填默认为0
+							transitionEnd:function(indexArr, data){},
+							keyMap:{"id":"eduVolumeValue","value":"eduVolumeShow"},
+							callback:function(indexArr, data){
+								h('#eduVolumeInp').val(data[0].eduVolumeValue);
+								app.showToast(1);
+								_this.loadChaptList();
+							}
+						});
+					},
+					//创建出版社select
+					createEdiSel : function(list){
+						var currSelNum = 0,_this = this;
+						for(var i=0;i<list.length;i++){
+							if(list[i].selFlag){
+								currSelNum = i;
+								h('#editTxt').html(list[i].ediName);
+								h('#ediIdInp').val(list[i].ediId);
+							}
+						}
+						var ediSel = new MobileSelect({
+							trigger: '#editTxt',
+							title: '选择出版社',
+							wheels: [ 
+								{data: list}
+							],
+							position:[currSelNum], //初始化定位 打开时默认选中的哪个 如果不填默认为0
+							transitionEnd:function(indexArr, data){},
+							keyMap:{"id":"ediId","value":"ediName"},
+							callback:function(indexArr, data){
+								h('#ediIdInp').val(data[0].ediId);
+								app.showToast(1);
+								_this.loadChaptList();
+							}
+						});
+					}
+				};
+				page.init();
+			});
+		</script>
+		
+	</body>
+</html>

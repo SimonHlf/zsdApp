@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/myAnsQueList.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/mui.min.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/mui.imageviewer.css"/>
+		<title>提问详情</title>
+	</head> 
+	<!-- hasMargBot -->
+	<body class="paddingTop">
+		<div class="comHeader otherBg">
+			<a id="backBtn" class="posL" href="javascript:mui.back();"><i class="iconfont icon-fanhui"></i></a>
+			<span class="headerTit">提问详情</span>
+		</div>
+		<div class="queDet hasMargBot">
+			<!-- 提问标题 -->
+			<div class="queTitPart">
+				<p id="queTit" class="queTit multiEllip"></p>
+				<p class="ansStaTime">
+					<span id="ansStaSp"></span>
+					<span id="ansTime"></span>
+				</p>
+			</div>
+			<!-- 提问内容 -->
+			<div class="queConPart">
+				<p id="queCon" class="queCon">反倒是发了多少积分的思考了房间独守空房理解哈哈</p>
+				<div class="queCon">
+					<ul id="queImg" class="ansQueImg clearfix"></ul>
+				</div>
+			</div>
+		</div>
+		<!-- 如果已经解答显示解答详情 queDet增加class hasMargBot -->
+		<p class="ansTit">
+			<span class="dec"></span>
+			<span id="teaNme"></span>
+		</p>
+		<div id="ansDetCon" class="ansDetCon">
+			<p id="ansCon"></p>
+			<div>
+				<ul id="ansConImg" class="ansQueImg clearfix"></ul>
+			</div>
+			<!-- <p id="ansConImg"></p> -->
+		</div>
+		<!-- 如果没有解答解答按钮 -->
+		<div id="waitAns" class="waitAns">
+			<i class="iconfont icon-dengdaijieda"></i>
+			<p>等待解答中...</p>
+		</div>
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/mui.zoom.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/mui.previewimage.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			mui.plusReady(function(){
+				var qId = plus.webview.currentWebview().qId;
+				var page = {
+					init : function(){
+						mui.previewImage();
+						this.loadQueDet();
+					},
+					loadQueDet : function(){
+						var _this = this;
+						app.showToast(1);
+						mui.ajax(http_ + '/questionInfo.do?action=getQuedetail',{
+							data:{qId:qId},
+							dataType:'json',
+							type:'post',
+							timeout:10000,  
+							success:function(json){ 
+								//console.log( JSON.stringify( json ) )
+								app.showToast(2);
+								app.getId('queTit').innerHTML = json.data[0].queTitle;
+								if(json.data[0].readSta == '未回复'){
+									app.getId('ansStaSp').className = 'noAnsSta';
+									app.getId('ansStaSp').innerHTML = '未回复';
+								}else if(json.data[0].readSta == '已回复'){
+									app.getId('ansStaSp').className = 'hasAnsSta';
+									app.getId('ansStaSp').innerHTML = '已回复';
+								}
+								app.getId('ansTime').innerHTML = json.data[0].queTime;
+								app.getId('queCon').innerHTML = json.data[0].queContent;
+								app.getId('teaNme').innerHTML = json.data[0].ntRealName + '老师的解答'
+								if(json.data[0].queImg != ''){
+									var imgArr = json.data[0].queImg.split(',');
+									var queImgStr = '';
+									for(var i=0;i<imgArr.length;i++){
+										queImgStr += '<li><img data-preview-group="1" data-preview-src="'+ http_ +''+ imgArr[i].replace('_small','') +'"/><em style="background-image:url('+ http_ +''+ imgArr[i] +')"></em></li>';
+									}
+									app.getId('queImg').innerHTML = queImgStr;
+								}
+								if(json.data[0].replyContent == ''){
+									app.getId('waitAns').style.display = 'block';
+								}else{
+									app.getId('ansDetCon').style.display = 'block';
+									app.getId('ansCon').innerHTML = json.data[0].replyContent;
+									if(json.data[0].replyImg != ''){
+										var ansImgArr = json.data[0].replyImg.split(',');
+										var amsImgStr = '';
+										for(var i=0;i<ansImgArr.length;i++){
+											amsImgStr += '<li><img data-preview-group="2" data-preview-src="'+ http_ +''+ ansImgArr[i].replace('_small','') +'" /><em style="background-image:url('+ http_ +''+ ansImgArr[i] +')"></em></li>';
+										}
+										app.getId('ansConImg').innerHTML = amsImgStr;
+									}
+								}
+							},
+							error:function(xhr,type,errorThrown){
+								app.showToast(2);
+								plus.nativeUI.toast('服务器错误');
+							} 
+						});
+					}
+				};
+				page.init();
+			});
+		</script>
+	</body>
+</html>

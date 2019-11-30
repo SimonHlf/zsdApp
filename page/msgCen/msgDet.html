@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/msgList.css"/>
+		<title>消息详情</title>
+	</head>
+	<body id="hwBody" class="paddingTop">
+		<div class="comHeader hasBor">
+			<a id="backBtn" class="posL" href="javascript:mui.back();"><i class="iconfont icon-fanhui"></i></a>
+			<span id="headerTit" class="headerTit">消息详情</span>
+		</div>
+		<div class="msgDet">
+			<div class="msgDetItem">
+				<span>邮件类型：</span>
+				<p id="emailTypeTxt"></p>
+			</div>
+			<div class="msgDetItem">
+				<span>标题：</span>
+				<p id="emailTit"></p>
+			</div>
+			<div class="msgDetItem_spec">
+				<span>内容：</span>
+				<p id="emailCon"></p>
+			</div>
+			<div class="msgDetItem">
+				<span>发送人：</span>
+				<p id="sendUser"></p>
+			</div>
+			<div class="msgDetItem">
+				<span>发送时间：</span>
+				<p id="sendTime"></p>
+			</div>
+		</div>
+		
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var isUpFlag = false;
+			var userInfo = JSON.parse(localStorage.getItem('userInfo'));
+			mui.init({
+				beforeback : function(){
+					var opener = plus.webview.currentWebview().opener();
+					mui.fire(opener,'upDateMsgList',{isUpFlag:isUpFlag});
+					return true;
+				} 
+			});
+			mui.plusReady(function(){
+				var emailId = plus.webview.currentWebview().emailId;
+				isUpFlag = plus.webview.currentWebview().isUpFlag;
+				var page = {
+					init : function(){
+						this.loadMsgDetInfo();
+					},
+					loadMsgDetInfo : function(){
+						var _this = this;
+						app.showToast(1);
+						mui.ajax(http_ + '/email.do?action=getEmailDetail',{
+							data:{userId:userInfo.userId,emailId:emailId},
+							dataType:'json',
+							type:'post',
+							timeout:10000,
+							success:function(json){
+								app.showToast(2);
+								if(json.result == 'success'){
+									_this.renderEmailDetInfo(json);
+								}else if(json.result == 'error'){
+									mui.toast('服务器错误');
+								}
+							},
+							error:function(xhr,type,errorThrown){
+								app.showToast(2);
+								console.log(errorThrown)
+							} 
+						})
+					},
+					renderEmailDetInfo : function(json){
+						app.getId('emailTypeTxt').innerHTML = json.emailType == 'sys' ? '系统邮件' : '个人邮件';
+						app.getId('emailTit').innerHTML = json.title;
+						app.getId('emailCon').innerHTML = json.content;
+						app.getId('sendUser').innerHTML = json.sendUserName;
+						app.getId('sendTime').innerHTML = json.sendDate;
+					}
+				};
+				page.init();
+			});
+		</script>
+	</body>
+</html>

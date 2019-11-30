@@ -1,0 +1,230 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>知识典登录</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="css/login.css"/>
+	</head>
+
+	<body> 
+		<div class="comHeader">
+			<a id="backBtn" class="posL backBtn" href="javascript:void(0)"><i class="iconfont icon-fanhui"></i></a>
+		</div> 
+		<div class="logoBox">
+			<img src="images/logo.png" alt="知识典"/>
+		</div> 
+		<div class="loginForm">
+			<div id="loginNav" class="loginNav">
+				<p class="active">登录</p>
+				<p id="registerBtn">注册</p>
+			</div>
+			<div class="comForm">
+				<input id="accInp" type="text" name="loginInp" maxlength="16" placeholder="请输入账号" autocomplete="off" />
+			</div>
+			<div class="comForm">
+				<input id="passInp" type="password" name="loginInp" maxlength="16" placeholder="请输入密码"  autocomplete="off"/>
+			</div>
+			<a id="loginBtn" href="javascript:void(0)">登录</a>
+			<a id="forgetPasBtn" href="javascript:void(0)" style="display: none;">忘记密码？</a>
+		</div>
+		<div class="noteWrap">
+			<p class="noteTxt">注：本App目前仅适用于学生，家长，网络导师，班内老师角色使用</p>
+		</div>
+		
+		 
+		
+		<script src="js/mui.min.js"></script>
+		<script src="plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var subPages_st = [
+				'page/home.html',
+				'page/myNtTea/myNtTea.html',
+				'page/buy/buy.html',
+				'page/mine/mine.html'
+			]; 
+			var subPages_par = [
+				'page/home_par.html',
+				'page/myNtTea/myNtTea.html',
+				'page/mine/mine_par.html'
+			]; 
+			var subPages_nt = [
+				'page/home_nt.html',
+				'page/myStu_nt/myStu.html',
+				'page/mine/mine_nt.html'
+			];  
+			var subPages_tea = [
+				'page/home_tea.html',
+				'page/hwReport/hwReport.html',
+				'page/mine/mine_tea.html'
+			];
+			var loginOutOpt = '',currPageId = '',isLoginFlag = false,globalRoleId = 0;
+			mui.init({
+				/*keyEventBind: {
+					backbutton: false  //关闭back按键监听
+				}*/
+				beforeback : function(){
+					if(loginOutOpt == ''){
+						var opener = plus.webview.currentWebview().opener();
+						mui.fire(opener,'upDatePageData',{isLoginFlag:isLoginFlag});
+						return true;
+					}
+				} 
+			}); 
+			mui.plusReady(function(){
+				document.addEventListener('noLoginCheck',function(e){
+					var opt = e.detail.opt;
+					loginOutOpt = e.detail.opt;
+					if(opt == 'noLogin_boot'){//本身没有登录 
+						document.querySelector('.comHeader').style.display = 'none';
+					}else if(opt == 'noLogin_user'){//人为退出,点击退出登录
+						document.querySelector('.comHeader').style.display = 'block';
+					}else if(opt == 'noLogin_other'){//其他情况下的跳转登录
+						document.querySelector('.comHeader').style.display = 'block';
+						//app.getId('loginNav').style.display = 'none';
+					}
+				}); 
+				globalRoleId = plus.webview.currentWebview().roleId;
+				var page = {
+					init : function(){
+						this.bindEvent();
+					},
+					closeAllView : function(){
+						var filterView = plus.webview.getWebviewById('hwRecord/filter.html');
+						if(filterView != null){
+							filterView.close('none');
+						}
+						for(var i=0;i<subPages_st.length;i++){
+							plus.webview.close(subPages_st[i],'none');
+						}
+						for(var i=0;i<subPages_par.length;i++){
+							plus.webview.close(subPages_par[i],'none');
+						}
+						for(var i=0;i<subPages_nt.length;i++){
+							plus.webview.close(subPages_nt[i],'none');
+						}
+						for(var i=0;i<subPages_tea.length;i++){
+							plus.webview.close(subPages_tea[i],'none');
+						}
+					},
+					bindEvent : function(){
+						var loginInp = app.getName('loginInp'),
+							accInp = app.getId('accInp'),
+							passInp = app.getId('passInp'),
+							loginBtn = app.getId('loginBtn'),_this = this;
+						app.focuBlurFun(loginInp);
+						loginBtn.onclick = function(){
+							var appInpVal = app.trim(accInp.value),
+								passInpVal = app.trim(passInp.value);
+							if(appInpVal == ''){
+								mui.toast('请输入账号');
+								return;
+							}
+							if(app.isEmojiCharacter(appInpVal)){
+								mui.toast('登录账号不能带有特殊表情字符');
+								return;
+							}
+							if(passInpVal == ''){
+								mui.toast('请输入密码');
+								passInp.onfocus();
+								return;
+							}
+							if(app.isEmojiCharacter(passInpVal)){
+								mui.toast('登录密码不能带有特殊表情字符');
+								return;
+							}
+							//执行登录
+							mui.ajax(http_ + '/login.do?action=userLogin',{   
+								dataType:'json',
+								data:{account:appInpVal,password:escape(passInpVal)},
+								type:'post',
+								timeout:10000,   
+								beforeSend : function(){
+									plus.nativeUI.showWaiting();
+								}, 
+								success:function(json){   
+									plus.nativeUI.closeWaiting();
+									//console.log(JSON.stringify(json))
+									if(json.result == 'success'){ 
+										var userInfo={};
+										userInfo.userName=json.userAcc; //用户名
+										userInfo.userId=json.userId;//用户ID
+										userInfo.roleId = json.roleId;
+										userInfo.portrait = json.portrait;
+										userInfo.portrait=http_ + '/' + json.portrait;//用户头像
+										userInfo.loginStatus = json.loginStatus;
+										if(json.roleId == ntTea_role_id || json.roleId == tea_role_id){//网络导师 班内老师增加科目
+											userInfo.subName = json.subName;
+										}
+										if(json.roleId == ntTea_role_id){
+											userInfo.ntInviteCode = json.ntInviteCode;
+										}
+										localStorage.setItem("userInfo",JSON.stringify(userInfo)); //保存用户信息	
+										console.log(JSON.stringify(userInfo))
+										mui.toast('登录成功');
+										_this.closeAllView();
+										setTimeout(function(){	 
+											var loginView=plus.webview.currentWebview();
+											var launchView = plus.webview.getLaunchWebview();
+											app.getId('accInp').value = '';
+											app.getId('passInp').value = '';
+											mui.fire(launchView,'showRoleCon');
+											if(loginOutOpt == ''){//不是启动app检测到未登录
+												if(globalRoleId == userInfo.roleId){//相同身份
+													isLoginFlag = true;
+													mui.back();
+												}else{//切换身份登录了
+													var wvs = plus.webview.all(); 　　//所有窗口对象 
+													for(var i = 0, len = wvs.length; i < len; i++) { 
+												 　　　// 首页以及当前窗口对象，不关闭； 
+												 　　　　if(wvs[i].id === launchView.id || wvs[i].id == 'login') {  　　 
+												 　　　　　　continue; 
+												 　　　　}else { 
+															//关闭中间的窗口对象，为防止闪屏，不使用动画效果； 
+												 　　　　　　wvs[i].close('none'); 　　
+												 　　　　} 
+												 　　} 
+												}
+											}else{
+												loginView.hide('pop-out'); //隐藏当前登录页面
+											}
+										},300);	
+									}else if(json.result == 'fail'){
+										mui.toast('账号密码错误，请重试！');
+									}else if(json.result == 'lock'){
+										mui.toast('该账号已被锁住，请联系系统管理员');
+									}else if(json.result == 'error'){
+										mui.toast('登录错误，请稍后重试');
+									}
+								},  
+								error:function(xhr,type,errorThrown){  
+									plus.nativeUI.closeWaiting();
+									mui.toast('服务器连接失败');
+									console.log(errorThrown);  
+								}  
+							});
+							
+						}
+						mui('body').on('tap','#registerBtn',function(){
+							app.openwin('register.html');
+						});
+						app.getId('backBtn').addEventListener('tap',function(){
+							if(loginOutOpt == ''){
+								mui.back();
+							}else{
+								var loginView=plus.webview.currentWebview();
+								loginView.hide("pop-out"); //隐藏当前登录页面
+							}
+						});
+					}
+				};
+				page.init();
+			});
+		</script>
+	</body>
+
+</html>

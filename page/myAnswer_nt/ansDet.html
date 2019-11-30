@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/myAnsQueList.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/mui.min.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/mui.imageviewer.css"/>
+		<title>我的答疑详情</title>
+	</head> 
+	<!-- hasMargBot -->
+	<body class="paddingTop">
+		<div class="comHeader otherBg">
+			<a id="backBtn" class="posL"><i class="iconfont icon-fanhui"></i></a>
+			<span id="headerTit" class="headerTit"></span>
+		</div>
+		<div class="queDet hasMargBot">
+			<!-- 提问标题 -->
+			<div class="queTitPart">
+				<p id="queTit" class="queTit multiEllip"></p>
+				<p class="ansStaTime">
+					<span id="ansStaSp"></span>
+					<span id="ansTime"></span>
+				</p>
+			</div>
+			<!-- 提问内容 -->
+			<div class="queConPart">
+				<p id="queCon" class="queCon"></p>
+				<div class="queCon">
+					<ul id="queImg" class="ansQueImg clearfix"></ul>
+				</div>
+				<!-- <p id="queImg" class="queCon"></p> -->
+			</div>
+		</div>
+		<!-- 如果已经解答显示解答详情 queDet增加class hasMargBot -->
+		<div id="ansDet" class="ansDet ansDetNt">
+			<p class="ansTit">
+				<span class="dec"></span>
+				<span>我的解答</span>
+			</p>
+			<div class="ansDetCon_nt">
+				<p id="ansCon" class="queCon"></p>
+				<div>
+					<ul id="ansConImg" class="ansQueImg clearfix"></ul>
+				</div>
+				<!-- <p id="ansConImg" class="queCon"></p> -->
+			</div>
+		</div>
+		<!-- 如果没有解答解答按钮 -->
+		<div id="ansBtnWrap" class="ansBtnWrap">
+			<span id="goAnsBtn">解答</span>
+		</div>
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/mui.zoom.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/mui.previewimage.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var isUpFlag_lis = false,currPos = '';
+			mui.init({
+				beforeback : function(){
+					var opener = plus.webview.currentWebview().opener();
+					mui.fire(opener,'upDateAnsList',{isUpFlag_lis:isUpFlag_lis});
+					return true;
+				} 
+			});
+			mui.plusReady(function(){
+				var qId = plus.webview.currentWebview().qId,
+					readSta = plus.webview.currentWebview().readSta,
+					stuName = plus.webview.currentWebview().stuName;
+				isUpFlag_lis = plus.webview.currentWebview().isUpFlag_lis;
+				//currPos = plus.webview.currentWebview().currPos;
+				var page = {
+					init : function(){
+						mui.previewImage();
+						app.getId('headerTit').innerHTML = stuName + '同学的提问详情';
+						this.bindEvent();
+						this.loadAnsDet();
+					},
+					bindEvent : function(){
+						app.getId('backBtn').addEventListener('tap',function(){
+							mui.back();
+						});
+						app.getId('goAnsBtn').addEventListener('tap',function(){
+							app.openwin('ansQueForm.html',{qId:qId,isUpFlag:false,stuName:stuName});
+						});
+					},
+					loadAnsDet : function(){
+						var _this = this;
+						app.showToast(1);
+						mui.ajax(http_ + '/questionInfo.do?action=getQuedetail',{
+							data:{qId:qId},
+							dataType:'json',
+							type:'post',
+							timeout:10000,  
+							success:function(json){ 
+								//console.log(JSON.stringify( json ))
+								app.showToast(2);
+								app.getId('queTit').innerHTML = json.data[0].queTitle;
+								if(json.data[0].readSta == '未回复'){
+									app.getId('ansStaSp').className = 'noAnsSta';
+									app.getId('ansStaSp').innerHTML = '未解答';
+								}else if(json.data[0].readSta == '已回复'){
+									app.getId('ansStaSp').className = 'hasAnsSta';
+									app.getId('ansStaSp').innerHTML = '已解答';
+								}
+								app.getId('ansTime').innerHTML = json.data[0].queTime;
+								app.getId('queCon').innerHTML = json.data[0].queContent;
+								if(json.data[0].queImg != ''){
+									var imgArr = json.data[0].queImg.split(',');
+									var queImgStr = '';
+									for(var i=0;i<imgArr.length;i++){
+										queImgStr += '<li><img data-preview-group="1" data-preview-src="'+ http_ +''+ imgArr[i].replace('_small','') +'" data-preview-group="1" /><em style="background-image:url('+ http_ +''+ imgArr[i] +')"></em></li>';
+									}
+									app.getId('queImg').innerHTML = queImgStr;
+								}
+								if(json.data[0].replyContent == ''){
+									app.getId('ansBtnWrap').style.display = 'block';
+								}else{
+									app.getId('ansBtnWrap').style.display = 'none';
+									app.getId('ansDet').style.display = 'block';
+									app.getId('ansCon').innerHTML = json.data[0].replyContent;
+									if(json.data[0].replyImg != ''){
+										var ansImgArr = json.data[0].replyImg.split(',');
+										var amsImgStr = '';
+										for(var i=0;i<ansImgArr.length;i++){
+											amsImgStr += '<li><img data-preview-group="2" data-preview-src="'+ http_ +''+ ansImgArr[i].replace('_small','') +'" /><em style="background-image:url('+ http_ +''+ ansImgArr[i] +')"></em></li>';
+										}
+										app.getId('ansConImg').innerHTML = amsImgStr;
+									}
+								}
+							},
+							error:function(xhr,type,errorThrown){
+								app.showToast(2);
+								plus.nativeUI.toast('服务器错误');
+							} 
+						});
+					}
+				};
+				page.init();
+				//更新我的答疑详情 已回答
+				document.addEventListener('upDateMyAnsDet',function(e){
+					var isUpFlag = e.detail.isUpFlag;
+					if(isUpFlag){
+						isUpFlag_lis = true;
+						page.loadAnsDet();
+					}
+				});
+			});
+		</script>
+	</body>
+</html>

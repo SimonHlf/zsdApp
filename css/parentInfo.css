@@ -1,0 +1,45 @@
+body{
+	background: #fff;
+}
+.parPic{
+	height: 3.5rem;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+.parPic img{
+	height: 1.8rem;
+	width: 1.8rem;
+	border-radius: 50%;
+	margin-bottom: .1rem;
+}
+.parPic p{
+	font-size: .45rem;
+	color: #333;
+	font-weight: 620;
+	text-align: center;
+}
+.parPic p span.noSetTxt{
+	color: #999;
+	font-weight: normal;
+}
+.infoItem{
+	padding: 0 .2667rem;
+	border-bottom: 1px solid #e6e6e6;
+	padding-bottom: .1rem;
+	margin-bottom: .35rem;
+}
+.infoItem .smTit{
+	font-size: .35rem;
+	color: #666;
+	margin-bottom: .05rem;
+}
+.infoItem .titCon{
+	height: .8rem;
+	line-height: .8rem;
+	font-size: .42rem;
+	color: #333;
+}
+.infoItem .titCon span.noSetTxt{
+	color: #999;
+}

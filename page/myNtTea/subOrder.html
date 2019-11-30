@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/myNtTea.css"/>
+		<title>网络导师购买提交订单</title>
+	</head>
+	<body class="paddingTop bodyBg">
+		<div class="comHeader hasBor">
+			<a id="backBtn" class="posL" href="javascript:void(0)"><i class="iconfont icon-fanhui"></i></a>
+			<span id="headerTit" class="headerTit">订单支付</span>
+		</div>
+		<div id="bascInfo" class="bascInfo">
+			<div class="myNtModTit"><span></span><p>订单信息</p></div>
+			<div class="basicItem">
+				<span>订单编号：</span>
+				<p id="orderNum"></p>
+			</div>
+			<div class="basicItem">
+				<span>导师姓名：</span>
+				<p id="ntName"></p>
+			</div>
+			<div class="basicItem">
+				<span>担任学段科目：</span>
+				<p id="shTypeSub"></p>
+			</div>
+			<div class="basicItem">
+				<span>辅导费用：</span>
+				<p id="feeNum"></p>
+				<p id="discortTxt" class="discortTxt"></p>
+			</div>
+			<div class="basicItem">
+				<span>购买时长：</span>
+				<p id="monthTxt" class="monthTxtOrd">1个月</p>
+			</div>
+		</div>
+		<!-- 选择支付方式 -->
+		<div id="payWrap" class="bascInfo">
+			<input type="hidden" id="payWay" value="1" />
+			<div class="myNtModTit"><span></span><p>选择支付方式</p></div>
+			<div class="payOpt">
+				<span class="payIcon weixin">
+					<i class="iconfont icon-weixinzhifu"></i>
+				</span>
+				<div class="payOptTxt">
+					<label class="active">
+						<input type="radio" class="payOptInp" name="payOptRad" value="1" />
+						<span><i class="iconfont icon-duihao"></i></span>
+						<p>微信支付</p>
+					</label>
+				</div>
+			</div>
+			<div class="payOpt">
+				<span class="payIcon alipay">
+					<i class="iconfont icon-zhifubaozhifu"></i>
+				</span>
+				<div class="payOptTxt noBor">
+					<label>
+						<input type="radio" class="payOptInp" name="payOptRad" value="2" />
+						<span><i class="iconfont icon-duihao"></i></span>
+						<p>支付宝支付</p>
+					</label>
+				</div>
+			</div>
+		</div>
+		<span id="pay" class="subOrder">确认支付</span>
+		<div id="noNtInfo" class="noNtInfo">
+			<img src="../../images/noNtData.png"/>
+			<p id="noInfoMsg"></p>
+		</div>
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var userInfo = JSON.parse(localStorage.getItem('userInfo'));
+			var orderId = 0;
+			mui.plusReady(function(){
+				var jumpPos = plus.webview.currentWebview().jumpPos;
+				if(jumpPos == 'byNtInfo'){//从导师基本信息进来
+					var ntFee = plus.webview.currentWebview().ntFee,
+						ntId = plus.webview.currentWebview().ntId,
+						selMonth = plus.webview.currentWebview().selMonth;
+				}else{//从个人中心订单列表进来
+					orderId = plus.webview.currentWebview().orderId;
+				}
+				var page = {
+					init : function(){
+						this.bindEvent();
+						if(jumpPos == 'byNtInfo'){//导师信息进来创建订单
+							this.createOrder();
+						}else{//个人中心进来直接加载订单详情
+							this.loadNtOrder();
+						}
+					},
+					//创建订单
+					createOrder : function(){
+						app.showToast(1);
+						var  _this = this;
+						var payType = app.getId('payWay').value;
+						var field = {userId:userInfo.userId,
+							roleId:userInfo.roleId,payType:payType,
+							selMonth:selMonth,ntId:ntId,
+							orderDetail:'',payOpt:'ntFee',payMoney:ntFee};
+						mui.ajax(http_ + '/order.do?action=addOrder',{
+							data:field,
+							dataType:'json',
+							type:'post',
+							timeout:10000,
+							success:function(json){
+								console.log(JSON.stringify( json ))
+								app.showToast(2);
+								if(json.msg == 'success'){
+									orderId = json.orderId;
+									_this.loadNtOrder();
+								}else if(json.msg == 'noInfo'){
+									app.getId('bascInfo').innerHTML = '';
+									app.getId('noNtInfo').style.display = 'block';
+									app.getId('noInfoMsg').innerHTML = '该导师不存在';
+								}else if(json.msg == 'noBuy'){
+									app.getId('bascInfo').innerHTML = '';
+									app.getId('noNtInfo').style.display = 'block';
+									app.getId('noInfoMsg').innerHTML = '选择时长涉及升学，不能购买';
+								}else if(json.msg == 'bindExist'){
+									app.getId('bascInfo').innerHTML = '';
+									app.getId('noNtInfo').style.display = 'block';
+									app.getId('noInfoMsg').innerHTML = '该科目下已存在正在绑定的导师';
+								}else if(json.msg == 'checkFail'){
+									app.getId('bascInfo').innerHTML = '';
+									app.getId('noNtInfo').style.display = 'block';
+									app.getId('noInfoMsg').innerHTML = '该导师审核未通过';
+								}else if(json.msg == 'paraDiff'){
+									app.getId('bascInfo').innerHTML = '';
+									app.getId('noNtInfo').style.display = 'block';
+									app.getId('noInfoMsg').innerHTML = '该导师辅导学段和你目前所处学段不一致';
+								}else if(json.msg == 'error'){
+									mui.toast('服务器错误');
+								}else if(json.msg == 'existOrder'){
+									app.getId('bascInfo').innerHTML = '';
+									app.getId('noNtInfo').style.display = 'block';
+									app.getId('noInfoMsg').innerHTML = '您有未完成的订单！';
+								}
+							},
+							error:function(xhr,type,errorThrown){
+								app.showToast(2);
+								console.log(errorThrown)
+							} 
+						})
+					},
+					loadNtOrder : function(){
+						mui.ajax(http_ + '/order.do?action=getOrderDetail',{
+							data:{userId:userInfo.userId,roleId:userInfo.roleId,orderId:orderId},
+							dataType:'json',
+							type:'post',
+							timeout:10000,
+							success:function(json){
+								//console.log(JSON.stringify( json ))
+								app.showToast(2);
+								if(json.msg == 'success'){
+									app.getId('payWrap').style.display = 'block';
+									app.getId('pay').style.display = 'block';
+									app.getId('orderNum').innerHTML = json.orderNo;
+									app.getId('ntName').innerHTML = json.ntName;
+									app.getId('shTypeSub').innerHTML = json.schoolType + json.subName;
+									app.getId('ntName').innerHTML = json.ntName;
+									app.getId('monthTxt').innerHTML = json.buyDays + '个月';
+									app.getId('feeNum').innerHTML = '<b class="feeNumTxt">¥' + json.payMoney + '</b>';
+									if(json.zkRate != '100.0%'){
+										app.getId('discortTxt').style.display = 'block';
+										app.getId('discortTxt').innerHTML = parseInt(json.zkRate)/10 + '折';
+									}else{
+										app.getId('discortTxt').style.display = 'none';
+										app.getId('discortTxt').innerHTML = '';
+									}	
+									app.getId('payWrap').style.display = 'block';
+									app.getId('pay').style.display = 'block';
+								}else if(json.msg == 'noInfo'){
+									app.getId('payWrap').style.display = 'none';
+									app.getId('pay').style.display = 'none';
+									app.getId('bascInfo').innerHTML = '<div id="noData" class="noData"><img src="../../images/noData.png" /><p>暂无此订单信息！</p></div>'
+								}else if(json.msg == 'error'){
+									mui.toast('服务器错误');
+								}
+							},
+							error:function(xhr,type,errorThrown){
+								app.showToast(2);
+								console.log(errorThrown)
+							} 
+						})
+					},
+					bindEvent : function(){
+						mui('#payWrap').on('tap','.payOptInp',function(){
+							var payWrap = app.getId('payWrap');
+							var aLabel = payWrap.getElementsByTagName('label');
+							for(var i=0;i<aLabel.length;i++){
+								aLabel[i].className = '';
+							}
+							this.parentNode.className = 'active';
+							app.getId('payWay').value = this.value;
+						});
+						app.getId('pay').addEventListener('tap',function(){
+							mui.toast('后续开放');
+						});
+						//返回confirm
+						app.getId('backBtn').addEventListener('tap',function(){
+							confirmBack();
+						});
+					}
+				};
+				page.init();
+			});
+			function confirmBack(){
+				var btnArray = ['确定','取消'];
+				mui.confirm('当前有未完成订单，是否确认取消该订单', '取消订单提示', btnArray, function(e) {
+					if(e.index == 0){
+						mui.back();
+					}
+				});
+			}
+		</script>
+	</body>
+</html>

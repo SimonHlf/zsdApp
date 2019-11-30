@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/stuList.css"/>
+		<title>切换学生</title>
+	</head>
+	<body class="paddingTop hasBg">
+		<div class="comHeader otherBg">
+			<a id="backBtn" class="posL" href="javascript:mui.back();"><i class="iconfont icon-fanhui"></i></a>
+			<span id="headerTit" class="headerTit">切换学生</span>
+		</div>
+		<div id="stuList" class="stuList"></div>
+		
+		
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			mui.plusReady(function(){
+				var jumpPos = plus.webview.currentWebview().jumpPos;
+				if(jumpPos == 'hwRepList'){//从作业报告学生做题记录跳转进来
+					var list = plus.webview.currentWebview().stuList,
+						stuId = plus.webview.currentWebview().stuId;
+				}else if(jumpPos == 'qinfenRep'){//班内老师从勤奋报告中进来
+					var classId = plus.webview.currentWebview().classId;
+				}
+				var page = {
+					loasStuList : function(){
+						if(jumpPos == 'hwRepList'){//直接调用
+							this.renderStuHtml(list);
+						}else if(jumpPos == 'qinfenRep'){
+							var _this = this;
+							mui.ajax(http_ + '/common.do?action=getSpecClassStuData',{
+								data:{classId : classId},
+								dataType:'json',
+								type:'post',
+								timeout:10000,  
+								success:function(json){ 
+									app.showToast(2);
+									if(json.result == 'success'){ 
+										_this.renderStuHtml(json.userList);
+									}else if(json.result == 'noInfo'){
+										app.getId('stuList').innerHTML = '<div class="noData"><img src="../../images/noData.png" /><p>暂无学生！</p></div>';
+									}else if(json.result == 'error'){ 
+										plus.nativeUI.toast('服务器错误');
+									}
+								},
+								error:function(xhr,type,errorThrown){
+									app.showToast(2);
+									plus.nativeUI.toast('服务器错误');
+								} 
+							});
+						}
+					},
+					renderStuHtml : function(list){
+						if(list.length > 0){
+							var str = '<ul>';
+							if(jumpPos == 'qinfenRep'){
+								str += '<li stuId="0" onclick=selCurrStu(0,"全部学生")><div class="imgBox">ALL</div><p>全部学生</p>';
+							}
+							for(var i=0;i<list.length;i++){
+								if(jumpPos == 'hwRepList'){
+									if(stuId == list[i].userId){
+										str += '<li class="currSelAct" onclick=selCurrStu('+ list[i].userId +',"'+ list[i].userName +'")>';
+									}else{
+										str += '<li onclick=selCurrStu('+ list[i].userId +',"'+ list[i].userName +'")>';
+									}
+									str += '<img src="'+ http_ +'/'+ list[i].userPortrait +'"/><p>'+ list[i].userName +'</p>';
+									str += '</li>';
+								}else{
+									str += '<li onclick=selCurrStu('+ list[i].userId +',"'+ list[i].userName +'")>';
+									str += '<img src="'+ http_ +'/'+ list[i].userPortrait +'"/><p>'+ list[i].userName +'</p>';
+									str += '</li>';
+								}
+							}
+							str += '</ul>';
+							app.getId('stuList').innerHTML = str;
+						}else{
+							app.getId('stuList').innerHTML = '<div class="noData"><img src="../../images/noData.png" /><p>暂无学生！</p></div>';
+						}
+					}
+				};
+				page.loasStuList();
+			});
+			function selCurrStu(stuId,stuName){
+				var stuStr = stuName + ',' + stuId;
+				var opener = plus.webview.currentWebview().opener();
+				mui.fire(opener,'switchStudent',{stuField:stuStr});
+				plus.webview.currentWebview().close();
+			}
+		</script>
+	</body>
+</html>

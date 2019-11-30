@@ -1,0 +1,262 @@
+body{
+	background: #fff;
+}
+.emailTypeSel{
+	height: 100%;
+	position: absolute;
+	right: .2667rem;
+	top:0;
+	font-size: .45rem;
+	font-weight: 600;
+	color: #333;
+}
+.emailTypeSel span{
+	display: block;
+	float: left;
+}
+.emailTypeSel i{
+	font-weight: normal;
+}
+#closeSel{
+	display: none;
+}
+#closeSel i{
+	font-size: .7rem;
+	color: #333;
+}
+.msgList{
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 1.36rem;
+	bottom: 0;
+}
+.msgList li{
+	padding:.25rem .25rem 0 .4rem;
+	position:relative;
+}
+.msgList li input,
+.msgList li .showDet,
+.botFun div input{
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	left: 0;
+	top:0;
+}
+.msgList li input{
+	z-index: 4;
+	background: yellow;
+	display: none;
+}
+.showDet{
+	z-index: 2;
+}
+.newMsgTips{
+	width: .2rem;
+	height: .2rem;
+	border-radius: 50%;
+	background: #e10080;
+	position: absolute;
+	left: .2rem;
+	top:1rem;
+}
+.msgList li .msgIcon{
+	width: 15%;
+	height: 1.8rem;
+	float: left;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+.msgIcon span{
+	width: 1.1rem;
+	height: 1.1rem;
+	border:1px solid #e6e6e6;
+	border-radius: 50%;
+	line-height: 1.1rem;
+	text-align: center;
+	display: block;
+}
+.msgIcon span i{
+	font-size: .65rem;
+	color: #666;
+	display: block;
+}
+.msgIcon span i.icon-zhanghao{
+	font-size: .52rem;
+	font-weight: 500;
+}
+.msgCon{
+	width: 82%;
+	margin-left:.25rem;
+	border-bottom: 1px solid #e6e6e6; 
+	float: left;
+	padding-bottom: .2rem;
+}
+.msgCon .conBody.hasSel{
+	width: 85%;
+	float: left;
+}
+.msgCon .selWrap{
+	float: right;
+	width: 15%;
+	height: 1.6rem;
+	display: none;
+}
+.msgCon .selWrap label{
+	width: 100%;
+	height:100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.selWrap span{
+	width: .5rem;
+	height: .5rem;
+	border:1px solid #cccccc;
+	border-radius:2px;
+	display: block;
+	position: relative;
+	text-align: center;
+}
+.msgCon .selWrap label.active span{
+	border:1px solid #4d47f1;
+	background: #4d47f1;
+}
+.selWrap span i{
+	display: block;
+	color: #fff;
+}
+.msgCon strong{
+	height:.8rem;
+	line-height:.8rem;
+	font-size:.45rem;
+	color:#333;
+	font-weight:620;
+	display:block;
+}
+.msgCon .msgConBot{
+	line-height: .8rem;
+	font-size: .4rem;
+	color:#999;
+}
+.msgCon .msgConBot p{
+	float: left;
+}
+.msgCon .msgConBot span{
+	float: right;
+}
+.botFun{
+	width: 100%;
+	height: 1.5rem;
+	position: fixed;
+	left: 0;
+	bottom:-100%;
+	background: #f2f2f2;
+	z-index: 10;
+}
+#botFun{
+	-webkit-animation-timing-function:cubic-bezier(0.25,0.1,0.25,1);
+	-webkit-animation-fill-mode:forwards;
+	animation-timing-function:cubic-bezier(0.25,0.1,0.25,1);
+	animation-fill-mode:forwards;
+}
+.animation{
+	-webkit-animation:mymove .5s; /* Safari and Chrome */
+	animation:mymove .5s;
+}
+.animationClose{
+	animation:myMoveClose .5s;
+	-webkit-animation:myMoveClose .5s; /* Safari and Chrome */
+}
+@keyframes mymove{
+	from {bottom:-100%;}
+	to {bottom:0;}
+}
+@-webkit-keyframes mymove { /* Safari and Chrome */
+	from {bottom:-100%;}
+	to {bottom:0%;}
+}
+@keyframes myMoveClose{
+	from {bottom:0%;}
+	to {bottom:-100%;}
+}
+@-webkit-keyframes myMoveClose {/* Safari and Chrome */
+	from {bottom:0%;}
+	to {bottom:-100%;}
+}
+.botFun div{
+	width: 33%;
+	height: 100%;
+	text-align: center;
+	float: left;
+	position: relative;
+}
+.botFun div span{
+	height: .7rem;
+	line-height: .7rem;
+	display: block;
+	margin-top: .1rem;
+}
+.botFun div span i{
+	font-size: .55rem;
+	color: #333;
+	display: block;
+}
+.botFun div span i.icon-shanchu{
+	font-size: .68rem;
+}
+.botFun div span i.icon-quanxuan,
+.botFun div span i.icon-quanxuan1{
+	font-size: .62rem;
+} 
+.botFun div p{
+	line-height: .6rem;
+	font-size: .32rem;
+	color: #666;
+}
+/* 消息详情 */
+.msgDet .msgDetItem,
+.msgDetItem_spec{
+	padding: 0 .2667rem;
+	border-bottom: 1px solid #e6e6e6;
+	font-size: .4rem;
+	color: #333;
+}
+.msgDet .msgDetItem{
+	height: 1.2rem;
+	line-height: 1.2rem;
+}
+.msgDet .msgDetItem_spec{
+	position: relative;
+}
+.msgDet .msgDetItem span,
+.msgDet .msgDetItem_spec span{
+	width: 2rem;
+	height: 100%;
+	color: #666;
+	text-align: right;
+}
+.msgDet .msgDetItem span{
+	float: left;
+}
+.msgDet .msgDetItem_spec span{
+	position: absolute;
+	left: .2667rem;
+	top: 0;
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+}
+.msgDet .msgDetItem p{
+	float: left;
+	margin-left: .2rem;
+}
+.msgDet .msgDetItem_spec p{
+	margin-left: 2.2rem;
+	min-height: .8rem;
+	display: flex;
+	align-items: center;
+	padding: .2rem 0;
+}

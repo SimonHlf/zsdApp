@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/filterNav.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/qinfenReport.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/mobileSelect.css"/>
+		<title>勤奋报告</title>
+	</head>  
+	<body class="paddingTop">
+		<div class="comHeader otherBg">
+			<a id="backBtn" class="posL"><i class="iconfont icon-fanhui"></i></a>
+			<span class="headerTit">勤奋报告</span>
+			<input type="hidden" id="currSubId" value="2" />
+			<p id="subject" class="subject qinfenSub">
+				<span id="subTxt" class="comSelTxtCon">数学</span>
+				<i class="iconfont icon-xiala"></i>
+			</p>
+			<span id="filterBtn" class="filterBtn"><i class="iconfont icon-shaixuan"></i></span> 
+		</div>
+		<!-- 选择班级和选择学生 -->
+		<div class="selClassStuWrap">
+			<!-- 选择年级 -->
+			<input type="hidden" id="classInp" />
+			<input type="hidden" id="stuIdInp" value="0" />
+			<p class="gradeSel">
+				<span id="gradeTxt"></span>
+			</p>
+			<!-- 选择班级 -->
+			<p id="stuSel">
+				<span id="stuTxt">全部学生</span>
+				<i class="iconfont icon-qiehuan"></i>
+			</p>
+		</div>
+		<div class="filter noBoxShadow qinfenFilter"> 
+			<div class="timeInp">
+				<div class="innerTimeInp">
+					<input id="stDate" type="text"  readonly placeholder="起始日期"/>
+					<i class="iconfont icon-rili"></i>
+				</div>
+				<span class="tilTxt">至</span>
+				<div class="innerTimeInp">
+					<input id="edDate" type="text"  readonly placeholder="结束日期"/>
+					<i class="iconfont icon-rili"></i>
+				</div>
+			</div>
+			<div id="searchBtn" class="search">
+				<i class="iconfont icon-sousuo"></i>
+			</div>
+		</div>
+		<div id="totalTxt" class="totalTxt ellip"></div>
+		<div id="noData" class="noData" style="display: none;"><img src="../../images/noData.png"/><p>暂无勤奋报告记录</p></div>
+		<div id="qinfenDataBox" class="qinfenData"></div>
+		<div class="rateWrap">
+			<p id="rateTxt"></p>
+			<p id="rateAllTxt"></p>
+		</div>
+		<div id="layer" class="layer"></div>
+		
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/mobileSelect.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/comMethod.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../libs/echarts.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var userInfo = JSON.parse(localStorage.getItem('userInfo'));
+			var classList = null;
+			document.addEventListener('plusready',plusReady,false);
+			function plusReady(){
+				var page = {
+					init : function(){
+						app.backFun();
+						if(userInfo.roleId == stu_role_id || userInfo.roleId == stuPar_role_id){//学生
+							comMet.loadSubject();//获取学科
+							$('.qinfenSub').show();
+							$('.qinfenFilter').show();
+							this.loadData();
+						}else if(userInfo.roleId == tea_role_id){//班内老师
+							//加载班级 取班级第一个值
+							$('.filterBtn').show();
+							$('.selClassStuWrap').show();
+							this.loadClassList();
+						}
+						this.bindEvent();
+					},
+					//加载班级list
+					loadClassList : function(){
+						var _this = this;
+						app.showToast(1);
+						mui.ajax(http_ + '/hw.do?action=getMyClassData',{
+							data:{userId:userInfo.userId},
+							dataType:'json',
+							type:'post',
+							timeout:10000,
+							success:function(json){ 
+								app.showToast(2);
+								if(json.result == 'success'){
+									$('#classInp').val(json.cList[0].cId);
+									$('#gradeTxt').html(json.cList[0].cName);
+									classList = json.cList;
+									_this.loadData();
+								}else if(json.result == 'noInfo'){
+									app.getId('gradeUl').innerHTML = '<p style="color:#999;font-size:.48rem;">暂无班级</p>'
+									classList = 0;
+								}
+							},
+							error:function(xhr,type,errorThrown){
+								app.showToast(2);
+								plus.nativeUI.toast('服务器错误');
+							} 
+						});
+					},
+					bindEvent : function(){
+						//查询
+						var _this = this;
+						//条件筛选
+						app.getId('filterBtn').addEventListener('tap',function(){
+							app.getId('layer').style.display = 'block';
+							mui.openWindow({  
+								url :'qinFenFilter.html',
+								id : 'qinFenFilter.html', 
+								styles : {
+									top:0,//新页面顶部位置
+									right:'0px',
+									bottom:0,//新页面底部位置
+									width:'75%',//新页面宽度，默认为100%,
+								},
+								extras : {
+									sDate : $('#stDate').val(),
+									eDate : $('#edDate').val(),
+									classList : classList,
+									cName : $('#gradeTxt').html(),
+									cId : $('#classInp').val()
+								}
+							});
+						});
+						//点击遮罩层filter关闭
+						app.getId('layer').addEventListener('tap',function(){
+							var filterView = plus.webview.getWebviewById('qinFenFilter.html');
+							filterView.close('pop-out');
+							setTimeout(function(){
+								app.getId('layer').style.display = 'none';
+							},400);
+						});
+						app.getId('searchBtn').ontouchend = function(){
+							var subId = $('#currSubId').val(),
+								stDateVal = $('#stDate').val(),
+								edDataVal = $('#edDate').val();
+							if(stDateVal == '' && edDataVal != ''){
+								plus.nativeUI.toast('请选择开始日期');
+								return;
+							}
+							if(stDateVal != '' && edDataVal == ''){
+								plus.nativeUI.toast('请选择结束日期');
+								return;
+							}
+							if(stDateVal > edDataVal){
+								plus.nativeUI.toast('开始日期不能大于结束日期');
+								return;
+							}
+							_this.loadData();
+						},
+						//选择学生
+						app.getId('stuSel').addEventListener('tap',function(){
+							var classInpVal = $('#classInp').val();
+							app.openwin('../hwReport/stuList.html',{classId:classInpVal,jumpPos:'qinfenRep'});
+						});
+						//起始日期
+						app.getId('stDate').ontouchend = function(){
+							comMet.showPickDate('stDate');
+						}
+						//结束日期
+						app.getId('edDate').ontouchend = function(){
+							comMet.showPickDate('edDate');
+						}
+					},
+					loadData : function(){
+						var subId = $('#currSubId').val(),
+							classInpVal = $('#classInp').val(),
+							stuIdInpVal = $('#stuIdInp').val(),
+							stDateVal = $('#stDate').val(),
+							edDataVal = $('#edDate').val(),_this = this;
+						if(userInfo.roleId == stu_role_id || userInfo.roleId == stuPar_role_id){//学生
+							var field = {userId:userInfo.userId,roleId:userInfo.roleId,subId:subId,sDate:stDateVal,eDate:edDataVal};
+						}else if(userInfo.roleId == tea_role_id){//班内老师
+							//classId,userId,stuId(可不传),roleId,sDate,eDate
+							var field = {userId:userInfo.userId,roleId:userInfo.roleId,classId:classInpVal,stuId:stuIdInpVal,sDate:stDateVal,eDate:edDataVal};
+						}
+						$.ajax({
+							url : http_ + '/reportCenter.do?action=getQfTjData',
+							data:field, 
+							dataType:'json', 
+							type:'post',
+							timeout:10000,
+							beforeSend : function(){ 
+								app.showToast(1);
+							},
+							success:function(json){
+								app.showToast(2);
+								$('#stDate').val(json.sDate);
+								$('#edDate').val(json.eDate);
+								//console.log(JSON.stringify( json ))
+								if(json.result == 'success'){
+									app.getId('totalTxt').innerHTML = json.contentInfo + ':';
+									_this.loadChart(json,json.axisName1,json.axisName2);
+									$('#rateTxt').html('<span>' + json.axisName1 + '转化率为：</span>' + json.rate);
+									$('#rateAllTxt').html('<span>' + json.axisName2 + '转化率为：</span>' + json.rateAll);
+								}else if(json.result == 'noInfo'){
+									app.getId('totalTxt').innerHTML = '<p style="color:#999;font-size:.4rem;">暂无勤奋报告</p>';
+									app.getId('qinfenDataBox').style.display = 'none';
+									app.getId('noData').style.display = 'block';
+									$('#rateTxt').html('');
+									$('#rateAllTxt').html('');
+								}
+							},
+							error:function(xhr,type,errorThrown){
+								app.showToast(2);
+								plus.nativeUI.toast('服务器连接超时');
+							}
+						}); 
+					},
+					loadChart : function(json,axisName1,axisName2){
+						app.getId('qinfenDataBox').style.display = 'block';
+						app.getId('noData').style.display = 'none';
+						var axisName = [axisName1,axisName2];
+						var myChart = echarts.init(app.getId('qinfenDataBox')),
+							singleData = [json.oneZdSuccNum,json.oneZdFailNum,json.againXxSuccNum,json.againXxFailNum,json.noRelateNum,json.relateZdFailNum,json.relateXxSuccNum,json.relateXxFailNum],
+							totalData = [json.oneZdSuccNumAll,json.oneZdFailNumAll,json.againXxSuccNumAll,json.againXxFailNumAll,json.noRelateNumAll,json.relateZdFailNumAll,json.relateXxSuccNumAll,json.relateXxFailNumAll];
+						 // 指定图表的配置项和数据
+						var option = {
+							title: {
+								text: ''
+							},
+							tooltip: {trigger: 'axis'},
+							legend: {
+								data: axisName,
+								x : 15
+							},
+							grid: {
+								x: 35,
+								x2: 25,
+								y: 30,
+								y2: 130
+							},
+							toolbox: {
+								y : -5,
+								feature : {
+									dataView : {show: true, readOnly: true},
+									magicType : {show: true, type: ['line', 'bar']},
+									restore : {show: true}
+									//saveAsImage : {show: true}
+								}
+							},
+							calculable: false,
+							xAxis: {
+								type: 'category',
+								data: ['一次性通过总数', '一次性未通过总数', '再次诊断(学习)通过', '再次诊断(学习)未通过', '未溯源个数', '关联诊断未通过', '关联学习通过', '关联未学习通过'],
+								axisLabel: {
+										interval:0,//横轴信息全部显示
+										rotate:-90,//-30度角倾斜显示    
+								}
+							},
+							yAxis : [
+								{
+									type : 'value'
+								}
+							],
+							series: [{
+								name: axisName[0],
+								type: 'bar',
+								data: singleData
+							}, {
+								name: axisName[1],
+								type: 'bar',
+								data: totalData
+							}]
+						};
+						// 使用刚指定的配置项和数据显示图表。
+						myChart.setOption(option);
+					}
+				};
+				page.init();
+				//系统返回时监听关闭layer层
+				document.addEventListener('closeLayer',function(){
+					setTimeout(function(){
+						app.getId('layer').style.display = 'none';
+					},400);
+				});
+				//通过筛选加载对应勤奋报告数据
+				document.addEventListener('upDateQinfenData',function(e){
+					var befCId = $('#classInp').val();
+					var currField = e.detail.currField;
+					$('#stDate').val(currField.sDate);
+					$('#edDate').val(currField.eDate);
+					$('#classInp').val(currField.classId);
+					$('#gradeTxt').html(currField.cName);
+					//每次选择班级进行loadData 并清空对应stuIdInp
+					setTimeout(function(){
+						app.getId('layer').style.display = 'none';
+						if(befCId != $('#classInp').val()){//切换了年级
+							$('#stuIdInp').val(0);
+							$('#stuTxt').html('全部学生');
+							$('#stuSel').removeClass('hasSel');
+						}
+						page.loadData();
+					},400);
+					
+				});
+				//切换学生加载对应的具体学生的勤奋报告
+				document.addEventListener('switchStudent',function(e){
+					var stuField = e.detail.stuField;
+					$('#stuIdInp').val(stuField.split(',')[1]);
+					$('#stuTxt').html(stuField.split(',')[0]);
+					if(stuField.split(',')[0] != '全部学生'){
+						$('#stuSel').addClass('hasSel');
+					}else{
+						$('#stuSel').removeClass('hasSel');
+					}
+					page.loadData();
+				});
+			}
+		</script>
+	</body>
+</html>

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/buy.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/mobileSelect.css"/>
+		<title>会员购买</title>
+	</head>
+	<body class="paddingTop">
+		<div class="comHeader otherBg">
+			<span class="headerTit">课程购买</span>
+		</div> 
+		<div class="buyDec">
+			<img src="../../images/buyDec1.png" alt="课程购买"/>
+			<img src="../../images/buyDec.png" alt="课程购买"/>
+		</div>
+		<div class="buyCon">
+			<strong class="buyTit">知识典课程</strong>
+			<div class="courseDes">
+				<div class="desItem clearfix">
+					<img src="../../images/buyDec2.png"/>
+					<p class="desCon">惊喜1：享受所有课程的免费学习</p>
+				</div>
+				<div class="desItem clearfix">
+					<img src="../../images/buyDec2.png"/>
+					<p class="desCon">惊喜2：一线课堂网络到时精心录制的全程知识点视频讲解，能够帮你更快更容易的对课堂学习的知识点掌握。</p>
+				</div>
+				<div class="desItem clearfix">
+					<img src="../../images/buyDec2.png"/>
+					<p class="desCon">惊喜3：独特的溯源诊断和五步学习法让你彻底 学会这个知识点！</p>
+				</div>
+			</div>
+			<!-- 价格 -->
+			<div class="coursePrice">
+				<span class="titSpan">课程价格</span>
+				<p id="discortTxt" class="discortTxt"></p>
+				<p id="priceNum" class="priceNum"></p>
+			</div>
+			<div class="coursePrice">
+				<span class="titSpan">选择时长</span>
+				<input type="hidden" id="monthInp" value="1" />
+				<div class="selMonthWrap">
+					<span id="monthTxt">1个月</span>
+					<em></em>
+				</div>
+			</div>
+			
+			<!-- 费用明细 -->
+			<div id="feeDetInfo" class="feeDetInfo">
+				<span>费用明细：</span>
+				<div id="feeDetCon" class="feeDetCon"></div>
+			</div>
+			<span id="subOrderBtn" class="orderBtn">提交订单</span>
+		</div>
+		
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/mobileSelect.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var userInfo = JSON.parse(localStorage.getItem('userInfo'));
+			var monthData = [
+				{"type":1,"value":"1个月"},
+				{"type":2,"value":"2个月"},
+				{"type":3,"value":"3个月"},
+				{"type":4,"value":"4个月"},
+				{"type":5,"value":"5个月"},
+				{"type":6,"value":"6个月"},
+				{"type":7,"value":"7个月"},
+				{"type":8,"value":"8个月"},
+				{"type":9,"value":"9个月"},
+				{"type":10,"value":"10个月"},
+				{"type":11,"value":"11个月"},
+				{"type":12,"value":"12个月"}
+			],payMoney = 0,orderDet = '';
+			mui.plusReady(function(){
+				var page = {
+					init : function(){
+						var _this = this;
+						this.loadBuyInfo();
+						new MobileSelect({
+							trigger: '#monthTxt',
+							title: '请选择购买时长',
+							wheels: [ 
+								{data: monthData}
+							],
+							position:[0], //初始化定位 打开时默认选中的哪个 如果不填默认为0
+							transitionEnd:function(indexArr, data){},
+							callback:function(indexArr, data){
+								app.getId('monthInp').value = data[0].type;
+								_this.loadBuyInfo();
+							}
+						});
+						this.bindEvent();
+					},
+					bindEvent : function(){
+						app.getId('subOrderBtn').addEventListener('tap',function(){
+							var monthTxt = app.getId('monthInp').value;
+							mui.toast('后续开放');
+							//app.openwin('subOrder.html',{payMoney:payMoney,selMonth:monthTxt,orderDet:orderDet,jumpPos:'byBuyPage'});
+						});
+					},
+					loadBuyInfo : function(){
+						app.showToast(1);
+						var selMonth = app.getId('monthInp').value,_this = this;
+						var field = {userId:userInfo.userId,roleId:userInfo.roleId,selMonth:selMonth};
+						mui.ajax(http_ + '/pay.do?action=getOnlineFee',{
+							data:field,
+							dataType:'json',
+							type:'post',
+							timeout:10000,
+							success:function(json){
+								app.showToast(2);
+								if(json.result == 'success'){
+									payMoney = json.fee;
+									app.getId('priceNum').innerHTML = json.fee + '<span>元</span>';
+									if(json.zkRate != '100.0%'){
+										app.getId('discortTxt').style.display = 'block';
+										app.getId('discortTxt').innerHTML = parseInt(json.zkRate)/10 + '折';
+									}else{
+										app.getId('discortTxt').style.display = 'none';
+										app.getId('discortTxt').innerHTML = '';
+									} 
+									if(json.feeOpt == 'diffFee'){//diffFee表示由于时间段涉及到升学而导致的不同标准费用
+										app.getId('feeDetCon').innerHTML = '<p>'+ json.gradeName_curr +'购买时长：'+ json.days_1 +'天，费用：'+ json.fee_1 +'元</p><p>'+ json.gradeName +'购买时长：'+ json.days_2 +'天，费用：'+ json.fee_2 +'元</p>';
+										orderDet = json.gradeName_curr +'购买时长：'+ json.days_1 +'天，费用：'+ json.fee_1 +'元。' + json.gradeName +'购买时长：'+ json.days_2 +'天，费用：'+ json.fee_2 +'元。';
+									}else{
+										app.getId('feeDetCon').innerHTML = '<p>'+ json.gradeName_curr +'购买时长：'+ (selMonth*30) +'天，费用：' + json.fee + '元。</p>';
+										orderDet = json.gradeName_curr +'购买时长：'+ (selMonth)*30 +'天，费用：' + json.fee + '元。';
+									}
+								}else if(json.result == 'error'){
+									mui.toast('服务器错误');
+								}
+							},
+							error:function(xhr,type,errorThrown){
+								app.showToast(2);
+								console.log(errorThrown)
+							} 
+						})
+					}
+				};
+				page.init();
+			});
+		</script>
+	</body>
+</html>

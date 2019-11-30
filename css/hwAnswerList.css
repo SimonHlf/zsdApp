@@ -1,0 +1,151 @@
+body{
+	background: #f2f2f2;
+}
+.hwTypeStu{
+	width: 100%;
+	height: 1.2rem;
+	line-height: 1.2rem;
+	background: #fff;
+	position: fixed;
+	left: 0;
+	top: 1.3rem;
+	z-index: 10;
+	box-shadow: 0 0 5px rgba(0,0,0,.15);
+}
+.hwTypeTxt{
+	margin-left: .2667rem;
+	float: left;
+	position: relative;
+	font-size: .45rem;
+	color: #333;
+	text-indent: .2rem;
+	font-weight: bold;
+}
+.switchTxt{
+	float: right;
+	margin-right: .2667rem;
+	font-size: .4rem;
+	color: #999;
+}
+.lineSp{
+	height: 40%;
+	width: 3px;
+	background: #4d47f1;
+	position: absolute;
+	left: 0;
+	top:29%;
+	border-radius: 6px;
+}
+.recList{
+	background: #fff;
+	position: absolute;
+	left: 0;
+	right: 0;
+	top:2.5rem;
+	bottom: 0;
+	overflow: hidden;
+	overflow-y: auto;
+	-webkit-overflow-scrolling: touch;
+}
+.listRecUl{
+	background: #fff;
+}
+.listRecUl li{
+	position: relative;
+	border-bottom: 1px solid #e6e6e6;
+	padding: .1rem .2667rem .25rem;
+}
+.listRecUl li .subImg{
+	width: 12%;
+	height: 100%;
+	position: absolute;
+	left:.2667rem;
+	top: 0;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+.listRecUl li .subImg i{
+	font-size: .65rem;
+	color: #4d47f1;
+}
+.detCon{
+	width: 86%;
+	min-height: 1.5rem;
+	margin-left: 14%;
+}
+.detConTit{
+	height: 1rem;
+	line-height: 1rem;
+}
+.detConTit p{
+	float: left;
+}
+.detConTit p.loreName{
+	width: 75%;
+	font-weight: bold;
+	font-size: .4rem;
+	color: #333;
+}
+.detConTit p.currSta{
+	width: 25%;
+	font-size: .38rem;
+	color: #666;
+}
+.detConTit p.currSta span.staBg{
+	width: .18rem;
+	height: .18rem;
+	border-radius: 50%;
+	float: right;
+	margin:.38rem .1rem 0 0;
+}
+.compTxt{
+	float: right;
+}
+/* 已完成 */
+.detConTit p.currSta span.staBg.compBg{
+	background: #4d47f1;
+}
+.detConTit p.currSta span.compTxt.compCol,
+.innerDetConBot p.timeComp.compCol{
+	color: #4d47f1;
+}
+/* 补做完成 */
+.detConTit p.currSta span.staBg.buzuoCompBg{
+	background: #29c7c6;
+}
+.detConTit p.currSta span.compTxt.buzuoCompCol,
+.innerDetConBot p.timeComp.buzuoCompCol{
+	color: #29c7c6;
+}
+/* 未完成 */
+.detConTit p.currSta span.staBg.noCompBg{
+	background: #e10080;
+}
+.detConTit p.currSta span.compTxt.noCompCol,
+.innerDetConBot p.timeComp.noCompCol{
+	color: #e10080;
+}
+.innerDetConBot{
+	width: 50%;
+	float: left;
+}
+.innerDetConBot p{
+	height: .7rem;
+	line-height: .7rem;
+	font-size: .4rem;
+}
+.innerDetConBot p.timePub{
+	color:#999;
+}
+.innerDetConBot p.timeTill{
+	color:#999;
+}
+.innerDetConBot p.hwType{
+	text-align: right;
+	color: #999;
+}
+.innerDetConBot p.timeComp{
+	text-align: right;
+	color: #999;
+}

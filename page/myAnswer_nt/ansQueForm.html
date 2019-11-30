@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/myAnsQueList.css"/>
+		<title>我要答疑</title>
+	</head>
+	<body class="paddingTop">
+		<div class="comHeader otherBg">
+			<a id="backBtn" class="posL" href="javascript:mui.back();"><i class="iconfont icon-fanhui"></i></a>
+			<span id="headerTit" class="headerTit"></span>
+		</div>
+		<div class="ansForm">
+			<textarea id="formCon" placeholder="请输入解答内容(260字内)" maxlength="260"></textarea>
+			<div class="fujian">
+				<strong>图片</strong>
+				<ul class="clearfix">
+					<li id="addBtn" class="addBtn">
+						<i class="iconfont icon-tianjia"></i>
+					</li>
+					<!-- <li>
+						<span class="delBtn"><i class="iconfont icon-wrong"></i></span>
+						<img src="../../images/subject/icon.png"/>
+					</li> -->
+				</ul>
+			</div>
+			<span id="submitBtn" class="submitBtn">提交</span>
+		</div>
+		
+		
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var imgnum = 0,isAddFlag = false;
+			var addimgs=document.getElementById("addBtn");
+			var filesImg = {}; //保存图片的数组
+			var wpage;
+			var userInfo = JSON.parse( localStorage.getItem('userInfo') ),isUpFlag = false;
+			mui.init({
+				beforeback : function(){
+					var opener = plus.webview.currentWebview().opener();
+					mui.fire(opener,'upDateMyAnsDet',{isUpFlag:isUpFlag});
+					return true;
+				} 
+			});
+			mui.plusReady(function(){
+				var qId = plus.webview.currentWebview().qId,
+					stuName = plus.webview.currentWebview().stuName;
+				isUpFlag = plus.webview.currentWebview().isUpFlag;
+				wpage = plus.webview.currentWebview();
+				wpage.setStyle({softinputMode: "adjustResize"});   
+				var page = {
+					init : function(){
+						this.bindEvent();
+						app.getId('headerTit').innerHTML = '解答' + stuName + '同学的提问';
+					},
+					bindEvent : function(){
+						var _this = this;
+						//保存
+						app.getId('submitBtn').addEventListener('tap',function(){
+							var cear_span=document.querySelectorAll(".cear_span");
+							var formCon = app.trim(app.getId('formCon').value);
+							var url = http_ +'/upload.do?action=upImg&opt=queImg&userId=' + userInfo.userId;
+							if(formCon == ''){
+								mui.toast("请填写解答内容");
+								return;
+							}
+							if(app.isEmojiCharacter( formCon )){
+								mui.toast("内容中不能带有特殊表情");
+								return;
+							}
+							for(var i=0;i<cear_span.length;i++){
+								filesImg["img0"+(i+1)] = cear_span[i].getAttribute("data-img");
+							}
+							plus.nativeUI.showWaiting("提交中...",{size:"12px",background:"rgba(0,0,0,0.6)",back:"none"}); 	
+							var uploader=plus.uploader.createUpload(url,{
+								method:'POST'
+							}, function(upload,status){
+								wpage.setStyle({mask:"none"});
+								if(status==200){//发布成功
+									//qid,qReCon,queReplyImg
+									var imgSrc = JSON.parse(upload.responseText).imgSrc;
+									var field = {qId:qId,qReCon:escape( formCon ),queReplyImg:imgSrc};
+									mui.ajax(http_ + '/questionInfo.do?action=updateQue',{
+										data:field,
+										dataType:'json',
+										type:'post',
+										timeout:10000,
+										success:function(json){
+											plus.nativeUI.closeWaiting();
+											if(json.result == 'success'){
+												mui.toast('解答成功');
+												isUpFlag = true;
+												setTimeout(function(){
+													mui.back();
+												},500);
+												//发布成功后,删除该目前下的所有图片,
+												plus.io.resolveLocalFileSystemURL("_doc/fileimgs/", function(entry){   
+													entry.removeRecursively(function(entry){
+														console.log("删除目录成功");
+													}, function ( e ){
+														console.log("删除目录失败");
+													});
+												},function(e){
+													console.log('目录对象不存在');     
+												});	
+											}else if(json.result == 'fail'){
+												mui.toast('提交解答内容失败');
+											}
+										},
+										error:function(xhr,type,errorThrown){
+											plus.nativeUI.closeWaiting();
+											mui.toast('提交解答内容失败');
+										} 
+									});
+								}else{
+									plus.nativeUI.closeWaiting();
+									mui.toast('答疑失败，请稍后再试下')
+								}	
+							});
+							//添加上传的图片
+							mui.each(filesImg,function(index,tem){
+								uploader.addFile(tem,{key:index});
+							}); 
+							uploader.start();  //开始上传数据  
+						});
+						//添加图片
+						app.getId('addBtn').addEventListener('tap',function(){
+							if(mui.os.plus){
+								var a=[{
+									title:'拍照'
+								},{
+									title:'从手机相册选择'
+								}];
+								plus.nativeUI.actionSheet({
+									cancel:'取消',
+									buttons:a
+								},function(b){
+									switch(b.index){
+										case 0:
+											break;
+										case 1:
+											//拍照
+											_this.getImages();
+										break;
+										case 2:
+											//打开相册
+											_this.galleryImages();
+										break;
+										default:
+											break;
+									}
+								},false); 
+							}
+						});
+						//删除已经选择的图片
+						mui("body").on("tap",".delBtn",function(){//删除已选择的图片
+							var par=this.parentNode; 
+								par.remove();
+							var imgurl = this.getAttribute("data-name");    
+							var cear_span = document.querySelectorAll(".cear_span"); 
+							var len=cear_span.length;
+							if(len<9){
+							   addimgs.style.display="inline-block";
+							}
+							plus.io.resolveLocalFileSystemURL("_doc/fileimgs/"+imgurl, function(entry){   
+								entry.remove(function(entry){
+									//console.log("删除成功");
+								}, function ( e ){
+									//console.log("删除失败");
+								});
+							},function(e){
+								console.log('目标对象不存在'); 
+							});	
+						});
+					},
+					//拍照 从相机
+					getImages : function(){
+						var fnums=96; //图片压缩比率
+						var cmr = plus.camera.getCamera(),path = '',name='';
+						var cear_span=document.querySelectorAll(".cear_span"); 
+						imgnum=0;
+						for(var i=0;i<cear_span.length;i++){
+							imgnum++;	
+						} 
+						cmr.captureImage(function(p) {
+							plus.io.resolveLocalFileSystemURL(p, function(entry) {
+								if(imgnum + 1 >= 5){
+									addimgs.style.display="none";
+								}
+								entry.file(function(file){
+									if(file.size/1024>300){//当图片超过300kb 就压缩高点
+										fnums=65; //图片压缩比例
+									}
+								});
+								path = entry.toLocalURL();
+								name = entry.toLocalURL().substr(entry.toLocalURL().lastIndexOf('/') + 1);
+								//压缩图片
+								plus.zip.compressImage({
+									src:path,
+									dst: '_doc/fileimgs/' + name,
+									overwrite:true,
+									format:"jpg,png",
+									quality:fnums
+								}, function(zip){
+									var li=document.createElement("li");
+									var span = document.createElement("span");
+									var img = document.createElement('img');
+									span.className="delBtn cear_span ";
+									img.src = zip.target;
+									span.setAttribute("data-img",zip.target);
+									var news_name=zip.target.substr(zip.target.lastIndexOf('/') + 1); 
+									span.setAttribute('data-name',news_name);
+									span.innerHTML='<i class="iconfont icon-wrong"></i>';
+									li.appendChild(span);
+									li.appendChild( img )
+									addimgs.insertAdjacentHTML("beforeBegin",li.outerHTML);
+								}, function(zipe){
+									mui.toast('该图片有误！')
+								});
+								
+							});
+							
+						});
+					},
+					//打开相册
+					galleryImages : function(){
+						var _this = this;
+						imgnum=0;
+						var cear_span=document.querySelectorAll(".cear_span"); 
+						for(var i=0;i<cear_span.length;i++){
+							imgnum++;	
+						} 
+						//打开图册,多选图册
+						plus.gallery.pick(function(e){
+							if((imgnum+e.files.length) >= 5){ //限制只能选择9张,超多9张就隐选择图片的按钮
+								addimgs.style.display="none";
+							}
+							for(var i in e.files){
+								var fnums=96; //图片压缩比率
+								var name =e.files[i].substr(e.files[i].lastIndexOf('/') + 1);  
+								plus.io.resolveLocalFileSystemURL(e.files[i], function( entry ){
+									entry.file(function(file){
+										if(file.size/1024>300){//当图片超过300kb 就压缩高点
+											fnums=65; //图片压缩比例
+										}
+									});
+								});
+								//把包含有中文的图片名，重新命名
+								if(escape(name).indexOf("%u") !=-1){
+									//包括中文 
+									name=name.substr(name.lastIndexOf('.'));
+									var times=new Date();
+									name=times.getTime()+name;
+								} 
+								console.log( e.files[i] )
+								//压缩图片
+								plus.zip.compressImage({
+									src:e.files[i],
+									dst: '_doc/fileimgs/' + name,
+									overwrite:true,
+									format:"jpg",
+									quality:fnums
+								}, function(zip){
+									var li=document.createElement("li");
+									var span = document.createElement("span");
+									var img = document.createElement('img');
+									span.className="delBtn cear_span ";
+									img.src = zip.target;
+									span.setAttribute("data-img",zip.target);
+									var news_name=zip.target.substr(zip.target.lastIndexOf('/') + 1); 
+									span.setAttribute('data-name',news_name);
+									span.innerHTML='<i class="iconfont icon-wrong"></i>';
+									li.appendChild(span);
+									li.appendChild( img )
+									addimgs.insertAdjacentHTML("beforeBegin",li.outerHTML);
+								}, function(zipe){
+									mui.toast('该图片有误！')
+								});
+							}
+						},function(e){
+							//取消选择图片;	
+						},
+						{filter:'image',multiple:true,maximum:(5-imgnum),system:false,onmaxed:function(){
+							plus.nativeUI.alert('最多发布5张图片');	
+						}});
+					}
+				};
+				page.init();
+			});
+		</script>
+		
+	</body>
+</html>

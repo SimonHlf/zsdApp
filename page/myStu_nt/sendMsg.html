@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/myStu_nt.css"/>
+		<title>发送信息</title>
+	</head>
+	<body class="paddingTop">
+		<div class="comHeader hasBor">
+			<a id="backBtn" class="posL" href="javascript:mui.back();"><i class="iconfont icon-fanhui"></i></a>
+			<span id="headerTit" class="headerTit">发送信息</span>
+		</div>
+		<div class="editItem">
+			<span>收件人：</span>
+			<p id="stuNameTxt">黄珊</p>
+		</div>
+		<div class="editItem">
+			<span>标题：</span>
+			<input id="titInp" type="text" placeholder="请输入发送标题(30字内)" maxlength="30"/>
+		</div>
+		<div class="editItem_spec">
+			<span>内容：</span>
+			<div class="proTxt">
+				<textarea id="conText" maxlength="150" name="content" placeholder="请输入内容(150字内)"></textarea>
+			</div>
+		</div>
+		<span id="sendBtn" class="saveBtn">发送</span>
+		
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var userInfo = JSON.parse(localStorage.getItem('userInfo'));
+			// mui.init({
+			// 	beforeback : function(){
+			// 		var opener = plus.webview.currentWebview().opener();
+			// 		mui.fire(opener,'upDateMsgList',{isUpFlag:isUpFlag});
+			// 		return true;
+			// 	} 
+			// });
+			mui.plusReady(function(){
+				var stuName = plus.webview.currentWebview().stuName,
+					stuId = plus.webview.currentWebview().stuId;
+				var page = {
+					init : function(){
+						this.bindEvent();
+						app.getId('stuNameTxt').innerHTML = stuName;
+					},
+					bindEvent : function(){
+						app.getId('sendBtn').addEventListener('tap',function(){
+							var titInp = app.trim(app.getId('titInp').value),
+								conText = app.trim(app.getId('conText').value);
+							if(titInp == ''){
+								mui.toast('标题不能为空');
+								return;
+							}
+							if(app.isEmojiCharacter( titInp )){
+								mui.toast('标题中不能带有特殊表情');
+								return;
+							}
+							if(conText == ''){
+								mui.toast('内容不能为空');
+								return;
+							}
+							if(app.isEmojiCharacter( conText )){
+								mui.toast('内容中不能带有特殊表情');
+								return;
+							}
+							app.showToast(1);
+							var field = {userId:userInfo.userId,toUserId:stuId,title:escape(titInp),emailType:'per',contect:escape(conText)};
+							mui.ajax(http_ + '/common.do?action=sendMsg',{
+								data:field,
+								dataType:'json',
+								type:'post',
+								timeout:10000,
+								success:function(json){
+									app.showToast(2);
+									if(json.result == 'success'){
+										mui.toast('发送成功');
+										setTimeout(function(){
+											mui.back();
+										},400);
+									}else if(json.result == 'fail'){
+										mui.toast('发送失败，请重试');
+									}
+								},
+								error:function(xhr,type,errorThrown){
+									app.showToast(2);
+									console.log(errorThrown)
+								} 
+							})
+						});
+					}
+				};
+				page.init();
+			});
+		</script>
+
+	</body>
+</html>

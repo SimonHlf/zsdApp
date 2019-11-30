@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/buffetStudyLog.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/filterNav.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/mobileSelect.css"/>
+		<title>自助餐学习记录</title>
+		<style>
+			.subject,#compSta{display: none;}
+			#subjectList{color: #333;}
+		</style>
+	</head>
+	<body class="paddingTop">
+		<div class="comHeader hasBor">
+			<a id="backBtn" class="posL" href="javascript:mui.back()"><i class="iconfont icon-fanhui"></i></a>
+			<span class="headerTit" style="text-align: left;">自助餐学习记录</span>
+			<input type="hidden" id="currStuId" value="0" />
+			<input type="hidden" id="currSubId" value="0" />
+			<p id="student" class="subject">
+				<span id="stuNameTxt">全部学生</span>
+				<i class="iconfont icon-qiehuan" style="color: #999;"></i> 
+			</p>
+			<p id="subjectList" class="subject">
+				<span id="subTxt" class="comSelTxtCon"></span>
+				<i class="iconfont icon-xiala" style="color: #999;"></i> 
+			</p>
+		</div>
+		<!-- 筛选条件 -->
+		<div class="filter fixedFilter"> 
+			<!-- 完成状态 -->
+			<input type="hidden" id="pubStateInp" value="2" />
+			
+			<p id="compSta" class="compSta fl">
+				<span id="pubStateTxt">全部</span>
+				<i class="iconfont icon-xiala"></i>
+			</p>
+			<div id="timeInp" class="timeInp">
+				<div class="innerTimeInp">
+					<input id="stDate" type="text" readonly placeholder="起始日期"/>
+					<i class="iconfont icon-rili"></i>
+				</div>
+				<span class="tilTxt">至</span>
+				<div class="innerTimeInp">
+					<input id="edDate" type="text"  readonly placeholder="结束日期"/>
+					<i class="iconfont icon-rili"></i>
+				</div>
+			</div>
+			<div id="searchBtn" class="search">
+				<i class="iconfont icon-sousuo"></i>
+			</div>
+		</div>
+		<!-- 统计 -->
+		<div class="totalTongjiTxt">
+			<p id="tongjiTxt"></p>
+		</div>
+		<!-- list -->
+		<div class="studyLogList">
+			<!-- list -->
+			<div id="innerList" class="innerList"></div>
+			<div class="botIntroTxt">
+				<p>
+					<span class="stateBg noCompStaBg"></span>
+					<span id="noteTxt_1">未完成/未发布自助餐</span>
+				</p>
+				<p>
+					<span class="stateBg hasCompStaBg"></span>
+					<span id="noteTxt_2">已完成/已发布自助餐</span>
+				</p>
+			</div>
+		</div>
+		
+		<a href="javascript:void(0)" id="stuTongjiBtn" class="stuTongjiBtn"></a>
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/comMethod.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/mobileSelect.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var userInfo = JSON.parse(localStorage.getItem('userInfo'));
+			mui.plusReady(function () {
+			    var userId = plus.webview.currentWebview().userId;
+				var page = {
+					init : function(){
+						this.initPubStateDOM();
+						this.bindEvent();
+						this.loadLearnRecord();
+						if(userInfo.roleId == stuPar_role_id){//家长 显示选择学科
+							comMet.loadSubject();
+							app.getId('timeInp').className = 'timeInp';
+							app.getId('subjectList').style.display = 'block';
+							app.getId('noteTxt_1').innerHTML = '未完成自助餐';
+							app.getId('noteTxt_2').innerHTML = '已完成自助餐';
+						}else if(userInfo.roleId == ntTea_role_id){
+							app.getId('timeInp').className = 'timeInp typeOneWid';
+							app.getId('student').style.display = 'block';
+							app.getId('compSta').style.display = 'block';
+						}
+					},
+					bindEvent : function(){
+						var _this = this;
+						//切换学生
+						app.getId('student').addEventListener('tap',function(){
+							app.openwin('stuList.html',{userId:userId});
+						});
+						//查询
+						app.getId('searchBtn').ontouchend = function(){
+							var stDateVal = app.getId('stDate').value,
+								edDataVal = app.getId('edDate').value;
+							if(stDateVal == '' && edDataVal != ''){
+								plus.nativeUI.toast('请选择开始日期');
+								return;
+							}
+							if(stDateVal != '' && edDataVal == ''){
+								plus.nativeUI.toast('请选择结束日期');
+								return;
+							}
+							if(stDateVal > edDataVal){
+								plus.nativeUI.toast('开始日期不能大于结束日期');
+								return;
+							}
+							_this.loadLearnRecord();
+						},
+						//起始日期
+						app.getId('stDate').ontouchend = function(){
+							comMet.showPickDate('stDate');
+						}
+						//结束日期
+						app.getId('edDate').ontouchend = function(){
+							comMet.showPickDate('edDate');
+						}
+						//单个学生总体学习记录统计
+						app.getId('stuTongjiBtn').addEventListener('tap',function(){
+							var stuId = app.getId('currStuId').value,
+								stuName = app.getId('stuNameTxt').innerHTML;
+							app.openwin('stuTotalStudyLogTongji.html',{stuName:stuName,stuId:stuId});
+						});
+						//单个学生对应每道题的统计记录
+						mui('#innerList').on('tap','.tongjiBtn',function(){
+							var bsId = this.getAttribute('bsId'),
+								loreName = this.getAttribute('loreName'),
+								stuName = this.getAttribute('stuName');
+							app.openwin('studyLogTongji.html',{bsId:bsId,loreName:loreName,stuName:stuName});
+						});
+					},
+					initPubStateDOM : function(){
+						var _this = this;
+						new MobileSelect({
+							trigger: '#pubStateTxt',
+							title: '',
+							wheels: [ 
+								{data: pubStatus}
+							],
+							position:[0], //初始化定位 打开时默认选中的哪个 如果不填默认为0
+							transitionEnd:function(indexArr, data){},
+							callback:function(indexArr, data){
+								app.getId('pubStateInp').value = data[0].type;
+								_this.loadLearnRecord();
+							}
+						});
+					},
+					//加载学习记录
+					loadLearnRecord : function(){
+						var stuId = app.getId('currStuId').value,
+							subIdInp = app.getId('currSubId').value,
+							sendFlag = app.getId('pubStateInp').value,
+							sDate = app.getId('stDate').value,
+							eDate = app.getId('edDate').value,_this = this;
+						if(userInfo.roleId == ntTea_role_id){
+							var field = {userId:userId,roleId:userInfo.roleId,stuId:stuId,sendFlag:sendFlag,sDate:sDate,eDate:eDate};
+						}else if(userInfo.roleId == stuPar_role_id){//家长
+							var field = {userId:userId,roleId:userInfo.roleId,sDate:sDate,eDate:eDate,subId:subIdInp};
+						}
+						//console.log( JSON.stringify( field ) )
+						app.showToast(1);
+						mui.ajax(http_ + '/studyRecord.do?action=getBuffetSendList',{
+							data:field,
+							dataType:'json',
+							type:'post',
+							timeout:10000,
+							success:function(json){
+								//console.log(JSON.stringify( json ))
+								app.showToast(2);
+								app.getId('stDate').value = json.sDate;
+								app.getId('edDate').value = json.eDate;
+								if(userInfo.roleId == ntTea_role_id){
+									var stuName = json.stuUserName == '' ? '您学生' : json.stuUserName;
+									app.getId('tongjiTxt').innerHTML = '最近' + json.diffDay + '天，您共发布'+ json.BuffetSendNum +'个自助餐，'+ stuName +'共完成' + json.comBuffetNum + '个，未完成' + json.unComBuffetNum + '个，完成率' + json.comRate;
+								}else if(userInfo.roleId == stuPar_role_id){
+									app.getId('subTxt').innerHTML = json.subName;
+									app.getId('tongjiTxt').innerHTML = '最近' + json.diffDay + '天，'+ json.subName +'老师共发布'+ json.BuffetSendNum +'个自助餐，您孩子共完成' + json.comBuffetNum + '个，未完成' + json.unComBuffetNum + '个，完成率' + json.comRate;
+								}
+								_this.renderStudyLogHTML(json.studyList,json.subId);
+							},
+							error:function(xhr,type,errorThrown){
+								app.showToast(2);
+							} 
+						});
+					},
+					renderStudyLogHTML : function(list,subId){
+						if(list.length > 0){
+							var str = '<ul>';
+							for(var i=0;i<list.length;i++){
+								if(list[i].bs_sendTime == ''){//未发布
+									str += '<li class="noPub noCompCol">';
+									str += '<span class="currStaSpan"></span>';
+									str += '<div onclick="goToPubBuffet('+ list[i].stuId +','+ subId +','+ list[i].studyLogId +','+ list[i].loreId +','+ list[i].mainLoreId +')"  class="loreNameBox noPubBox">';
+									str += '<p class="loreName ellip">'+ list[i].loreName +'</p>';
+									str += '<p class="currPubState noPubTxt">未发布</p>';
+									str += '</div>';
+								}else{//已发布
+									str += '<li class="hasPub compCol">';
+									str += '<span class="currStaSpan"></span>';
+									str += '<div onclick="viewStudyDet('+ list[i].bs_id +',\''+ list[i].loreName +'\',\''+ list[i].stuName +'\')" class="loreNameBox">';
+									str += '<p class="loreName ellip">'+ list[i].loreName +'</p>';
+									str += '<p class="currPubState hasPubTxt">';
+									if(list[i].bs_result == 1){//未完成
+										str += '<span class="noCompleteTxt">未完成</span>';
+									}else if(list[i].bs_result == 2){//已完成
+										str += '<span class="hasCompleteTxt">已完成</span>';
+									}
+									str += '<span class="pubTime">2019-07-01</span></p></div>';
+									str += '<p bsId='+ list[i].bs_id +' stuName='+ list[i].stuName +' loreName='+ list[i].loreName +' class="tongjiBtn">统计</p></li>';
+								}
+							}
+							str += '</ul>';
+							app.getId('innerList').innerHTML = str;
+						}else{
+							app.getId('innerList').innerHTML = '<div class="noData"><img src="../../images/noData.png" /><p>暂无记录</p></div>';
+						}
+					}
+				};
+				page.init();
+				//自助餐发送成功更新list部分的状态
+				document.addEventListener('updateStudyLogList',function(){
+					var stuId = app.getId('currStuId').value,
+						sendFlag = app.getId('pubStateInp').value,
+						sDate = app.getId('stDate').value,
+						eDate = app.getId('edDate').value;
+					page.loadLearnRecord();
+				});
+				//切换学生检测
+				document.addEventListener('switchStudent',function(e){
+					var stuName = e.detail.stuField.split(',')[0],
+						stuId = e.detail.stuField.split(',')[1];
+					app.getId('currStuId').value = stuId;
+					app.getId('stuNameTxt').innerHTML = stuName;
+					if(stuId != 0){
+						app.getId('stuTongjiBtn').style.display = 'block';
+					}else{
+						app.getId('stuTongjiBtn').style.display = 'none';
+					}
+					page.loadLearnRecord();
+				});
+			});
+			//发送自助餐
+			function goToPubBuffet(stuId,subId,studyLogId,loreId,quoteLoreId){
+				var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+				var field = {studyLogId:studyLogId,userId:userInfo.userId};
+				app.openwin('buffetSend.html',{currField:field});
+			}
+			//获取学生做题详情
+			function viewStudyDet(bsId,loreName,stuName){
+				app.openwin('studyLogDet.html',{bsId:bsId,loreName:loreName,stuName:stuName});
+			}
+		</script>
+		
+	</body>
+</html>

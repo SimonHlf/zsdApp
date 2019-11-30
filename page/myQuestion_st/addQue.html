@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/myAnsQueList.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/mobileSelect.css"/>
+		<title>添加提问</title> 
+	</head> 
+	<body class="paddingTop"> 
+		<div class="comHeader otherBg">
+			<a id="backBtn" class="posL" href="javascript:void(0)"><i class="iconfont icon-fanhui"></i></a>
+			<span class="headerTit">添加提问</span>
+		</div>
+		<div class="addQueWrap">
+			<div class="formPart proName">
+				<input id="titInp" type="text" placeholder="请输入提问标题(30字以内)" maxlength="30" />
+			</div>
+			<div class="formPart">
+				<input type="hidden" id="teaIdInp" value="0"/>
+				<input type="hidden" id="subIdInp" />
+				<p class="hasPosRea">
+					<span id="ntName" class="noSel comSelTxtCon" style="padding-left: 0;">请选择导师</span>
+					<i id="ntXialaIcon" class="iconfont icon-xiala"></i>
+				</p>
+			</div>
+			<div class="formPartCon">
+				<textarea id="formCon" placeholder="请输入提问内容(260字以内)" maxlength="260"></textarea>
+			</div>
+		</div>
+		<div class="ansForm">
+			<div class="fujian">
+				<strong>图片</strong>
+				<ul class="clearfix">
+					<li id="addBtn" class="addBtn">
+						<i class="iconfont icon-tianjia"></i>
+					</li>
+				</ul>
+				<p class="noteTxt">注：最多可添加5张图片</p>
+			</div>
+			<span id="submitBtn" class="submitBtn">提交</span>
+		</div>
+		
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/mobileSelect.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var imgnum = 0,isAddFlag = false;
+			var addimgs=document.getElementById("addBtn");
+			var filesImg = {}; //保存图片的数组
+			var wpage;
+			var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+			mui.init({
+				beforeback : function(){
+					var opener = plus.webview.currentWebview().opener();
+					mui.fire(opener,'upDateMyQueList',{isAddFlag:isAddFlag});
+					return true;
+				} 
+			});
+			mui.plusReady(function(){
+				wpage = plus.webview.currentWebview();
+				wpage.setStyle({softinputMode: "adjustResize"});   
+				isAddFlag = plus.webview.currentWebview().isAddFlag;
+				var page = {
+					init : function(){
+						this.loadNtList();
+						this.bindEvent();
+					},
+					loadNtList : function(){
+						app.showToast(1);
+						mui.ajax(http_ + '/questionInfo.do?action=getSubNt',{
+							data:{userId:userInfo.userId},
+							dataType:'json',
+							type:'post',
+							timeout:10000,
+							success:function(json){
+								app.showToast(2);
+								if(json.sntList.length > 0){
+									new MobileSelect({
+										trigger: '#ntName',
+										title: '请选择导师',
+										wheels: [ 
+											{data: json.sntList}
+										],
+										position:[0], 
+										transitionEnd:function(indexArr, data){},
+										keyMap:{"id":"sntId","value":"sntName"},
+										callback:function(indexArr, data){
+											app.getId('subIdInp').value = data[0].sntId.split('/')[0]
+											app.getId('teaIdInp').value = data[0].sntId.split('/')[1];
+											app.getId('ntName').className = 'hasSel comSelTxtCon';
+										}
+									});
+								}else{
+									app.getId('ntName').innerHTML = '<p style="font-size:.4rem;color:#999;">暂未绑定导师</p>';
+									app.getId('ntXialaIcon').style.display = 'none';
+								}
+							},
+							error:function(xhr,type,errorThrown){
+								app.showToast(2);
+							} 
+						});
+					},
+					bindEvent : function(){
+						var _this = this;
+						app.getId('backBtn').ontouchend = function(){
+							mui.back();
+						};
+						//保存
+						app.getId('submitBtn').addEventListener('tap',function(){
+							var cear_span = document.querySelectorAll(".cear_span");
+							var formCon = app.trim(app.getId('formCon').value);
+							var titInp = app.trim(app.getId('titInp').value);
+							var teaIdInp = app.getId('teaIdInp').value;
+							var subIdInp = app.getId('subIdInp').value;
+							var url = http_ +'/upload.do?action=upImg&opt=queImg&userId=' + userInfo.userId;
+							if(titInp == ''){
+								mui.toast("请填写提问标题");
+								return;
+							}
+							if(app.isEmojiCharacter( titInp )){
+								mui.toast("标题中不能带有特殊表情");
+								return;
+							}
+							if(teaIdInp == 0){
+								mui.toast("请选择导师");
+								return;
+							}
+							if(formCon == ''){
+								mui.toast("请填写提问内容"); 
+								return;
+							}
+							if(app.isEmojiCharacter( formCon )){
+								mui.toast("内容中不能带有特殊表情");
+								return;
+							}
+							//遍历已经选择的图片
+							for(var i=0;i<cear_span.length;i++){
+								filesImg["img0"+(i+1)] = cear_span[i].getAttribute("data-img");
+							}
+							plus.nativeUI.showWaiting("发布中...",{size:"12px",background:"rgba(0,0,0,0.6)",back:"none"}); 	
+							var uploader=plus.uploader.createUpload(url,{ 
+								method:'POST'  
+							}, function(upload,status){
+								wpage.setStyle({mask:"none"});
+								if(status==200){//发布成功
+									//发布我的提问  
+									var imgSrc = JSON.parse(upload.responseText).imgSrc;
+					 				var field = {userId:userInfo.userId,subId:subIdInp,ntId:teaIdInp,qTitle:escape( titInp ),qCon:escape( formCon ),queImg:imgSrc};
+									console.log(JSON.stringify( field ))
+									mui.ajax(http_ + '/questionInfo.do?action=addQuestion',{
+										data:field,
+										dataType:'json',
+										type:'post',
+										timeout:10000,
+										success:function(json){
+											plus.nativeUI.closeWaiting();
+											if(json.result == 'success'){
+												isAddFlag = true; 
+												mui.toast('发布成功');
+												//发布成功后,删除该目前下的所有图片,
+												plus.io.resolveLocalFileSystemURL("_doc/fileimgs/", function(entry){   
+													entry.removeRecursively(function(entry){
+														console.log("删除目录成功");
+													}, function ( e ){
+														console.log("删除目录失败");
+													});
+												},function(e){
+													console.log('目录对象不存在');     
+												});	
+												setTimeout(function(){
+													mui.back();
+												},500);
+											}else if(json.result == 'fail'){
+												isAddFlag = false;
+												mui.toast('发布失败');
+											}
+										},
+										error:function(xhr,type,errorThrown){
+											plus.nativeUI.closeWaiting();
+											mui.toast('发布失败')
+										} 
+									});
+								}else{
+									plus.nativeUI.closeWaiting();
+									mui.toast('提交失败，请稍后再试下');
+								}	
+							});
+							//添加上传的图片
+							mui.each(filesImg,function(index,tem){
+								uploader.addFile(tem,{key:index});
+							}); 
+							uploader.start();  //开始上传数据  
+						});
+						app.getId('addBtn').addEventListener('tap',function(){
+							if(mui.os.plus){
+								var a=[{
+									title:'拍照'
+								},{
+									title:'从手机相册选择'
+								}];
+								plus.nativeUI.actionSheet({
+									cancel:'取消',
+									buttons:a
+								},function(b){
+									switch(b.index){
+										case 0:
+											break;
+										case 1:
+											//拍照
+											_this.getImages();
+										break;
+										case 2:
+											//打开相册
+											_this.galleryImages();
+										break;
+										default:
+											break;
+									}
+								},false); 
+							}
+						});
+						//删除已经选择的图片
+						mui("body").on("tap",".delBtn",function(){//删除已选择的图片
+							var par=this.parentNode; 
+								//par=par.parentNode;
+								par.remove();
+							var imgurl = this.getAttribute("data-name");    
+							var cear_span = document.querySelectorAll(".cear_span"); 
+							var len=cear_span.length;
+							if(len<9){
+							   addimgs.style.display="inline-block";
+							}
+							plus.io.resolveLocalFileSystemURL("_doc/fileimgs/"+imgurl, function(entry){   
+								entry.remove(function(entry){
+									//console.log("删除成功");
+								}, function ( e ){
+									//console.log("删除失败");
+								});
+							},function(e){
+								console.log('目标对象不存在'); 
+							});	
+						});
+					},
+					//拍照 从相机
+					getImages : function(){
+						var fnums=96; //图片压缩比率
+						var cmr = plus.camera.getCamera(),path = '',name='';
+						var cear_span=document.querySelectorAll(".cear_span"); 
+						imgnum=0;
+						for(var i=0;i<cear_span.length;i++){
+							imgnum++;	
+						} 
+						cmr.captureImage(function(p) {
+							plus.io.resolveLocalFileSystemURL(p, function(entry) {
+								if(imgnum + 1 >= 5){
+									addimgs.style.display="none";
+								}
+								entry.file(function(file){
+									if(file.size/1024>300){//当图片超过300kb 就压缩高点
+										fnums=65; //图片压缩比例
+									}
+								});
+								path = entry.toLocalURL();
+								name = entry.toLocalURL().substr(entry.toLocalURL().lastIndexOf('/') + 1);
+								//压缩图片
+								plus.zip.compressImage({
+									src:path,
+									dst: '_doc/fileimgs/' + name,
+									overwrite:true,
+									format:"jpg,png",
+									quality:fnums
+								}, function(zip){
+									var li=document.createElement("li");
+									var span = document.createElement("span");
+									var img = document.createElement('img');
+									span.className="delBtn cear_span ";
+									img.src = zip.target;
+									span.setAttribute("data-img",zip.target);
+									var news_name=zip.target.substr(zip.target.lastIndexOf('/') + 1); 
+									span.setAttribute('data-name',news_name);
+									span.innerHTML='<i class="iconfont icon-wrong"></i>';
+									li.appendChild(span);
+									li.appendChild( img )
+									addimgs.insertAdjacentHTML("beforeBegin",li.outerHTML);
+								}, function(zipe){
+									mui.toast('该图片有误！')
+								});
+								
+							});
+							
+						});
+					},
+					//打开相册
+					galleryImages : function(){
+						var _this = this;
+						imgnum=0;
+						var cear_span=document.querySelectorAll(".cear_span"); 
+						for(var i=0;i<cear_span.length;i++){
+							imgnum++;	
+						} 
+						//打开图册,多选图册
+						plus.gallery.pick(function(e){
+							if((imgnum+e.files.length) >= 5){ //限制只能选择9张,超多9张就隐选择图片的按钮
+								addimgs.style.display="none";
+							}
+							for(var i in e.files){
+								var fnums=96; //图片压缩比率
+								var name =e.files[i].substr(e.files[i].lastIndexOf('/') + 1);  
+								plus.io.resolveLocalFileSystemURL(e.files[i], function( entry ){
+									entry.file(function(file){
+										if(file.size/1024>300){//当图片超过300kb 就压缩高点
+											fnums=65; //图片压缩比例
+										}
+									});
+								});
+								//把包含有中文的图片名，重新命名
+								if(escape(name).indexOf("%u") !=-1){
+									//包括中文 
+									name=name.substr(name.lastIndexOf('.'));
+									var times=new Date();
+									name=times.getTime()+name;
+								} 
+								//压缩图片
+								plus.zip.compressImage({
+									src:e.files[i],
+									dst: '_doc/fileimgs/' + name,
+									overwrite:true,
+									format:"jpg",
+									quality:fnums
+								}, function(zip){
+									var li=document.createElement("li");
+									var span = document.createElement("span");
+									var img = document.createElement('img');
+									span.className="delBtn cear_span ";
+									img.src = zip.target;
+									span.setAttribute("data-img",zip.target);
+									var news_name=zip.target.substr(zip.target.lastIndexOf('/') + 1); 
+									span.setAttribute('data-name',news_name);
+									span.innerHTML='<i class="iconfont icon-wrong"></i>';
+									li.appendChild(span);
+									li.appendChild( img )
+									addimgs.insertAdjacentHTML("beforeBegin",li.outerHTML);
+								}, function(zipe){
+									mui.toast('该图片有误！')
+								});
+							}
+						},function(e){
+							//取消选择图片;	
+						},
+						{filter:'image',multiple:true,maximum:(5-imgnum),system:false,onmaxed:function(){
+							plus.nativeUI.alert('最多发布5张图片');	
+						}});
+					}
+				};
+				page.init();
+			});
+		</script>
+	</body>
+</html>

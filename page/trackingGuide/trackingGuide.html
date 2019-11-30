@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/myLearningRecord.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/filterNav.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/mobileSelect.css"/>
+		<title>跟踪指导</title>
+	</head>
+	<body class="paddingTop">
+		<div class="comHeader otherBg">
+			<a id="backBtn" class="posL"><i class="iconfont icon-fanhui"></i></a>
+			<span class="headerTit">跟踪指导</span>
+			<input type="hidden" id="stuIdInp" value="0" />
+			<p id="stuBox" class="subject">
+				<span id="stuNameTxt"></span>
+				<i class="iconfont icon-qiehuan"></i>
+			</p>
+		</div>
+		<!-- 筛选条件 -->
+		<div class="filter fixedFilter"> 
+			<!-- 指导状态 -->
+			<input type="hidden" id="compStaInp" value="0" />
+			<p id="compSta" class="compSta fl">
+				<span id="compStaSpan">全部</span>
+				<i class="iconfont icon-xiala"></i>
+			</p>
+			<div class="timeInp typeOneWid">
+				<div class="innerTimeInp">
+					<input id="stDate" type="text" readonly placeholder="起始日期"/>
+					<i class="iconfont icon-rili"></i>
+				</div>
+				<span class="tilTxt">至</span>
+				<div class="innerTimeInp">
+					<input id="edDate" type="text"  readonly placeholder="结束日期"/>
+					<i class="iconfont icon-rili"></i>
+				</div>
+			</div>
+			<div id="searchBtn" class="search">
+				<i class="iconfont icon-sousuo"></i>
+			</div>
+		</div>
+		<!-- 学习记录主要内容 -->
+		<div class="mainRecord">
+			<div class="innerMainCon">
+				<!-- 最近时间 -->
+				<div class="currTime">
+					<p class="currDays ellip"></p>
+					<div class="compStaBox">
+						<p><span class="colSpan noCompCol"></span><span>未完成</span></p>
+						<p><span class="colSpan hasComCol"></span><span>已完成</span></p>
+					</div>
+				</div>
+				<div id="listRecord" class="listRecord"></div>
+			</div>
+		</div>
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/getBindStuList.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/mobileSelect.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var userInfo = JSON.parse(localStorage.getItem('userInfo')),jumpPos = '',stuId = 0;
+			var guideSta = [
+				{"type":0,"value":"全部"},
+				{"type":1,"value":"未指导"},
+				{"type":2,"value":"已指导"}
+			]
+			mui.plusReady(function(){
+				jumpPos = plus.webview.currentWebview().jumpPos;
+				if(jumpPos == 'byStuList'){
+					stuId = plus.webview.currentWebview().stuId;
+					stuName = plus.webview.currentWebview().stuName;
+					$('#stuIdInp').val(stuId);
+					$('#stuNameTxt').html(stuName);
+				}
+				var page = {
+					init : function(){
+						app.backFun();
+						this.bindEvent();
+						loadStuList('trackGuide');
+					}, 
+					bindEvent : function(){ 
+						var _this = this; 
+						//完成状态select 
+						new MobileSelect({
+							trigger: '#compStaSpan',
+							title: '',
+							wheels: [ 
+								{data: guideSta}
+							],
+							position:[0], //初始化定位 打开时默认选中的哪个 如果不填默认为0
+							transitionEnd:function(indexArr, data){},
+							callback:function(indexArr, data){
+								app.getId('compStaInp').value = data[0].type;
+								loadLearnRecordList();
+							}
+						});
+						//查询
+						app.getId('searchBtn').ontouchend = function(){
+							var subId = $('#currSubId').val(),
+								stDateVal = $('#stDate').val(),
+								edDataVal = $('#edDate').val();
+							if(stDateVal == '' && edDataVal != ''){
+								plus.nativeUI.toast('请选择开始日期');
+								return;
+							}
+							if(stDateVal != '' && edDataVal == ''){
+								plus.nativeUI.toast('请选择结束日期');
+								return;
+							}
+							if(stDateVal > edDataVal){
+								plus.nativeUI.toast('开始日期不能大于结束日期');
+								return;
+							}
+							loadLearnRecordList();
+						},
+						app.getId('stuBox').ontouchend = function(){
+							app.openwin('stuList.html',{ntStuField:ntStuField});
+						}
+						//起始日期
+						app.getId('stDate').ontouchend = function(){
+							_this.showPickDate('stDate');
+						}
+						//结束日期
+						app.getId('edDate').ontouchend = function(){
+							_this.showPickDate('edDate');
+						}
+						mui('#listRecord').on('tap','li',function(){
+							var studyLogId = this.getAttribute('studyLogId'),
+								guideSta = this.getAttribute('guideSta');
+							$(this).addClass('active').siblings().removeClass('active');
+							var studyResView = plus.webview.getWebviewById('learnRecordDet.html');
+							app.openwin('../mine/learnRecordDet.html',{studyLogId:studyLogId,jumpPos:'byTrackGuide',stuName:stuName,guideStaNum:guideSta});
+						});
+					},
+					showPickDate : function(obj){
+						var dDate = new Date();
+						if(app.getId(obj).value != ''){
+							var curr = app.getId(obj).value.split('-');
+							dDate.setFullYear(curr[0],(curr[1]-1),curr[2]);
+						}
+						plus.nativeUI.pickDate(function(e) { 
+							var d = e.date,currDate=''; 
+							currDate = d.getFullYear() + "-" + app.appendZero( (d.getMonth() + 1) ) + "-" + app.appendZero( d.getDate() );
+							app.getId(obj).value = currDate;
+						}, function(e) {
+						}, {  
+							title: "请选择日期",
+							date : dDate
+						});
+					}
+				};
+				page.init();
+				//切换学生加载对应学生的答疑列表
+				document.addEventListener('switchStudent',function(e){
+					var stuName = e.detail.stuField.split(',')[0],
+						stuId = e.detail.stuField.split(',')[1];
+					app.getId('stuIdInp').value = stuId;
+					loadLearnRecordList();
+				});
+			});
+			function loadLearnRecordList(){
+				var compStaInp = $('#compStaInp').val(),
+					stuId = $('#stuIdInp').val(),
+					stDateVal = $('#stDate').val(),
+					edDataVal = $('#edDate').val(),_this = this;
+				var field = {userId:userInfo.userId,stuId:stuId,guideSta:compStaInp,sDate:stDateVal,eDate:edDataVal};
+				//console.log(JSON.stringify( field ))
+				$.ajax({
+					url : http_ + '/studyRecord.do?action=getGuideList',
+					data:field, 
+					dataType:'json',
+					type:'post',
+					timeout:10000,
+					beforeSend : function(){ 
+						app.showToast(1);
+					},
+					success:function(json){
+						app.showToast(2);
+						//console.log( JSON.stringify( json ) ) 
+						$('#stDate').val(json.sDate);
+						$('#edDate').val(json.eDate);
+						$('.currDays').html('最近'+ json.diffDay +'天'+ json.stuName +'共学习知识点'+ json.allStudyLog +'个:');
+						$('#stuNameTxt').html(json.stuName);
+						if(json.slList.length > 0){
+							renderLearnRecordlist(json.slList);
+						}else{
+							$('#listRecord').html('<div class="noData"><img src="../../images/noData.png"/><p>暂无学习记录</p></div>');
+						}
+					},
+					error:function(xhr,type,errorThrown){
+						app.showToast(2);
+						plus.nativeUI.toast('服务器异常');
+					}
+				}); 
+			}
+			function renderLearnRecordlist(list){
+				var str = '<ul>';
+				for(var i=0;i<list.length;i++){
+					if(list[i].isfinish == 1){//未完成
+						str += '<li class="noCompCol" guideSta="'+ list[i].guideSta +'" studyLogId="'+ list[i].studyLogId +'">';
+					}else if(list[i].isfinish == 2){//完成
+						str += '<li class="compCol" guideSta="'+ list[i].guideSta +'" studyLogId="'+ list[i].studyLogId +'">';
+					}
+					str += '<span class="currStaSpan"></span>';
+					str += '<p class="ellip">'+ list[i].loreName +'</p>';
+					str += '</li>';
+				}
+				str += '</ul>';
+				$('#listRecord').html(str);
+			}
+		</script>
+	</body>
+</html>

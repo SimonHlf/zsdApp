@@ -1,0 +1,209 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../fonts/iconfont.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/mine.css"/>
+		<title>我的</title>
+	</head>
+	<body>
+		<div class="header">
+			<div class="headTit">
+				我的
+				<a id="settingBtn"><i class="iconfont icon-shezhi"></i></a>
+			</div>
+			<div id="userInfo" class="userInfo">
+				<img id="headPic_noLog" src="../../images/head.png"/>
+				<img id="headPic" src=""/>
+				<!-- 登录前 -->
+				<div class="infoBox noLogin"> 
+					<h2>未登录</h2>
+					<p class="noLoginTxt">登录体验更多功能</p>
+				</div>
+				<!-- 登录后 -->
+				<div class="infoBox hasLogin">
+					<strong id="account"></strong>
+					<p id="jzAcc" class="jzAcc"></p>
+				</div>
+			</div>
+		</div>
+		<!-- 我的学习 -->
+		<div class="myLearning hasMargTop">
+			<!-- <p class="accTit"><span></span><strong>我的学习</strong></p> -->
+			<div class="list">
+				<ul>
+					<li id="zhanghu">
+						<span class="iconBox"><i class="iconfont icon-zhanghu"></i></span>
+						<span class="perCenItemTxt">我的账户</span>
+						<i class="iconfont icon-more"></i>
+					</li>
+					<li id="dayi">
+						<span class="iconBox"><i class="iconfont icon-dayi"></i></span>
+						<span class="perCenItemTxt">我的答疑</span>
+						<i class="iconfont icon-more"></i>
+					</li>
+					<li id="upIdCard">
+						<span class="iconBox"><i class="iconfont icon-renzheng"></i></span>
+						<span class="perCenItemTxt">认证证件<span id="verifyTxt"></span></span>
+						<i class="iconfont icon-more"></i>
+					</li> 
+					<li id="tongjiLi">
+						<span class="iconBox"><i class="iconfont icon-baogao"></i></span>
+						<span class="perCenItemTxt">自助餐统计报告</span>
+						<i class="iconfont icon-more"></i>
+					</li>
+					<li id="myStudio">
+						<span class="iconBox"><i class="iconfont icon-gongzuoshi"></i></span>
+						<span class="perCenItemTxt">我的工作室</span>
+						<i class="iconfont icon-more"></i>
+					</li>
+					<li id="joinStudio">
+						<span class="iconBox"><i class="iconfont icon-gongzuoshi"></i></span>
+						<span class="perCenItemTxt">我加入的工作室</span>
+						<i class="iconfont icon-more"></i> 
+					</li> 
+					<li id="inviteLi" class="invite" data-clipboard-action="copy">
+						<span class="iconBox"><i class="iconfont icon-yaoqing"></i></span>
+						<span class="perCenItemTxt">我的邀请码</span>
+						<p id="inviteCode" class="inviteCode"></p>
+						<i class="iconfont icon-fuzhi"></i>
+					</li>
+				</ul>
+			</div>
+		</div>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/h.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var userId = 0,loginStatus=0;
+			mui.plusReady(function () { 
+				set_userinfo();
+				var clipboard = new ClipboardJS('.invite');
+				clipboard.on('success', function(e) {
+					mui.toast("邀请码已复制到剪贴板中！");
+				});
+				app.getId('userInfo').addEventListener('tap',function(){
+					var loginView = plus.webview.getWebviewById('login');
+					var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+					var currStatus = userInfo == null ? false : true;
+					if(currStatus){
+						app.openwin('setting.html',{userId:userInfo.userId});
+					}else{
+						mui.fire(loginView,"noLoginCheck",{opt:'noLogin_user'});
+						app.doLogin();
+					}
+				});   
+				//跳转至设置页面 
+				app.getId('settingBtn').addEventListener('tap',function(){
+					var loginView = plus.webview.getWebviewById('login');
+					var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+					var currStatus = userInfo == null ? false : true;
+					if(currStatus){
+						app.openwin('setting.html',{userId:userInfo.userId});
+					}else{
+						mui.fire(loginView,"noLoginCheck",{opt:'noLogin_user'});//从app内除了人为退出为login页面绑定的opt
+						app.doLogin();
+					}
+				}); 
+				//我的账户
+				app.getId('zhanghu').addEventListener('tap',function(){
+					var loginView = plus.webview.getWebviewById('login');
+					var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+					var currStatus = userInfo == null ? false : true;
+					if(currStatus){
+						app.openwin('../myAccount/mainAcc.html',{});
+					}else{
+						mui.fire(loginView,"noLoginCheck",{opt:'noLogin_user'});//从app内除了人为退出为login页面绑定的opt
+						app.doLogin();
+					}
+				});
+				//自助餐统计报告
+				app.getId('tongjiLi').addEventListener('tap',function(){
+					var loginView = plus.webview.getWebviewById('login');
+					var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+					var currStatus = userInfo == null ? false : true;
+					if(currStatus){
+						app.openwin('./myTongjiBaogao.html',{jumpRole:'nt'});
+					}else{
+						mui.fire(loginView,"noLoginCheck",{opt:'noLogin_user'});//从app内除了人为退出为login页面绑定的opt
+						app.doLogin();
+					}
+				});
+				app.getId('dayi').addEventListener('tap',function(){
+					var loginView = plus.webview.getWebviewById('login');
+					var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+					var currStatus = userInfo == null ? false : true;
+					if(currStatus){
+						app.openwin('../myAnswer_nt/myAnswerList.html',{userId:userInfo.userId});
+					}else{
+						mui.fire(loginView,"noLoginCheck",{opt:'noLogin_user'});//从app内除了人为退出为login页面绑定的opt
+						app.doLogin();
+					}
+				});
+				//我的工作室
+				app.getId('myStudio').addEventListener('tap',function(){
+					var loginView = plus.webview.getWebviewById('login');
+					var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+					var currStatus = userInfo == null ? false : true;
+					if(currStatus){
+						app.openwin('../myStudio/myStudio.html');
+					}else{
+						mui.fire(loginView,"noLoginCheck",{opt:'noLogin_user'});//从app内除了人为退出为login页面绑定的opt
+						app.doLogin();
+					}
+				});
+				//我加入的工作室
+				app.getId('joinStudio').addEventListener('tap',function(){
+					var loginView = plus.webview.getWebviewById('login');
+					var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+					var currStatus = userInfo == null ? false : true;
+					if(currStatus){
+						app.openwin('../myStudio/myJoinStudio.html');
+					}else{
+						mui.fire(loginView,"noLoginCheck",{opt:'noLogin_user'});//从app内除了人为退出为login页面绑定的opt
+						app.doLogin();
+					}
+				});
+				//证件上传
+				app.getId('upIdCard').addEventListener('tap',function(){
+					var loginView = plus.webview.getWebviewById('login');
+					var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+					var currStatus = userInfo == null ? false : true;
+					if(currStatus){
+						app.openwin('../ntVerify/ntVerifyList.html');
+					}else{
+						mui.fire(loginView,"noLoginCheck",{opt:'noLogin_user'});//从app内除了人为退出为login页面绑定的opt
+						app.doLogin();
+					}
+				});
+				function set_userinfo(){
+					if(localStorage.getItem("userInfo") != null){
+						document.querySelector('.noLogin').style.display = 'none';
+						app.getId('headPic_noLog').style.display = 'none';
+						document.querySelector('.hasLogin').style.display = 'block';
+						app.getId('headPic').style.display = 'block';
+						var userInfo=JSON.parse(localStorage.getItem("userInfo"));
+						app.getId('account').innerText = userInfo.userName; 
+						app.getId('jzAcc').innerText = '担任科目：' + userInfo.subName;
+						app.getId('headPic').src = userInfo.portrait;
+						app.getId('inviteLi').setAttribute('data-clipboard-text',userInfo.ntInviteCode);
+						app.getId('inviteCode').innerHTML = userInfo.ntInviteCode;
+					}else{ 
+						document.querySelector('.noLogin').style.display = 'block';
+						document.querySelector('.hasLogin').style.display = 'none';
+						app.getId('headPic_noLog').style.display = 'block';
+						app.getId('headPic').style.display = 'none';
+					}
+				} 
+				document.addEventListener('upDateUserInfo',function(){
+					set_userinfo();
+				}); 
+			});
+		</script> 
+	</body>
+
+</html>

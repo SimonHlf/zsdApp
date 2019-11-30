@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/taskAward.css"/>
+		<title>任务奖励</title>
+	</head>
+	<body>
+		<div class="comHeader hasBor">
+			<a id="backBtn" class="posL" href="javascript:mui.back();"><i class="iconfont icon-fanhui"></i></a>
+			<span id="headerTit" class="headerTit"></span>
+		</div>
+		<div id="taskAwardList" class="taskAwradList"></div>
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			mui.plusReady(function(){
+				var _self = plus.webview.currentWebview().currField;
+				var loreName = plus.webview.currentWebview().loreName;
+				app.getId('headerTit').innerHTML = loreName + '任务奖励';
+				function loadTaskAwardList(){
+					mui.ajax(http_ + '/onlineStudy.do?action=getStudyTaskInfo',{
+						data:_self,
+						dataType:'json',
+						type:'post',
+						timeout:10000,
+						success:function(json){
+							if(json.result == 'success'){
+								renderTaskAwardList(json.taskList);
+							}else if(json.result == 'noInfo'){
+								app.getId('taskAwardList').innerHTML = '<div class="noData"><img src="../../images/noData.png"/><p>暂无记录</p></div>';
+							}
+						},
+						error:function(xhr,type,errorThrown){
+							
+						} 
+					});
+				}
+				loadTaskAwardList();
+				function renderTaskAwardList(list){
+					var str = '<ul>';
+					for(var i=0;i<list.length;i++){
+						str += '<li>';
+						str += '<p class="taskName">'+ list[i].taskName +'</p>';
+						str += '<div class="goldenBox"><p>+'+ list[i].coin +'</p><i class="iconfont icon-jinbi"></i></div>';
+						str += '</li>';
+					}
+					str += '<ul>';
+					app.getId('taskAwardList').innerHTML = str;
+				}
+			});
+		</script>
+	
+	</body>
+</html>

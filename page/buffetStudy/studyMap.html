@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/studyMap.css"/>
+		<title>自助餐查看溯源</title>
+		<style>
+			.headerTit em{ 
+				font-style: normal;
+				display: block;
+				text-overflow: ellipsis;
+				overflow: hidden;
+				white-space: nowrap;
+				max-width: 100%;
+				text-align: left;
+			}
+			.headerTit em.bigTit{
+				height: .6rem;
+				line-height: .6rem;
+				margin-top: .1rem;
+				color:#333;
+			}
+			.headerTit em.smTitEm{
+				height: .6rem;
+				line-height: .6rem;
+				font-size: .38rem;
+				color: #666;
+				font-weight: normal;
+			}
+		</style>
+	</head>
+	<body style="padding-top: 1.6rem;">
+		<div class="comHeader hasBor">
+			<a id="backBtn" class="posL" href="javascript:mui.back();"><i class="iconfont icon-fanhui"></i></a>
+			<span class="headerTit">
+				<em class="bigTit"></em>
+				<em class="smTitEm"></em>
+			</span>
+		</div>
+		<!-- 学习Map -->
+		<div class="currStudyTit">
+			<span></span>
+			<p id="currTaskName" class="ellip"></p>
+		</div>
+		<div class="currLoreWrap buffetCurrLoreWrap">
+			<div class="goldenBox buffetGolden"> 
+				<span id="goldenNum"></span>
+				<img src="../../images/golden.png"/>
+			</div>
+			<div class="mapTxt clearfix">
+				<span class="fl">溯源路线图</span>
+				<p class="levelTxt totalLevel fl"></p>
+				<p class="levelTxt totalLoreNum fl"></p>
+				<p id="viewSuyuanBtn" class="viewSuyuanBtn fl">查看溯源</p>
+			</div>
+			<!-- 开始诊断 开始答题 btn-->
+			<a id="goStudyBtn" class="goStudyBtn"><span id="btnVal"></span></a>
+		</div>
+		<p class="noticeTxt"><i class="iconfont icon-gonggao"></i>您对<span id="currBuffetName"></span>这道题掌握的不太好，系统将指引您进行溯源学习,找出没有掌握的根源！</p>
+		
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/h.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+			mui.plusReady(function () {
+				var bsdId = plus.webview.currentWebview().bsdId;
+				var page = {
+					data : {
+						loreId:0,
+						nextLoreId : 0,
+						loreType:'',
+						subDetail:'',
+						studyLogId:0,
+						pathType:'',
+						loreName:'',
+						bsdId : 0
+					},
+					init : function(){
+						this.loadTaskDet();
+						this.bindEvent();
+					},
+					loadTaskDet : function(){
+						var _this = this;
+						app.showToast(1);
+						mui.ajax(http_ + '/buffetStudy.do?action=getBuffetLoreStudyMapData',{
+							data:{userId:userInfo.userId,bsdId:bsdId}, 
+							dataType:'json',
+							type:'post',
+							timeout:10000,
+							success:function(json){
+								//console.log( JSON.stringify( json ) )
+								app.showToast(2);
+								if(json.result == 'success'){ 
+									h('.bigTit').html(json.buffetName);
+									h('.smTitEm').html(json.subDetail);
+									h('#currBuffetName').html(json.buffetName);
+									h('#currTaskName').html('任务' + json.task + '：' + json.loreTaskName);
+									h('#goldenNum').html(json.money); 
+									h('#btnVal').html(json.buttonValue);
+									h('.totalLevel').html('共' + json.stepCount + '级');
+									h('.totalLoreNum').html('共' + json.loreCount + '个知识点');
+									_this.data.bsdId = json.bsdId;
+									_this.data.loreName = json.buffetName;
+									_this.data.loreType = json.loreType;
+									_this.data.nextLoreId = json.nextLoreIdArray;
+									_this.data.subDetail = json.subDetail;
+									_this.data.loreId = json.basicLoreId;
+									_this.data.studyLogId = json.studyLogId;
+									_this.data.pathType = json.pathType;
+								}else if(json.result == 'error'){
+									plus.nativeUI.toast('获取当前任务信息失败');
+								}
+							},
+							error:function(xhr,type,errorThrown){
+								app.showToast(2);
+								plus.nativeUI.toast('服务器异常');
+							}
+						});
+					},
+					bindEvent : function(){
+						var _this = this;
+						//查看溯源
+						app.getId('viewSuyuanBtn').addEventListener('tap',function(){
+							var currStatus = app.checkLoginStatus(userInfo.userId,userInfo.loginStatus);
+							var field = {bsdId:_this.data.bsdId,userId:userInfo.userId};
+							if(currStatus){
+								app.openwin('traceBackList.html',{currField:field});
+							}
+						});
+						app.getId('goStudyBtn').addEventListener('tap',function(){
+							var currStatus = app.checkLoginStatus(userInfo.userId,userInfo.loginStatus);
+							if(currStatus){ 
+								if(_this.data.pathType == 'diagnosis'){//各种诊断
+									var currField = { userId:userInfo.userId,bsdId:_this.data.bsdId,nextLoreIdArray: _this.data.nextLoreId,loreType:escape(_this.data.loreType)};
+									app.openwin('questionList.html',{ currField:currField});
+								}else{//学习
+									var currField = {bsdId:_this.data.bsdId,currentLoreId:_this.data.nextLoreId};
+									app.openwin('studyWelcome.html',{ currField: currField,loreName:_this.data.loreName,loreSmTit: _this.data.subDetail});
+								}
+							}
+						});
+					}
+				};
+				page.init();
+				document.addEventListener('upDataMapData',function(){
+					page.loadTaskDet();
+				});
+			});
+		</script>
+		
+	</body>
+</html>

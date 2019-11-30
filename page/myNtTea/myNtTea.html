@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/myNtTea.css"/>
+		<title>我的导师</title>
+	</head>
+	<body class="paddingTop bodyBg">
+		<div class="comHeader hasBor">
+			<span id="headerTit" class="headerTit">我的导师</span>
+			<span id="addNt" class="bindNtBtn"><i class="iconfont icon-tianjia"></i></span>
+		</div> 
+		<!-- 绑定中 -->
+		<div class="ntListWrap">
+			<strong class="myNtModTit"><span></span>绑定中<b id="ingNum" class="ntNum"></b></strong>
+			<div class="myNtList">
+				<ul id="ingNtList" class="clearfix"></ul>
+			</div>
+		</div>
+		 
+		<!-- 已取消/到期/升学 -->
+		<div class="ntListWrap">
+			<strong id="showOverEndBtn" isOpen="0" class="myNtModTit"><span></span>已取消/到期/升学 <b id="overEmNum" class="ntNum"></b> <em id="triEm" class="leftTri"></em></strong>
+			<div id="overEndNtList" class="myNtList"> 
+				<ul id="cancelNtList" class="clearfix"></ul>
+			</div>
+		</div>
+		
+		
+		<div id="addNtByCode" class="addNtByCode">
+			<div class="btnTop">
+				<span id="cancelBtn">取消</span>
+				<span id="sureBindBtn">确定</span>
+			</div>
+			<div class="inpWrap">
+				<input id="codeInp" type="text" placeholder="请输入导师邀请码" />
+			</div>
+		</div>
+		<div id="layer" class="layer"></div>
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var userInfo = JSON.parse(localStorage.getItem('userInfo')),isShowFlag = false;
+			var bindOpt = 'byNtCode',globalNtId = 0;
+			mui.plusReady(function(){
+				var opener = plus.webview.currentWebview().opener();
+				var page = {
+					init : function(){
+						this.bindEvent();
+						this.loadMyNtList();
+						if(userInfo.roleId == stu_role_id){
+							app.getId('addNt').style.display = 'block';
+						}else if(userInfo.roleId == stuPar_role_id){
+							app.getId('headerTit').innerHTML = '孩子绑定的导师';
+						}
+					},
+					bindEvent : function(){
+						var _this = this;
+						app.getId("addNt").addEventListener('tap',function(){
+							app.getId('layer').style.display = 'block';
+							app.getId('addNtByCode').style.display = 'block';
+							mui.fire(opener,'showIndexLayer',{opt:'open'});
+						});
+						app.getId("cancelBtn").addEventListener('tap',function(){
+							_this.closeBindCode();
+						});
+						//确定导师code 导向该导师基本信息
+						app.getId("sureBindBtn").addEventListener('tap',function(){
+							if(app.trim( app.getId('codeInp').value ) == ''){
+								plus.nativeUI.toast('请输入导师邀请码');
+								return;
+							}
+							_this.loadNtFee();
+						});
+						app.getId('showOverEndBtn').addEventListener('tap',function(){
+							if(isShowFlag){//存在已取消到期升学数据
+								var isOpen = this.getAttribute('isOpen');
+								if(isOpen == '0'){
+									app.getId('overEndNtList').style.display = 'block';
+									app.getId('triEm').className = 'botTri';
+									this.setAttribute('isOpen','1');
+								}else{
+									app.getId('overEndNtList').style.display = 'none';
+									app.getId('triEm').className = 'leftTri';
+									this.setAttribute('isOpen','0');
+								}
+							}
+						});
+						mui('#cancelNtList').on('tap','.bindNt_again',function(){
+							bindOpt = 'byNtBtn';
+							globalNtId = this.getAttribute('ntId');
+							_this.loadNtFee();
+						})
+					},
+					loadNtFee : function(){
+						app.showToast(1);
+						if(bindOpt == 'byNtCode'){
+							var codeInp = app.trim( app.getId('codeInp').value );
+							var field = {userId:userInfo.userId,roleId:userInfo.roleId,selMonth:1,ntCode:codeInp};
+						}else{
+							var field = {userId:userInfo.userId,roleId:userInfo.roleId,selMonth:1,ntId:globalNtId};
+						}
+						//console.log(JSON.stringify( field ))
+						mui.ajax(http_ + '/pay.do?action=getNtFee',{
+							data:field,
+							dataType:'json',
+							type:'post',
+							timeout:10000,
+							success:function(json){
+								app.showToast(2);
+								//console.log(JSON.stringify( json ))
+								if(json.result == 'success'){
+									app.openwin('ntTeaBasicInfo.html',{ntField:json});
+								}else if(json.result == 'noInfo'){
+									mui.toast('该导师不存在');
+								}else if(json.result == 'noBuy'){
+									mui.toast('选择时长涉及升学，不能购买');
+								}else if(json.result == 'bindExist'){
+									mui.toast('该科目下已存在正在绑定的导师');
+								}else if(json.result == 'checkFail'){
+									mui.toast('该导师审核未通过');
+								}else if(json.result == 'paraDiff'){
+									mui.toast('该导师辅导学段和你目前所处学段不一致');
+								}else if(json.result == 'error'){
+									mui.toast('服务器错误');
+								}
+							},
+							error:function(xhr,type,errorThrown){
+								app.showToast(2);
+								console.log(errorThrown)
+							} 
+						})
+					},
+					loadMyNtList : function(){
+						var _this = this;
+						app.showToast(1);
+						mui.ajax(http_ + '/studyRecord.do?action=getBindNt',{
+							data:{userId:userInfo.userId,roleId:userInfo.roleId},
+							dataType:'json',
+							type:'post',
+							timeout:10000,
+							success:function(json){
+								app.showToast(2);
+								//console.log(JSON.stringify( json ))
+								_this.renderMyIngNtList(json.bindNT);
+								_this.renderMyUnNtList(json.unbindNT);
+							},
+							error:function(xhr,type,errorThrown){
+								app.showToast(2);
+								console.log(errorThrown)
+							} 
+						})
+					},
+					//绑定中
+					renderMyIngNtList : function(list){
+						this.comRenderNtList(list,'ing');
+					},
+					//已取消/到期/升学
+					renderMyUnNtList : function(list){
+						this.comRenderNtList(list,'overEnd');
+					},
+					comRenderNtList : function(list,opt){
+						var str = '';
+						if(list.length > 0){
+							if(opt == 'overEnd'){
+								isShowFlag = true;
+								app.getId('triEm').style.display = 'block';
+								app.getId('overEmNum').innerHTML = '('+ list.length +')';
+							}else{
+								app.getId('ingNum').innerHTML = '('+ list.length +')';
+							}
+							for(var i=0;i<list.length;i++){ 
+								str += '<li>';
+								str += '<div class="ntPic">';
+								str += '<img class="dec" src="ntBgImg/'+ this.getSubjectImg(list[i].subName) +'.jpg"/>';
+								str += '<div class="headPic">'; 
+								str += '<img src="'+ http_ +'/'+ list[i].portrait +'"/>';
+								str += '</div>';
+								str += '<div class="ntInfo">';
+								str += '<strong>'+ list[i].realName +'导师</strong>';
+								str += '<p class="subName">'+ list[i].schTypeName +''+ list[i].subName +'</p>';
+								if(list[i].diffDay != undefined){//绑定中
+									// -1 免费试用 1:付费绑定 2免费绑定
+									if(list[i].bindStatus == 1){
+										str += '<p class="endTime">付费绑定</p>';
+									}else if(list[i].bindStatus == -1){
+										str += '<p class="endTime">免费试用</p>';
+									}else if(list[i].bindStatus == 2){
+										str += '<p class="endTime">免费绑定</p>';
+									}
+									str += '<span class="bindBtn sevenDay">'+ list[i].diffDay +'天后到期</span>';
+								}else{ 
+									if(list[i].status == 'endDate'){
+										str += '<p class="endTime hasOverEnd">已到期</p>';
+										if(userInfo.roleId == stu_role_id){
+											str += '<span ntId="'+ list[i].ntId +'" class="bindBtn sevenDay bindNt_again">绑定</span>';
+										}else{
+											str += '<span class="bindBtn shengxue">已到期</span>';
+										}
+									}else if(list[i].status == 'cancel'){
+										str += '<p class="endTime hasOverEnd">已取消</p>';
+										if(userInfo.roleId == stu_role_id){
+											str += '<span ntId="'+ list[i].ntId +'" class="bindBtn sevenDay bindNt_again">绑定</span>';
+										}else{
+											str += '<span class="bindBtn shengxue">已取消</span>';
+										}
+									}else if(list[i].status == 'clear'){
+										str += '<p class="endTime hasOverEnd">已升学</p>';
+										str += '<span class="bindBtn shengxue">已升学</span>';
+									}
+								}
+								str += '</div>';
+								str += '</li>';
+							}
+						}else{
+							if(opt == 'overEnd'){
+								isShowFlag = false;
+								app.getId('triEm').style.display = 'none';
+								app.getId('overEndNtList').style.display = 'block';
+							}
+							str += '<div class="noNtData"><img src="../../images/noNtData.png"/><p>暂无导师</p></div>';
+						}
+						if(opt == 'ing'){
+							app.getId('ingNtList').innerHTML = str;
+						}else if(opt == 'overEnd'){
+							app.getId('cancelNtList').innerHTML = str;
+						}
+					},
+					closeBindCode : function(){
+						app.getId('layer').style.display = 'none';
+						app.getId('addNtByCode').style.display = 'none';
+						app.getId('codeInp').value = '';
+						mui.fire(opener,'showIndexLayer',{opt:'close'});
+					},
+					getSubjectImg : function(subName){
+						var subNameStr = '';
+						if(subName == '语文'){
+							subNameStr = 'yuwen';
+						}else if(subName == '数学'){
+							subNameStr = 'shuxue';
+						}else if(subName == '英语'){
+							subNameStr = 'yingyu';
+						}else if(subName == '物理'){
+							subNameStr = 'wuli';
+						}else if(subName == '化学'){
+							subNameStr = 'huaxue';
+						}else if(subName == '地理'){
+							subNameStr = 'dili';
+						}else if(subName == '生物'){
+							subNameStr = 'shengwu';
+						}else if(subName == '历史'){
+							subNameStr = 'lishi';
+						}else if(subName == '生命科学'){
+							subNameStr = 'kexue';
+						}else if(subName == '科学'){
+							subNameStr = 'kexue';
+						}
+						return subNameStr;
+					}
+				};
+				page.init();
+				document.addEventListener('upDateMyNtList',function(e){
+					var isUpFlag = e.detail.isUpFlag;
+					if(isUpFlag){
+						page.closeBindCode();
+						page.loadMyNtList();
+					}
+				});
+			});
+		</script>
+	</body>
+</html>

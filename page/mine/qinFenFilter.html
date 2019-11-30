@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../fonts/iconfont.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/hwRecordFilter.css"/>
+		<title>勤奋报告筛选</title>
+	</head>
+	<body class="paddingTop">
+		<div class="comHeader otherBg">
+			<span class="headerTit">筛选</span>
+		</div>
+		<div id="moreFilter" class="moreFilter">
+			<input type="hidden" id="classInp"/> 
+			<div class="comFilter">
+				<strong class="smTit">年级班级</strong>
+				<ul id="gradeUl" class="clearfix"></ul>
+			</div>
+			
+			<div id="timePart" class="comFilter" style="display: block;">
+				<strong class="smTit">时间段</strong>
+				<div class="timeBox">
+					<i class="iconfont icon-qingjia"></i>
+					<i class="iconfont icon-qingjia lastChild"></i>
+					<input id="stDate" type="text" placeholder="请选择起始时间" readonly>
+					<span class="tillTxt">至</span>
+					<input id="edDate" type="text" placeholder="请选择结束时间" readonly>
+				</div>
+			</div>
+		</div>
+		<div class="filterBot">
+			<span id="cancelFilterBtn" class="cancelFilterBtn">重置</span>
+			<span id="sureFilterBtn">确定</span>
+		</div>
+		
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var cName = '';
+			mui.init({
+				beforeback : function(){
+					var opener = plus.webview.currentWebview().opener();
+					mui.fire(opener,'closeLayer',{});
+					return true;
+				}
+			});
+			mui.plusReady(function(){
+				var classList = plus.webview.currentWebview().classList,
+					sDate = plus.webview.currentWebview().sDate,
+					eDate = plus.webview.currentWebview().eDate,
+					currCId = plus.webview.currentWebview().cId;
+				cName = plus.webview.currentWebview().cName;
+				var page = {
+					init : function(){
+						this.loadClassList(classList);
+						this.getVal('gradeUl','li','classInp');
+						app.getId('stDate').value = sDate;
+						app.getId('edDate').value = eDate;
+						this.bindEvent();
+					},
+					bindEvent : function(){
+						var _this = this;
+						//确定筛选
+						app.getId('sureFilterBtn').addEventListener('tap',function(){
+							var classInpVal = app.getId('classInp').value,
+								stDateVal = app.getId('stDate').value,
+								edDateVal = app.getId('edDate').value;
+								
+							if(stDateVal == '' && edDateVal != ''){
+								plus.nativeUI.toast('请选择起始时间');
+							}else if(stDateVal != '' && edDateVal == ''){
+								plus.nativeUI.toast('请选择结束时间');
+							}else if(stDateVal > edDateVal){
+								plus.nativeUI.toast('起始时间不能大于结束时间');
+							}else{
+								var opener = plus.webview.currentWebview().opener();
+								var field = {classId:classInpVal,sDate:stDateVal,eDate:edDateVal,cName:cName}
+								plus.webview.currentWebview().close('pop-out');
+								mui.fire(opener,'upDateQinfenData',{currField:field});
+							}
+						});
+						//重置
+						app.getId('cancelFilterBtn').addEventListener('tap',function(){
+							var aLi = app.getId('moreFilter').getElementsByTagName('li');
+							for(var i=0;i<aLi.length;i++ ){
+								aLi[i].className = '';
+							}
+							app.getId('classInp').value = 0;
+							app.getId('stDate').value = sDate;
+							app.getId('edDate').value = eDate;
+							app.getId('classLi1').className = 'active';
+						});
+						app.getId('stDate').addEventListener('tap',function(){
+							_this.showDate('stDate');
+						});
+						app.getId('edDate').addEventListener('tap',function(){
+							_this.showDate('edDate');
+						});
+					},
+					loadClassList : function(list){
+						if(list != 0){
+							var str = '';
+							for(var i=0;i<list.length;i++){//globalclId
+								if(currCId == list[i].cId){
+									str += "<li id='classLi1' currAttr = '"+ list[i].cId +"' class='active'>";
+									app.getId('classInp').value = list[i].cId;
+								}else{
+									str += "<li currAttr = '"+ list[i].cId +"'>";
+								}
+								str += list[i].cName;
+								if(list[i].status == 1){
+									str += "<span class='tmpSpan'>(临)</span>"
+								}
+								str += "</li>";
+							}
+							app.getId('gradeUl').innerHTML = str;
+						}else{//noInfo
+							app.getId('gradeUl').innerHTML = '<p style="color:#999;font-size:.48rem;">暂无班级</p>';
+						}
+					},
+					showDate : function(obj){
+						var dDate = new Date(),_this = this;
+						if(app.getId(obj).value != ''){
+							var curr = app.getId(obj).value.split('-');
+							dDate.setFullYear(curr[0],(curr[1]-1),curr[2]);
+						}
+						plus.nativeUI.pickDate(function(e) { 
+							var d = e.date,currDate=''; 
+							currDate = d.getFullYear() + "-" + app.appendZero( (d.getMonth() + 1) ) + "-" + app.appendZero( d.getDate() );
+							app.getId(obj).value = currDate;
+						}, function(e) {
+						}, {  
+							title: "请选择日期",
+							date : dDate
+						});
+					},
+					getVal : function(parObj,obj,inpObj){
+						var _this = this;
+						mui('#' + parObj).on('tap',obj,function(){
+							var currAttr = this.getAttribute('currAttr');
+							var aEle = app.getId(parObj).getElementsByTagName('li');
+							app.getId(inpObj).value = currAttr;
+							if(parObj == 'gradeUl'){
+								cName = this.innerText;
+							}
+							for(var i=0;i<aEle.length;i++){
+								aEle[i].className = '';
+							}
+							this.className = 'active';
+						});
+					}
+				};
+				page.init();
+			});
+		</script>
+	</body>
+</html>

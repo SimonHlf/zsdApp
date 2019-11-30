@@ -1,0 +1,21 @@
+body{
+	background: #fff;
+}
+.subList{
+	padding: .3rem .2667rem;
+}
+.subList li{
+	float: left;
+	height: .8rem;
+	line-height: .8rem;
+	padding: 0 .35rem;
+	background: #f2f2f2;
+	color: #666;
+	margin-right: .25rem;
+	font-size: .38rem;
+	border-radius: 4px;
+}
+.subList li.active{
+	background: #4d47f1;
+	color: #fff;
+}

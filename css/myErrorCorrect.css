@@ -1,0 +1,156 @@
+body{
+	background: #f2f2f2;
+}
+.subErrList{
+	position: absolute;
+	left: .0rem;
+	right: 0rem;
+	top: 1.3rem;
+	bottom: 0;
+	z-index: 1;
+}
+.subErrList ul{
+	padding: 0 .2667rem;
+	margin-top: .25rem;
+}
+.subErrList li{
+	padding: .25rem .2rem .2rem;
+	background: #fff;
+	margin-bottom: .25rem;
+	border-radius: 4px;
+	box-shadow: 0 3px 5px rgba(0,0,0,.05);
+}
+.subErrList li p.errTit{
+	font-size: .42rem;
+	color: #333;
+	font-weight: 620;
+}
+.subErrList li p.smTit{
+	font-size: .4rem;
+	color: #333;
+	margin-top: .2rem;
+	color: #666;
+}
+.botPart {
+	height: 1rem;
+	line-height: 1rem;
+}
+.botPart p{
+	width: 33.33%;
+	float: left;
+	font-size: .38rem;
+}
+.botPart p.errTypeTxt{
+	color: #4d47f1;
+}
+.botPart p.checkStaTxt{
+	text-align: center;
+}
+.botPart p.checkStaTxt.noCheck,
+.errItem p.noCheck{
+	color: #e10080;
+}
+.botPart p.checkStaTxt.hasCheck,
+.errItem p.hasCheck{
+	color: #29c7c6;
+}
+.botPart p.subTime{
+	text-align: right;
+	color: #666;
+}
+/* 纠错详情 */
+.errDetInfo{
+	background: #fff;
+}
+.errItem{
+	height: 1.2rem;
+	line-height: 1.2rem;
+	padding:0 .2667rem;
+	border-bottom: 1px solid #e6e6e6;
+}
+.errItem_spec{
+	position: relative;
+	padding:0 .2667rem;
+	border-bottom: 1px solid #e6e6e6;
+}
+.errItem span,
+.errItem_spec span{
+	width: 2rem;
+	height: 100%;
+	font-size: .4rem;
+	color:#666;
+}
+.errItem span{
+	float: left;
+	text-align: right;
+}
+.errItem_spec span{
+	position: absolute;
+	left: .2667rem;
+	top:0;
+	display: flex;
+	justify-content: flex-end;
+	align-items: center;
+}
+.errItem  p,
+.errItem_spec p{
+	width: 7.2rem;
+	font-size: .4rem;
+	color: #333;
+}
+.errItem p{
+	float: left;
+	margin-left: .2rem;
+}
+.errItem_spec p{
+	margin-left: 2.2rem;
+	line-height: .65rem;
+	min-height: 1.2rem;
+	display: flex;
+	align-items: center;
+}
+
+/* .comFilter .timeBox{
+	position: relative;
+}
+.comFilter .timeBox i{
+	position: absolute;
+	right: 5px;
+	color: #666;
+}
+.comFilter .timeBox i:first-child{
+	top:8px;
+}
+.comFilter .timeBox i.lastChild{
+	bottom:8px; 
+}
+.comFilter .timeBox input{
+	text-align: center;
+}
+.timeBox span.tillTxt{
+	width: 100%;
+	text-align: center;
+	padding: 5px 0;
+	display: block;
+	font-size: 13px;
+	color: #999999;
+}
+.filterBot{
+	position: fixed;
+	left:0;
+	right:0;
+	bottom: 0;
+	height: 1.3rem;
+	line-height: 1.3rem;
+	background: #f6f5f5;
+	box-shadow: 0 -2px 3px rgba(0,0,0,.1);
+}
+.filterBot span{
+	width: 100%;
+	height: 100%;
+	text-align: center;
+	font-size: .45rem;
+	background: #4d47f1;
+	color: #fff;
+	display: block;
+} */

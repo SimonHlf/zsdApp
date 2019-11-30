@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/viewAnswer.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/pullRefresh.css"/>
+		<title>查看答案</title>
+	</head>
+	<body>
+		<div class="comHeader otherBg">
+			<a id="backBtn" class="posL"><i class="iconfont icon-fanhui"></i></a>
+			<span class="headerTit"></span>
+		</div>
+		<input type="hidden" id="loreTypeNameInp" value="zdx" />
+		<div id="navWrap" class="commonSubNav">
+			<ul id="getCol" class="clearfix">
+				<li class="active" loreType="zdx" nowIndex="0" ontouchend="showAnsDet(this)"><span></span><em></em>针对性诊断结果</li>
+				<li loreType="zc" nowIndex="1" ontouchend="showAnsDet(this)"><span></span><em></em>再次诊断结果</li>
+				<li loreType="gg" nowIndex="2" ontouchend="showAnsDet(this)"><span></span><em></em>巩固训练结果</li>
+				<li loreType="gl" nowIndex="3" ontouchend="showAnsDet(this)"><span></span><em></em>关联诊断结果</li>
+			</ul>
+		</div>
+		<!-- 分类内容 -->
+		<div class="tabWrap hasTranslateX">
+			<!-- 针对性诊断结果 -->
+			<div class="tabCon">
+				<div id="tabConOne0" class="innerTabCon" isLoadFlag="true" pageNum="1">
+					<div id="scrollerDiv0" class="scrollerDiv">
+						<ul id="listDataUl0" class="listDataUl"></ul>
+						<div id="pullUp"><span class="pullup-icon"></span><span class="pullUpLabel">上拉加载更多...</span></div>
+					</div>
+				</div>
+			</div>
+			<!-- 再次诊断结果 -->
+			<div class="tabCon">
+				<div id="tabConOne1" class="innerTabCon" isLoadFlag="true" pageNum="1">
+					<div id="scrollerDiv1" class="scrollerDiv">
+						<ul id="listDataUl1" class="listDataUl"></ul>
+						<div id="pullUp"><span class="pullup-icon"></span><span class="pullUpLabel">上拉加载更多...</span></div>
+					</div>
+				</div>
+			</div>
+			
+			<!-- 巩固训练结果 -->
+			<div class="tabCon">
+				<div id="tabConOne2" class="innerTabCon" isLoadFlag="true" pageNum="1">
+					<div id="scrollerDiv2" class="scrollerDiv">
+						<ul id="listDataUl2" class="listDataUl"></ul>
+						<div id="pullUp"><span class="pullup-icon"></span><span class="pullUpLabel">上拉加载更多...</span></div>
+					</div>
+				</div>
+			</div>
+			
+			<!-- 关联诊断结果 -->
+			<div class="tabCon">
+				<div id="tabConOne3" class="innerTabCon" isLoadFlag="true">
+					<div id="studyDetailDiv_gl" class="scrollerDiv" style="width: 150%;"></div>
+				</div>
+			</div>
+			
+		</div>
+		
+		
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/iscroll.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/loadDetail.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../studyOnline/js/comStudy.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var scrollFlag = true;
+			var wrapperObj='tabConOne0',
+				studyLogId = 0,
+				loreId = 0,
+				loreName = '',
+				osName = '';
+			if(window.plus) {
+				plusReady();
+			} else { // 兼容老版本的plusready事件
+				document.addEventListener('plusready', plusReady, false);
+			}
+			function plusReady(){
+				loreId = plus.webview.currentWebview().loreId;
+				studyLogId = plus.webview.currentWebview().studyLogId,
+				loreName = plus.webview.currentWebview().loreName;
+				osName = plus.os.name;
+				if(plus.os.name == 'Android'){
+					page.init(); 
+				}
+			}
+			//document.addEventListener('plusready',plusReady,false);
+			
+			var page = {
+				init : function(){
+					app.backFun();
+					this.initNavFun();
+					this.loadAnsDet_init();
+				},
+				//初始化导航和其右滑动的iscroll
+				initNavFun:function(){
+					$('.headerTit').html(loreName);
+					$('.tabCon').width($(window).width());
+					$(".tabWrap").css({
+						"width":$(window).width()*$(".tabCon").length
+					});
+					myScroll1 = new iScroll('navWrap', { 
+						checkDOMChanges: true,
+						hScrollbar : false,
+						vScroll : false,
+						onScrollMove:function(){
+							scrollFlag = false;
+						},
+						onScrollEnd:function(){
+							scrollFlag = true;
+						}
+					});
+				},
+				loadAnsDet_init : function(){
+					var loreTypeNameInp = $('#loreTypeNameInp').val(),
+						pageTmp = 1,_this = this;
+					$.ajax({
+						url : http_ + '/studyRecord.do?action=getStuLogByDetail',
+						data:{stuLogId:studyLogId,loreId:loreId,pageNo:pageTmp,pageSize:2,loreTypeName:loreTypeNameInp}, 
+						dataType:'json',
+						type:'post',
+						timeout:10000,
+						beforeSend : function(){ 
+							app.showToast(1);
+						},
+						success:function(json){
+							app.showToast(2);
+							//console.log( JSON.stringify( json ) )
+							if(json.result == 'success'){
+								if(loreTypeNameInp != 'gl'){
+									noDataFlag_init = true;
+									_this.renderStudyDetList(wrapperObj,json.sdList);
+								}else{
+									//关联诊断结果DOM render
+									//console.log( JSON.stringify( json ) )
+									_this.renderGlDet(wrapperObj,json.sdList);
+								}
+							}else if(json.result == 'noInfo'){
+								noDataFlag_init = false;
+							}
+							if(loreTypeNameInp != 'gl'){
+								//执行回调
+								getNowStatus(wrapperObj);
+							}
+						},
+						error:function(xhr,type,errorThrown){
+							app.showToast(2);
+							plus.nativeUI.toast('服务器异常');
+						}
+					}); 
+				},
+				getStatus : function(flagStr,option,studyTimes,currentLoreId,currentLoreName){
+					var result = "";
+					if(flagStr == -1){
+						if(option == "学习"){
+							result = "<span class='noPassTxt_1'>[未"+option+"]</span>";
+						}else{
+							result = "<span class='noPassTxt'>[未"+option+"]</span>";
+						}
+					}else if(flagStr == 0){
+						result = "<span class='noPassTxt'>["+option+"未通过]</span>";
+					}else{
+						if(option == "学习"){
+							//result = "<a href='javascript:void(0)' ontouchend=showStudy("+studyLogId+","+currentLoreId+",'"+encodeURIComponent(currentLoreName)+"')><span class='hasLearning'>[已"+option+"("+"<b>"+studyTimes+"</b>"+"次)]</span></a> ";
+							result = "<span class='passTxt'>[已"+option+"("+"<b>"+studyTimes+"</b>"+"次)]</span>";
+						}else{
+							result = "<span class='passTxt'>["+option+"通过]</span>";
+						}
+					}
+					return result;
+				},
+				//关联诊断结果
+				renderGlDet : function(wrapperObj,list_gl){
+					var ul_main = "<ul id='ul_0' class='ulParent'><li class='treeIcon'></li><li id='li_0'><span class='bigTit'>"+list_gl[0].text+"</span></li></ul>";
+					$('#studyDetailDiv_gl').append(ul_main);
+					var list_1 = list_gl[0].children;
+					var list_length_1 = 0;
+					if(list_1 != undefined){
+						list_length_1 = list_1.length;
+					}
+					for(var i = 0 ; i < list_length_1; i++){
+						if(list_1[i].repeatFlag == false){
+							var ul_child = "<ul id='ul_"+list_1[i].id+"' class='fristFloor'><li class='fristFlIcon'></li><li id='li_"+list_1[i].id+"'>";
+							//var ul_child = "<ul id='ul_"+list_1[i].id+"' class='fristFloor'><li id='li_"+list_1[i].id+"'>";
+							var zdxzdFlag = list_1[i].zdxzdFlag;
+							var studyFlag = list_1[i].studyFlag;
+							var zczdFlag = list_1[i].zczdFlag;
+							var studyTimes = list_1[i].studyTimes;
+							var zczdTimes = list_1[i].zczdTimes;
+							ul_child += "<div class='smallTit'><p>"+list_1[i].text+"</p>"+this.getStatus(zdxzdFlag,"诊断",studyTimes,list_1[i].id,list_1[i].text)+this.getStatus(studyFlag,"学习",studyTimes,list_1[i].id,list_1[i].text)+this.getStatus(zczdFlag,"再次诊断",zczdTimes,list_1[i].id,list_1[i].text)+"</div>";
+							ul_child += "</li></ul>";
+							$('#li_0').append(ul_child);
+							var list_child = list_1[i].children;
+							this.showNextTreeList(list_child,list_1[i].id);
+						}
+					}
+					myScrollGl = new iScroll('tabConOne3', { 
+						checkDOMChanges: true
+					});		
+				},
+				showNextTreeList : function(list,preLoreId){
+					if(list != undefined){
+						for(var i = 0 ; i < list.length; i++){
+							 if(list[i].repeatFlag == false){
+								var ul = "<ul id='ul_"+list[i].id+"' class='secondFloor'><li class='sonTreeIcon'></li><li id='li_"+list[i].id+"'>";
+								var zdxzdFlag = list[i].zdxzdFlag;
+								var studyFlag = list[i].studyFlag;
+								var zczdFlag = list[i].zczdFlag;
+								var studyTimes = list[i].studyTimes;
+								var zczdTimes = list[i].zczdTimes;
+								ul += "<div class='smallTit'><p>"+list[i].text+"</p>"+this.getStatus(zdxzdFlag,"诊断",studyTimes,list[i].id,list[i].text)+this.getStatus(studyFlag,"学习",studyTimes,list[i].id,list[i].text)+this.getStatus(zczdFlag,"再次诊断",zczdTimes,list[i].id,list[i].text)+"</div>";
+								ul += "</li></ul>";
+								$('#li_'+preLoreId).append(ul);
+								var list_child = list[i].children;
+								this.showNextTreeList(list_child,list[i].id);
+							 }
+						}
+					}
+				},
+				//渲染学习详情
+				renderStudyDetList : function(wrapperObj,list){
+					var oUl = $("#" + wrapperObj + " ul"),str='';
+					for(var i=0;i<list.length;i++){
+						var j=0, answerA = "",answerB = "",answerC = "",answerD = "",answerE = "",answerF = "",answerOptionArray = new Array();
+						answerOptionArray = assignToArray(list[i].A,list[i].B,list[i].C,list[i].D,list[i].E,list[i].F);
+						str += '<li>';
+						//题干
+						str += '<div class="quesSubWrap"><strong class="quesType">'+ list[i].queType +'</strong>';
+						str += '<div class="quesSub">'+ list[i].queSub +'</div></div>';
+						//quesOpt
+						str += '<div class="quesOptBox">';
+						if(list[i].A != "" && list[i].A != undefined){
+							if(checkAnswerImg(list[i].A)){
+								answerA = "<img src='"+ answerOptionArray[j++] +"'/>";
+							}else{
+								answerA = answerOptionArray[j++];
+							}
+							str += '<div class="quesOpt"><span class="optionsWord">A</span><div class="optionsCon">'+ answerA +'</div></div>';
+						}
+						if(list[i].B != "" && list[i].B != undefined){
+							if(checkAnswerImg(list[i].B)){
+								answerB = "<img src='"+ answerOptionArray[j++] +"'/>";
+							}else{
+								answerB = answerOptionArray[j++];
+							}
+							str += '<div class="quesOpt"><span class="optionsWord">B</span><div class="optionsCon">'+ answerB +'</div></div>';
+						}
+						if(list[i].C != "" && list[i].C != undefined){
+							if(checkAnswerImg(list[i].C)){
+								answerC = "<img src='"+ answerOptionArray[j++] +"'/>";
+							}else{
+								answerC = answerOptionArray[j++];
+							}
+							str += '<div class="quesOpt"><span class="optionsWord">C</span><div class="optionsCon">'+ answerC +'</div></div>';
+						}
+						if(list[i].D != "" && list[i].D != undefined){
+							if(checkAnswerImg(list[i].D)){
+								answerD = "<img src='"+ answerOptionArray[j++] +"'/>";
+							}else{
+								answerD = answerOptionArray[j++];
+							}
+							str += '<div class="quesOpt"><span class="optionsWord">D</span><div class="optionsCon">'+ answerD +'</div></div>';
+						}
+						if(list[i].E != "" && list[i].E != undefined){
+							if(checkAnswerImg(list[i].E)){
+								answerE = "<img src='"+ answerOptionArray[j++] +"'/>";
+							}else{
+								answerE = answerOptionArray[j++];
+							}
+							str += '<div class="quesOpt"><span class="optionsWord">E</span><div class="optionsCon">'+ answerE +'</div></div>';
+						}
+						if(list[i].F != "" && list[i].F != undefined){
+							if(checkAnswerImg(list[i].F)){
+								answerF = "<img src='"+ answerOptionArray[j++] +"'/>";
+							}else{
+								answerF = answerOptionArray[j++];
+							}
+							str += '<div class="quesOpt"><span class="optionsWord">F</span><div class="optionsCon">'+ answerF +'</div></div>';
+						}
+						str += '</div>';
+						//myAnsRealAns
+						str += '<div class="myAnsRealAns clearfix">';
+						if(list[i].myAns != list[i].realAns){
+							str += '<p>我的答案：<span class="queFailTxt">'+ list[i].myAns +'</span></p>';
+						}else{
+							str += '<p>我的答案：<span class="quesSuccTxt">'+ list[i].myAns +'</span></p>';
+						}
+						str += '<p>正确答案：<span class="quesSuccTxt">'+ list[i].realAns +'</span></p>';
+						str += '</div></li>';
+					}
+					oUl.append(str);
+					var hasImgLen = $("#" + wrapperObj).find('img').length;
+					if(hasImgLen > 0){
+						$("#" + wrapperObj).find('img').each(function(k){
+							var tmpSrc = $("#" + wrapperObj).find('img').eq(k).attr('src').replace(http_ + '/','');
+							$("#" + wrapperObj).find('img').eq(k).attr('src', http_ + '/' + tmpSrc);
+						});
+					}
+				}
+			};
+			if(osName == 'iOS'){
+				page.init();
+			}
+			function showAnsDet(obj){
+				var loreType = $(obj).attr('loreType'),
+					clickIndex = $(obj).attr('nowIndex');
+				if(scrollFlag==false){
+					return;
+				}
+				$(obj).addClass('active').siblings().removeClass('active');
+				nowNumIndex = clickIndex;
+				$('#loreTypeNameInp').val(loreType);
+				wrapperObj = 'tabConOne'+clickIndex;
+				$(".tabWrap").css({
+					"-webkit-transform":"translateX("+ (-(clickIndex*$(window).width())) +"px)",
+					"transform":"translateX("+ (-(clickIndex * $(window).width())) +"px)"
+				})
+				if($("#"+wrapperObj).attr("isLoadFlag") == "true"){
+					page.loadAnsDet_init(wrapperObj);
+				}
+				if(clickIndex == 3){
+					$("#"+wrapperObj).attr("isLoadFlag",'false');
+				}
+			}
+			function pullUpAction (options) {
+				setTimeout(function () {
+					getDetList_more(options);
+					myScroll.refresh();
+				}, 1000);		
+			}
+			function getDetList_more(options){
+				var pageTmp = 1,loreTypeNameInp = $('#loreTypeNameInp').val();
+				var nowPageNum = parseInt($("#"+options).attr('pageNum'));
+				nowPageNum++;
+				$("#"+options).attr('pageNum',nowPageNum);
+				pageTmp = nowPageNum;
+				//console.log('pageTmp=' + nowPageNum)
+				$.ajax({
+					url : http_ + '/studyRecord.do?action=getStuLogByDetail',
+					data:{stuLogId:studyLogId,loreId:loreId,pageNo:pageTmp,loreTypeName:loreTypeNameInp}, 
+					dataType:'json',
+					type:'post',
+					timeout:10000,
+					beforeSend : function(){ 
+						app.showToast(1);
+					},
+					success:function(json){
+						app.showToast(2);
+						//console.log( JSON.stringify( json ) )
+						if(json.result == 'success'){
+							noDataFlag_more = false;
+							page.renderStudyDetList(wrapperObj,json.sdList);
+						}else if(json.result == 'noInfo'){
+							//上拉加载data内部的数据全部加载完成
+							noDataFlag_more = true;
+						}
+						var pullUpEl = document.querySelector('#'+wrapperObj).querySelector('#pullUp');
+						if(noDataFlag_more == true){//没有数据
+							pullUpEl.querySelector('.pullUpLabel').innerHTML = '没有更多了...';
+						}else{
+							pullUpEl.querySelector('.pullUpLabel').innerHTML = '上拉加载更多...';
+						}
+					},
+					error:function(xhr,type,errorThrown){
+						app.showToast(2);
+						plus.nativeUI.toast('服务器异常');
+					}
+				}); 
+			}
+		</script>
+	</body>
+</html>

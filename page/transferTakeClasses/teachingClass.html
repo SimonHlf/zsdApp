@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/teachingClass.css"/>
+		<title>任教班级</title>
+	</head>
+	<body class="paddingTop">
+		<div class="comHeader otherBg">
+			<a id="backBtn" class="posL" href="javascript:mui.back();"><i class="iconfont icon-fanhui"></i></a>
+			<span class="headerTit">任教班级</span>
+		</div>
+		<div class="classList">
+			<div class="tit">
+				<span></span>
+				<strong>我的班级</strong>
+			</div>
+			<div>
+				<ul id="myClassListUl" class="clearfix"></ul>
+			</div>
+		</div>
+		
+		<div class="classList">
+			<div class="tit">
+				<span></span>
+				<strong>被接任班级(临时)</strong>
+			</div>
+			<div>
+				<ul id="myClassList_takeUl" class="clearfix"></ul>
+			</div>
+		</div>
+		
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var userInfo = JSON.parse(localStorage.getItem('userInfo'));
+			mui.plusReady(function(){
+				var page = {
+					init : function(){
+						this.loadMyClassList();
+						this.loadMyClassList_take();
+						this.bindEvent();
+					},
+					bindEvent : function(){
+						var _this = this;
+						mui('#myClassList_takeUl').on('tap','li',function(){
+							var cId = this.getAttribute('cId'),
+								lsTeaName = this.getAttribute('lsTeaName'),
+								cName = this.getAttribute('cName');
+							var btnArray = ['取消', '确定'];
+							mui.confirm('确认要取消' + lsTeaName + '老师对' + cName + '的临时接管？', btnArray, function(e) {
+								if (e.index == 0){
+									app.showToast(1);
+									mui.ajax(http_ + '/applyClass.do?action=cancelMyLsInfo',{
+										data:{userId:userInfo.userId,classId:cId},
+										dataType:'json',
+										type:'post',
+										timeout:10000, 
+										success:function(json){ 
+											app.showToast(2); 
+											if(json.result == 'success'){
+												plus.nativeUI.toast('取消成功！');
+												setTimeout(function(){
+													_this.loadMyClassList();
+													_this.loadMyClassList_take();
+												},400);
+											}else if(json.result == 'error'){
+												plus.nativeUI.toast('服务器异常');
+											}
+										},
+										error:function(xhr,type,errorThrown){
+											app.showToast(2);
+											plus.nativeUI.toast('服务器异常');
+										} 
+									});
+									
+								}
+							});
+						});
+					},
+					//获取我的班级
+					loadMyClassList : function(){
+						var _this = this;
+						app.showToast(1);
+						mui.ajax(http_ + '/hw.do?action=getMyClassData',{
+							data:{userId:userInfo.userId},
+							dataType:'json',
+							type:'post',
+							timeout:10000,
+							success:function(json){ 
+								app.showToast(2);
+								if(json.result == 'success'){
+									_this.renderMyClassHtml(json.cList); 
+								}else if(json.result == 'noInfo'){
+									app.getId('myClassListUl').innerHTML = '<p style="color:#999;font-size:.4rem;">暂无班级</p>'
+								}
+							},
+							error:function(xhr,type,errorThrown){
+								app.showToast(2);
+								plus.nativeUI.toast('服务器错误');
+							} 
+						});
+					},
+					//获取被别人接任的班级
+					loadMyClassList_take : function(){
+						var _this = this;
+						app.showToast(1);
+						mui.ajax(http_ + '/common.do?action=getMyLsClassData',{
+							data:{userId:userInfo.userId},
+							dataType:'json',
+							type:'post',
+							timeout:10000,
+							success:function(json){ 
+								app.showToast(2);
+								if(json.result == 'success'){
+									_this.renderClassHtml_take(json.cList); 
+								}else if(json.result == 'noInfo'){
+									app.getId('myClassList_takeUl').innerHTML = '<p style="color:#999;font-size:.4rem;">暂无被接任班级</p>'
+								}
+							},
+							error:function(xhr,type,errorThrown){
+								app.showToast(2);
+								plus.nativeUI.toast('服务器错误');
+							} 
+						});
+					},
+					renderMyClassHtml : function(list){
+						var str = "";
+						for(var i=0;i<list.length;i++){
+							str += "<li currAttr = '"+ list[i].cId +"'>";
+							str += list[i].cName;
+							if(list[i].status == 1){
+								str += "<span class='tmpSpan'>(临)</span>"
+							}
+							str += "</li>";
+						}
+						app.getId('myClassListUl').innerHTML = str;
+					},
+					renderClassHtml_take : function(list){
+						var str = "",_this = this;
+						for(var i=0;i<list.length;i++){
+							str += "<li cId='"+ list[i].cId +"' cName='"+ list[i].cName +"' lsTeaName='"+ list[i].lsTeaName +"'>";
+							str += "<span class='takeTxt'>"+ list[i].cName +"</span><i class='iconfont icon-wrong'></i>";
+							str += "</li>";
+						}
+						app.getId('myClassList_takeUl').innerHTML = str;
+					}
+				};
+				page.init();
+			});
+		</script>
+		
+	</body>
+</html>

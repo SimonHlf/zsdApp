@@ -1,0 +1,447 @@
+body{
+	background: #f2f2f2;
+}
+.tabNav{
+	height: 1.2rem;
+	line-height: 1.2rem;
+	background: #fff;
+	position: fixed;
+	left: 0;
+	top: 1.3rem;
+	overflow: hidden;
+	padding: 0 .2667rem;
+}
+.tabNav ul{
+	display: -webkit-box;
+	overflow: hidden;
+	overflow-x: scroll;
+	-webkit-overflow-scrolling:touch;
+	height: 1.4rem;
+}
+.tabNav li{
+	font-size: .4rem;
+	color: #333333;
+	padding: 0 .25rem;
+}
+.tabNav li.active{
+	color: #4d47f1;
+	font-weight: bold;
+}
+.tabCon{
+	position: absolute;
+	left: 0;
+	top: 2.7rem;
+	right: 0;
+	bottom: 1.3rem;
+}
+.tabCon.selQuesList{
+	top:1.3rem;
+}
+.tabCon.viewStuQuesList{
+	top:1.3rem;
+	bottom: 0;
+}
+.tabCon .innerTabCon{
+	height: 100%;
+	overflow: hidden;
+	overflow-y:auto;
+	-webkit-overflow-scrolling: touch;
+	display: none;
+	opacity: 0;
+}
+.listTabCon{
+	margin-bottom: .25rem;
+}
+.tabCon .innerTabCon label{
+	position: relative;
+	display: block;
+}
+.currAnsState{
+	width: 1.0666rem;
+	height: 1.0666rem;
+	background: url(../images/ansStatus.png) no-repeat;
+	background-size: 1.0666rem 4rem;
+	position: absolute;
+	right: .2667rem;
+	top: .3rem;
+	z-index: 10;
+}
+.currAnsState.ansRightSta{
+	background-position: 0 0;
+}
+.currAnsState.ansWrongSta{
+	background-position: 0 -1.333rem;
+}
+.currAnsState.notAnsSta{
+	background-position: 0 -2.666rem;
+}
+.tabCon .innerTabCon label input{
+	width: 100%;
+    height: 100%;
+    position: absolute;
+    left: 0px;
+    top: 0px;
+	z-index: 10;
+}
+.detTitPart{
+	padding: .1rem .2667rem;
+	background: #fff;
+	position: relative;
+}
+.detTitPart .typeTit{
+	font-size: .38rem;
+	line-height: .8rem;
+}
+.detTitPart .typeTit strong{
+	font-size: .45rem;
+	color: #4d47f1;
+}
+.detTitPart .typeTit p{
+	color:#4d47f1;
+	margin-left: .35rem;
+}
+.detTitPart .smTitPart{
+	line-height: .8rem;
+	font-size: .38rem;
+}
+.detTitPart .smTitPart span{
+	color: #999;
+}
+.detTitPart .smTitPart strong{
+	color: #333;
+	font-weight: normal;
+}
+.queSub{
+	padding: 0 .2667rem;
+	background: #fff;
+}
+.realAns.hasBorTop{
+	border-top: 2px solid #f2f2f2;
+}
+.queSub .subTit,
+.realAns p:first-child,
+.analysis p.subTit,
+.tips p.subTit{
+	font-size: .4rem;
+	color: #4d47f1;
+	font-weight: bold;
+}
+.queSubCon{
+	font-size: .4rem;
+	color: #333;
+	padding: 0 .2rem .2rem;
+}
+.queSubCon img{
+	max-width: 100%;
+}
+/* 选项 */
+.quesOptBox{
+	padding:0 .2667rem;
+	margin-top:.25rem ;
+}
+.quesOpt{
+	background: #fff;
+	position: relative;
+	border:2px solid #e6e6e6;
+	border-radius: 4px;
+	margin-bottom: .25rem;
+}
+.quesOpt span.optionsWord{
+	width:1rem;
+	height: 100%;
+	background: #ededed;
+	position: absolute;
+	left: 0;
+	top: 0;
+	border-radius: 2px 0 0  2px;
+	font-size: .42rem;
+	color: #666666;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+.quesOpt div.optionsCon{
+	width: 8rem;
+	margin-left: 1.2rem;
+	font-size: .42rem;
+	color: #666;
+	padding: .1rem 0;
+	min-height: 1rem;
+	display: flex;
+	align-items: center;
+}
+.quesOpt div.optionsCon img{
+	max-width: 100%;
+}
+/* 答案 */
+.realAns{
+	min-height: 1.2rem;
+	line-height: 1.2rem;
+	border-bottom: 2px solid #f2f2f2;
+	background: #fff;
+	padding: 0 .2667rem;
+}
+.realAns p{
+	float: left;
+	font-size: .4rem;
+	color: #333;
+}
+.analysis,
+.tips{
+	background: #fff;
+	padding: .25rem .2667rem;
+	border-bottom: 2px solid #f2f2f2;
+}
+.analsisDet,
+.tipsDet{
+	padding: 0 .2rem .2rem;
+	font-size: .4rem;
+	color: #666;
+}
+.innerTabCon label span.currSelSpan{
+	width: .45rem;
+	height: .45rem;
+	border:2px solid #e6e6e6;
+	border-radius: 50%;
+	position: absolute;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 1;
+	right: .23rem;
+	top:.25rem;
+}
+.innerTabCon label span.currSelSpan.hasSelect{
+	background: #4d47f1;
+	border:2px solid #4d47f1;
+}
+.innerTabCon label span.currSelSpan i{
+	font-size: .4rem;
+	color: #fff;
+	display: none;
+}
+.innerTabCon label span.currSelSpan.hasSelect i{
+	display: block;
+}
+/* 已选 */
+.hasChoice{
+	width: 100%;
+	height: 1.3rem;
+	background: #fff;
+	position: fixed;
+	left: 0;
+	bottom: 0;
+	box-shadow:0 -2px 5px rgba(0,0,0,.1);
+}
+.hasChoiceTxt{
+	width: 15%;
+	float: left;
+	line-height: 1.3rem;
+	height: 100%;
+	text-align: center;
+	font-size: .4rem;
+	color: #333;
+	position: relative;
+}
+.hasChoiceTxt em{
+	height: .8rem;
+	width: 1px;
+	background: #f2f2f2;
+	position: absolute;
+	top: .25rem;
+	right: 0;
+}
+.hasChoiceList{
+	width: 65%;
+	height: .7rem;
+	line-height: .7rem;
+	margin-left: 2.5%;
+	float: left;
+	margin-top: .3rem;
+	overflow: hidden;
+}
+.hasChoiceList ul{
+	display: -webkit-box;
+	overflow: hidden;
+	overflow-x: scroll;
+	-webkit-overflow-scrolling:touch;
+	height: 1rem;
+}
+.hasChoiceList ul li{
+	margin-right: .25rem;
+	height: .7rem;
+	padding: 0 .2rem;
+	font-size: .38rem;
+	border-radius: 20px;
+	color: #4d47f1;
+}
+.hasChoiceList ul li span,
+.hasChoiceList ul li i{
+	float: left;
+}
+.hasChoiceList ul li i{
+	color: #e10080;
+}
+.hasChoice span.hasSelHwBtn{
+	width: 65%;
+	height: 1rem;
+	line-height: 1rem;
+	background: #4d47f1;
+	color: #fff;
+	font-size: .45rem;
+	text-align: center;
+	display: block;
+	margin:.15rem auto 0;
+	border-radius: 4px;
+}
+.pubBtn{
+	width: 15%;
+	height: 100%;
+	float: right;
+	text-align: center;
+	line-height: 1.3rem;
+	font-size: .4rem;
+	position: relative;
+	font-weight: bold;
+	background: #4d47f1;
+	color: #fff;
+}
+/* 做题记录详情 */
+.studyLogDet,
+.tongjiWrap{
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 1.5rem;
+	bottom: 0;
+}
+.myAnsRealAns{
+	height: 1.2rem;
+	line-height: 1.2rem;
+	background: #fff;
+	padding: 0 .2667rem;
+}
+.myAnsRealAns p{
+	float: left;
+	font-size: .4rem;
+	color: #666;
+	margin-right: .25rem;
+}
+.myAnsRealAns p span.quesSuccTxt,
+.myAnsRealAns p span.realAnsTxt{
+	color: #28c8c6;
+	font-weight: 600;
+}
+.myAnsRealAns p span.queFailTxt{
+	color: #e10080;
+	font-weight: 600;
+}
+.myAnsRealAns p span.noAnsTxt{
+	color: #999;
+}
+.comHeader span.tongjiBtn{
+	width: 10%;
+	height: 100%;
+	position: absolute;
+	right: 0;
+	top:.1rem;
+	text-align: center;
+}
+.comHeader span.tongjiBtn i{
+	font-size: .8rem;
+	color: #4d47f1;
+	display: block;
+}
+/* 做题记录统计 */
+.total{
+	padding: 0 .2667rem;
+	background: #fff;
+	margin-bottom: .25rem;
+}
+.total p,
+.tongjiList p{
+	line-height: 1rem;
+	font-size: .4rem;
+	color: #666;
+}
+.total p span{
+	font-weight: bold;
+	color: #4d47f1;
+}
+.tongjiList{
+	padding: 0 .2667rem;
+	background: #fff;
+}
+.tongjiList p span{
+	color: #4d47f1;
+}
+.noTxt{
+	color: #999 !important;
+}
+.innerTongji{
+	width: 100%;
+	height: 60%;
+	background: #fff;
+}
+.innerTongji:last-child{
+	margin-top: .25rem;
+}
+.comHeader p.sellAllBtn{
+	width: 10%;
+	height: 100%;
+	position: absolute;
+	right: 0;
+	top:0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.comHeader p.sellAllBtn input{
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	left: 0;
+	top:0;
+	z-index: 5;
+}
+.comHeader span.headerTit.selQue{
+	width: 75%;
+	max-width: 75%;
+}
+.sellAllBtn em{
+	width: .45rem;
+	height: .45rem;
+	border:2px solid #e6e6e6;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.sellAllBtn em.hasSelect{
+	background: #fff;
+	border:2px solid #fff;
+}
+.sellAllBtn em i{
+	font-size: .4rem;
+	color: #fff;
+	display: none;
+}
+.sellAllBtn em.hasSelect i {
+	display: block;
+	color: #4d47f1;
+	font-weight: bold;
+}
+.viewHasSelBtn{
+	width: 1.2rem;
+	height: 1.2rem;
+	line-height: 1.2rem;
+	background:#4d47f1;
+	border-radius: 50%;
+	position: fixed;
+	right: .2rem;
+	bottom: 2rem;
+	z-index: 10;
+	font-size: .4rem;
+	color: #fff;
+	text-align: center;
+}

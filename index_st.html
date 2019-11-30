@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+    <script src="plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+	<link rel="stylesheet" type="text/css" href="css/mui.min.css"/>
+	<link rel="stylesheet" type="text/css" href="css/common/reset.css"/>
+	<link rel="stylesheet" type="text/css" href="css/common/common.css"/>
+	<title>知识典</title>
+	<style>
+		.bootImg{
+			position:fixed;  
+			top: 0; 
+			left: 0; 
+			width:100%; 
+			height:100%; 
+			z-index:-10; 
+			zoom: 1; 
+			background:url(images/bootPic.jpg) no-repeat; 
+			background-size: cover; 
+			-webkit-background-size: cover; 
+			background-position: center center; 
+		}
+	</style>
+</head>
+<body>
+	<div id="bootImg" class="bootImg"></div>
+	<script src="plugins/app.js" type="text/javascript" charset="utf-8"></script>
+	<script src="js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+	<script src="plugins/footer.js" type="text/javascript" charset="utf-8"></script>
+	<script type="text/javascript">
+		var subPages_st = [
+			'page/home.html',
+			'page/myNtTea/myNtTea.html',
+			'page/buy/buy.html',
+			'page/mine/mine.html'
+		]; 
+		var subPages_par = [
+			'page/home_par.html',
+			'page/myNtTea/myNtTea.html',
+			'page/mine/mine_par.html'
+		]; 
+		var subPages_nt = [
+			'page/home_nt.html',
+			'page/myStu_nt/myStu.html',
+			'page/mine/mine_nt.html'
+		]; 
+		var subPages_tea = [
+			'page/home_tea.html',
+			'page/hwReport/hwReport.html',
+			'page/mine/mine_tea.html'
+		];
+		mui.init({ 
+		   preloadPages:[  //预加载登录页面,需要时显示出来 
+				{
+					 id:'login', 
+					 url:'login.html',
+					 styles:{"scrollIndicator":"none"} //设置打开的页面样式, 隐藏滚动条, 设置状态栏为深绿色
+				}
+			]
+		});
+		
+		//子页面样式 这里只有主页底部是公用的
+		var subpages_style = {
+			top:'0px',
+			bottom:'51px'
+		};
+		var aniShow = {};
+		mui.plusReady(function () {
+			var self = plus.webview.currentWebview();
+			var wvs = plus.webview.all();
+			var userInfo = JSON.parse(localStorage.getItem('userInfo'));
+			if(userInfo == null){//不存在storage
+				app.getId('bootImg').addEventListener('tap',function(){
+					var loginView = plus.webview.getWebviewById('login');
+					loginView.show('pop-in');
+					mui.fire(loginView,"noLoginCheck",{opt:'noLogin_boot'});
+				});
+				plus.nativeUI.showWaiting();
+				setTimeout(function(){
+					plus.nativeUI.closeWaiting();
+					var loginView = plus.webview.getWebviewById('login');
+					loginView.show('pop-in');
+					mui.fire(loginView,"noLoginCheck",{opt:'noLogin_boot'});
+				},2000);
+			}else{
+				var roleId = userInfo.roleId;
+				document.body.innerHTML = createFooter(roleId);
+				if(roleId == stu_role_id){
+					loadStuCon();
+				}else if(roleId == ntTea_role_id){//网络导师
+					loadNtCon();
+				}else if(roleId == tea_role_id){//班内老师
+					loadTeaCon();
+				}else if(roleId == stuPar_role_id){//家长
+					loadStuParCon();
+				}
+			} 
+			//班内老师部分
+			function loadTeaCon(){
+				comSwitchTab(subPages_tea);
+			}
+			//网络导师部分
+			function loadNtCon(){ 
+				comSwitchTab(subPages_nt);
+			}
+			//学生身份
+			function loadStuCon(){
+				comSwitchTab(subPages_st);
+			}
+			//家长
+			function loadStuParCon(){
+				comSwitchTab(subPages_par);
+			}
+			//公共切换方法
+			function comSwitchTab(subpages){
+				var sub = plus.webview.create(subpages[0], subpages[0], subpages_style);
+				self.append(sub);
+				var activeTab = subpages[0];
+				
+				 //选项卡点击事件
+				mui('.mui-bar-tab').on('tap', 'a', function(e) {
+					var targetTab = this.getAttribute('href'),
+						isLoadFlag = this.getAttribute('isLoadFlag'),
+						currType = this.getAttribute('currType');
+					if (targetTab == activeTab) {
+						return;
+					}
+					var self = plus.webview.currentWebview();
+					//隐藏当前;
+					for(var i=0;i<subpages.length;i++){
+						plus.webview.hide(subpages[i]);
+					}
+					if(isLoadFlag == 'false'){
+						var sub = plus.webview.create(targetTab, targetTab, subpages_style);
+						self.append(sub);
+						this.setAttribute('isLoadFlag','true');
+					}else{
+						plus.webview.show(targetTab); 
+					}
+					//更改当前活跃的选项卡
+					activeTab = targetTab;
+					if(currType == 'home_st'){//学生
+						var homeSt = plus.webview.getWebviewById('page/home.html');
+						mui.fire(homeSt,'upDateTodayHwList',{});
+						mui.fire(homeSt,'upDateUnReadMsgFun',{});
+					}else if(currType == 'home_nt'){//网络导师
+						var homeSt = plus.webview.getWebviewById('page/home_nt.html');
+						mui.fire(homeSt,'upDateUnReadMsgFun',{});
+					}else if(currType == 'ntTea_st'){//学生下我的导师
+						var myNt = plus.webview.getWebviewById('page/myNtTea/myNtTea.html');
+						mui.fire(myNt,'upDateMyNtList',{});
+					}else if(currType == 'home_tea'){//班内老师
+						var homeTea = plus.webview.getWebviewById('page/home_tea.html');
+						mui.fire(homeTea,'upDateSendData',{isSendFlag:true});
+					}
+					
+				});
+			}
+			document.addEventListener('showRoleCon',function(){
+				var userInfo = JSON.parse(localStorage.getItem('userInfo'));
+				if(userInfo != null){
+					var roleId = userInfo.roleId;
+					document.body.innerHTML = createFooter(roleId);
+					if(roleId == stu_role_id){
+						loadStuCon();
+					}else if(roleId == ntTea_role_id){
+						loadNtCon();
+					}else if(roleId == tea_role_id){
+						loadTeaCon();
+					}else if(roleId == stuPar_role_id){
+						loadStuParCon();
+					}
+				}
+			});
+			document.addEventListener('showIndexLayer',function(e){
+				var opt = e.detail.opt; 
+				if(opt == 'open'){//打开遮罩层
+					app.getId('indexLayer').style.display = 'block';
+				}else{
+					app.getId('indexLayer').style.display = 'none';
+				}
+				
+			});
+			/*var currVersion = '';
+			mui.getJSON('manifest.json', null, function(manifest){
+				var versionName = manifest.version.name;
+				var versionCode = Number(manifest.version.code);
+				mui.toast("版本名称："+versionName+"，版本code："+versionCode);
+				currVersion = manifest.version.name;
+				checkVersion();
+			
+			});*/
+			function checkVersion(){
+				mui.ajax(http_ + '/baseInfo.do?action=getNewAppVersion',{
+					data:{opt:'new'},
+					dataType:'json',
+					type:'post', 
+					timeout:10000,
+					success:function(json){
+						if(json.result == 'success'){
+							if(currVersion != json.version){
+								var btnArray = ['确定','取消'];
+								mui.confirm('检查到当前版本有最新更新，下载升级?', '版本更新提示', btnArray, function(e) {
+									if(e.index == 0){
+										mui.toast('正在更新新版本');
+										var dtask = plus.downloader.createDownload(
+											http_ + "/Module/appDown/zsd.apk",
+											{method:"GET"},
+											function(d, status){
+												if(status == 200){
+													plus.nativeUI.showWaiting("安装更新文件...");
+													//plus.runtime.install(d.filename);
+													 plus.runtime.install(d.filename,{},function(){
+														plus.nativeUI.closeWaiting();        
+														plus.nativeUI.alert("应用资源更新完成！",function(){
+															plus.runtime.restart();
+														});
+													},function(e){
+														plus.nativeUI.closeWaiting();        
+														plus.nativeUI.alert("安装更新文件失败["+e.code+"]："+e.message);
+													});
+												}
+											}
+										);
+										dtask.start();
+									}
+								});
+							}
+						}else if(json.result == 'noInfo'){
+							
+						}
+					},
+					error:function(xhr,type,errorThrown){
+						app.showToast(2);
+						console.log(errorThrown)
+					} 
+				})
+			}
+			//checkVersion();
+		});  
+	</script>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/parentInfo.css"/>
+		<title>家长信息</title>
+	</head>
+	<body class="paddingTop">
+		<div class="comHeader otherBg">
+			<a id="backBtn" class="posL" href="javascript:mui.back();"><i class="iconfont icon-fanhui"></i></a>
+			<span class="headerTit">我的家长信息</span>
+		</div>
+		<div class="parentInfo">
+			<div class="parPic">
+				<div>
+					<img id="headPic" src=""/>
+					<p id="parName"></p>
+				</div>
+			</div>
+			<div class="infoItem">
+				<p class="smTit">账号</p>
+				<p id="accNt" class="titCon"></p>
+			</div>
+			<div class="infoItem">
+				<p class="smTit">昵称</p>
+				<p id="nickName" class="titCon"></p>
+			</div>
+			<div class="infoItem">
+				<p class="smTit">密码</p>
+				<p id="password" class="titCon"></p>
+			</div>
+			<div class="infoItem">
+				<p class="smTit">生日</p>
+				<p id="birth" class="titCon"></p>
+			</div>
+			<div class="infoItem">
+				<p class="smTit">手机号</p>
+				<p id="phoneNum" class="titCon"></p>
+			</div>
+			<div class="infoItem">
+				<p class="smTit">邮箱</p>
+				<p id="email" class="titCon"></p>
+			</div>
+		</div>
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			mui.plusReady(function(){
+				var userId = plus.webview.currentWebview().userId;
+				var page = {
+					loadJzInfo : function(){
+						mui.ajax(http_ + '/baseInfo.do?action=getParentInfo',{
+							data:{userId:userId}, 
+							dataType:'json',
+							type:'post',
+							timeout:10000,
+							success:function(json){
+								app.getId('headPic').setAttribute('src',http_ + '/' + json.portrait);
+								app.getId('parName').innerHTML = json.realName == '' ? '<span class="noSetTxt">未设置</span>' : json.nickName;
+								app.getId('accNt').innerHTML = json.userAcc;
+								app.getId('nickName').innerHTML = json.nickName == '' ? '<span class="noSetTxt">未设置昵称</span>' : json.nickName;
+								app.getId('password').innerHTML = json.password;
+								app.getId('birth').innerHTML = json.birthday == '' ? '<span class="noSetTxt">未设置生日</span>' : json.birthday;
+								app.getId('phoneNum').innerHTML = json.mobile == '' ? '<span class="noSetTxt">未添加手机号</span>' : json.mobile;
+								app.getId('email').innerHTML = json.email == '' ? '<span class="noSetTxt">未添加邮箱</span>' : json.email;
+							},
+							error:function(xhr,type,errorThrown){
+								plus.nativeUI.toast('服务器异常');
+							}
+						});
+					}
+				};
+				page.loadJzInfo();
+			});
+		</script>
+	</body>
+</html>

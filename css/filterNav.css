@@ -1,0 +1,117 @@
+.subject{
+	height: 100%;
+	position: absolute;
+	right: .2667rem;
+	top:0;
+	font-size: .45rem;
+	font-weight: 600;
+	color: #fff;
+}
+.subject.qinfenSub{
+	display: none;
+}
+#student.subject{
+	color: #333;
+}
+.subject.buffet{
+	color: #333;
+}
+.subject.hw{
+	color: #fff;
+}
+.subject span{
+	float: left;
+}
+.subject i{
+	font-weight: normal;
+	color: #fff;
+}
+.filter{
+	height: 1.2rem;
+	background: #fff;
+	padding: 0 .2667rem;
+	box-shadow: 0 3px 5px rgba(0,0,0,.05);
+	position: relative;
+	z-index: 10;
+}
+.filter.qinfenFilter{
+	display: none;
+}
+.filter.fixedFilter{
+	position: fixed;
+	left: 0;
+	top:1.3rem;
+}
+.compSta{
+	width:19%;
+	line-height: 1.2rem;
+	height: 100%;
+	float: left;
+	font-size: .38rem;
+	color: #333;
+	text-align:center;
+}
+.timeInp{
+	width: 85%;
+	height: .8rem;
+	line-height: .8rem;
+	float: left;
+	margin-top: .2rem;
+}
+.timeInp.typeOneWid{
+	width: 70%;
+}
+.timeInp .innerTimeInp{
+	width: 44%;
+	height: 100%;
+	float: left;
+	background: #e6e6e6;
+	position: relative;
+	border-radius: 4px;
+}
+.timeInp.typeOneWid .innerTimeInp{
+	width: 43%;
+}
+.timeInp .innerTimeInp input{
+	width: 70%;
+	height: 100%;
+	line-height: .7rem;
+	border:none;
+	display: block;
+	padding-left: 3%;
+	font-size: .38rem;
+	color: #333;
+	background: transparent;
+}
+.timeInp .innerTimeInp i{
+	position: absolute;
+	right: .2rem;
+	top:0;
+	font-size: .5rem;
+	color: #999;
+	font-weight: 600;
+}
+.tilTxt{
+	float: left;
+	margin:0 .2rem;
+	font-size: .42rem;
+	color: #333;
+}
+.search{
+	width: 14%;
+	height: .8rem;
+	line-height: .8rem;
+	float: right;
+	margin-top: .2rem;
+	text-align: center;
+	background: #4d47f1;
+	border-radius: 4px;
+}
+.timeInp.typeOneWid ~ .search{
+	width: 10%;
+}
+.search i{
+	font-size: .5rem;
+	display: block;
+	color: #fff;
+}

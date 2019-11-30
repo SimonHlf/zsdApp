@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/hwReport.css"/>
+		<title>作业报告</title>
+	</head>
+	<body class="paddingTop">
+		<div class="comHeader otherBg">
+			<span class="headerTit">作业报告</span>
+			<span id="filterBtn" class="filterBtn"><i class="iconfont icon-shaixuan"></i></span>
+		</div>
+		<!-- 统计报告 柱状图 -->
+		<div id="infoTxt" class="infoTxt"></div>
+		<div id="chartReport" class="chartReport"></div>
+		<div class="tips">注：点击横坐标日期切换查看学生作业完成情况</div>
+		<!-- 当天没有家庭作业记录时显示全部学生 -->
+		<div id="dateTxt" class="dateTxt"></div>
+		<div id="stuListWrap">
+			<div id="allStu" class="stuList">
+				<div class="listStu">
+					<strong>全部学生<span>(暂无按时完成、补做完成、未完成记录)</span></strong>
+					<ul id="allStuUl" class="clearfix"></ul>
+				</div>
+			</div>
+			
+			<!-- 根据完成状态筛选出对应的学生 -->
+			<div id="hasDataStu" class="stuList">
+				<!-- 按时完成 -->
+				<div id="compStu" class="listStu">
+					<strong>按时完成</strong>
+					<ul id="compStuUl" class="clearfix"></ul>
+				</div>
+				 
+				<!-- 补做完成 -->
+				<div id="bzCompStu" class="listStu">
+					<strong>补做完成</strong>
+					<ul id="bzCompStuUl" class="clearfix"></ul>
+				</div>
+				
+				<!-- 未完成 -->
+				<div id="noCompStu" class="listStu">
+					<strong>未完成</strong>
+					<ul id="noCompStuUl" class="clearfix"></ul>
+				</div>
+			</div>
+		</div>
+		<div id="layer" class="layer"></div>
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../libs/echarts.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var userInfo = JSON.parse(localStorage.getItem('userInfo')),field = null;
+			var classId = 0,hwType = 1,selDate = '',sepcDate = '',paramDate = '';
+			//var globalUserId = 0,loginStatus=0;
+			var myChart = echarts.init(app.getId('chartReport'));
+			mui.plusReady(function(){
+				var opener = plus.webview.currentWebview().opener();//index_st.html
+				var page = {
+					init : function(){
+						var userInfo = JSON.parse(localStorage.getItem('userInfo'));
+						var loginView = plus.webview.getWebviewById('login');
+						var currStatus = userInfo == null ? false : true;
+						if(currStatus){
+							this.bindEvent();
+							this.loadGradeClassList();
+						}else{
+							mui.fire(loginView,"noLoginCheck",{opt:'noLogin_user'});//从app内除了人为退出为login页面绑定的opt
+							app.doLogin();
+						}
+					},
+					bindEvent : function(){
+						var _this = this;
+						myChart.on('click', function (params) {
+						    var type = params.componentType;
+						    if(type == "xAxis"){
+								sepcDate = params.value;
+						    }else{ 
+								sepcDate = params.name;
+						    }
+							_this.loadHwReportInfo('click');
+						});
+						//切换日期load对应的作业类型的完成人数
+						//条件筛选
+						app.getId('filterBtn').addEventListener('tap',function(){
+							mui.fire(opener,'showIndexLayer',{opt:'open'});
+							app.getId('layer').style.display = 'block';
+							mui.openWindow({  
+								url :'../hwRecord/filter.html',
+								id : 'hwRecord/filter.html',  
+								styles : {
+									top:0,//新页面顶部位置
+									right:'0px', 
+									bottom:0,//新页面底部位置
+									width:'75%',//新页面宽度，默认为100%,
+								},
+								extras : {
+									jumpPos : 'hwReport',
+									currField : field,//年级班级列表
+									selDate : selDate
+								}
+							});
+						});
+						app.getId('layer').addEventListener('tap',function(){
+							var filterView = plus.webview.getWebviewById('hwRecord/filter.html');
+							filterView.hide('pop-out');
+							setTimeout(function(){
+								mui.fire(opener,'showIndexLayer',{opt:'close'});
+								app.getId('layer').style.display = 'none';
+							},400);
+						}); 
+						//点击学生进入该学生对应的做题记录页面
+						mui('#stuListWrap').on('tap','li',function(){
+							var comStatus = this.getAttribute('comStatus'),
+								stuId = this.getAttribute('stuId'),
+								stuName = this.getAttribute('stuName');
+							var field = {comStatus:comStatus,hwType:hwType,sDate:paramDate,eDate:paramDate,userId:userInfo.userId,stuId:stuId}
+							app.openwin('hwAnswerRecList.html',{currField:field,classId:classId});
+						});
+					},
+					swithHwTypeTx : function(hwType){
+						var hwTypeTxt = '';
+						if(hwType == 1){
+							hwTypeTxt = '家庭作业';
+						}else if(hwType == 2){
+							hwTypeTxt = '课后复习';
+						}else if(hwType == 3){
+							hwTypeTxt = '课前预习';
+						}
+						return hwTypeTxt;
+					},
+					loadHwReportInfo : function(loadType){
+						var nowField = {userId:userInfo.userId,classId:classId,hwType:hwType,specDate:sepcDate,endDate:selDate},_this = this;
+						//console.log(JSON.stringify( nowField ))
+						mui.ajax(http_ + '/hw.do?action=getHwReportData',{
+							data:nowField,
+							dataType:'json',
+							type:'post',
+							timeout:10000,  
+							success:function(json){ 
+								app.showToast(2);
+								//console.log(JSON.stringify( json ))
+								selDate = json.endDate;
+								if(loadType == 'load'){
+									paramDate = json.endDate;
+									app.getId('dateTxt').innerHTML = selDate + _this.swithHwTypeTx(hwType) + '完成情况';
+								}else{
+									paramDate = json.specDate;
+									app.getId('dateTxt').innerHTML = json.specDate + _this.swithHwTypeTx(hwType) + '完成情况';
+								}
+								if(json.result == 'success'){ 
+									//0 未完成 1:按时完成 2:补做完成
+									app.getId('hasDataStu').style.display = 'block';
+									app.getId('allStu').style.display = 'none'; 
+									app.getId('allStuUl').innerHTML = '';
+									_this.renderHwReportInfo(json.xAxisData,json.yAxisZsData,json.yAxisBzData,json.yAxisUnData);
+
+									_this.renderHwReport_Zs(json.zsComUserList);
+									_this.renderHwReport_Bz(json.bzComUserList);
+									_this.renderHwReport_Un(json.unComUserList);
+								}else if(json.result == 'noInfo'){//一条发送记录都没有 显示全部学生
+									app.getId('allStu').style.display = 'block';
+									app.getId('hasDataStu').style.display = 'none';
+									_this.renderHwReportInfo(json.xAxisData,json.yAxisZsData,json.yAxisBzData,json.yAxisUnData);
+									_this.renderStuList(json.userList);
+								}else if(json.result == 'error'){ 
+									plus.nativeUI.toast('服务器错误');
+								}
+							},
+							error:function(xhr,type,errorThrown){
+								app.showToast(2);
+								plus.nativeUI.toast('服务器错误');
+							} 
+						});
+					},
+					comRenderStuList : function(list,obj){
+						if(list.length > 0){
+							var str = '';
+							for(var i=0;i<list.length;i++){
+								str += '<li comStatus="'+ list[i].comStatus +'" stuName="'+ list[i].userName +'" stuId="'+ list[i].userId +'">';
+								str += '<div class="headImg"><img src="'+ http_ +'/'+ list[i].userPortrait +'"></div>';
+								str += '<p class="ellip">'+ list[i].userName +'</p>';
+								str += '</li>';
+							}
+							app.getId(obj).innerHTML = str;
+						}else{
+							if(obj == 'compStuUl'){
+								app.getId(obj).innerHTML = '<p class="noRecTxt">按时完成作业学生人数记录为空</p>';
+							}else if(obj == 'bzCompStuUl'){
+								app.getId(obj).innerHTML = '<p class="noRecTxt">补做完成作业学生人数记录为空</p>';
+							}else if(obj == 'noCompStuUl'){
+								app.getId(obj).innerHTML = '<p class="noRecTxt">未完成作业学生人数记录为空</p>';
+							}
+							
+						}
+					},
+					//未做学生列表
+					renderHwReport_Un : function(list){
+						this.comRenderStuList(list,'noCompStuUl');
+					},
+					//补做完成学生列表
+					renderHwReport_Bz : function(list){
+						this.comRenderStuList(list,'bzCompStuUl');
+					},
+					//按时完成学生列表
+					renderHwReport_Zs : function(list){
+						this.comRenderStuList(list,'compStuUl');
+					},
+					//渲染noInfo全部学生列表
+					renderStuList : function(list){
+						this.comRenderStuList(list,'allStuUl');
+					}, 
+					//生成echart
+					renderHwReportInfo : function(xAxisData,yAxisZsData,yAxisBzData,yAxisUnData){
+						//console.log(app.getId('chartReport').getAttribute('_echarts_instance_'));
+						//app.getId('chartReport').removeAttribute('_echarts_instance_');
+						var axisName = ['按时完成','补做完成','未完成'],_this = this;
+						//console.log("echart函数进来了~")
+						var option = {
+							title: {
+								text: ''
+							},
+							tooltip: {trigger: 'axis'},
+							color : ['#4d47f1','#29c7c6','#e10080'],
+							legend: {
+								data: axisName
+							},
+							grid: {
+								x:25,
+								x2: 15,
+								y: 10,
+								y2: 30
+							},
+							toolbox: {
+								show : false,
+								orient:'vertical',
+								y:'center',
+								feature : {
+									dataView : {show: true, readOnly: true},
+									magicType : {show: true, type: ['line', 'bar']},
+									restore : {show: true}
+								}
+							},
+							calculable: false,
+							xAxis: {
+								type: 'category',
+								data: xAxisData,
+								triggerEvent : true
+							},
+							yAxis : [
+								{
+									type : 'category',
+									name : '人'
+								}
+							],
+							series: [{
+								name: axisName[0],
+								type: 'line',
+								data: yAxisZsData
+							}, {
+								name: axisName[1],
+								type: 'line',
+								data: yAxisBzData
+							},{
+								name: axisName[2],
+								type: 'line',
+								data: yAxisUnData
+							}]
+						};
+						
+						// 使用刚指定的配置项和数据显示图表。
+						myChart.setOption(option);
+						//console.log(JSON.stringify( option ))
+						//console.log("echart函数结束了~")
+					},
+					//加载年级班级
+					loadGradeClassList : function(){
+						var _this = this;
+						app.showToast(1);
+						mui.ajax(http_ + '/hw.do?action=getMyClassData',{
+							data:{userId:userInfo.userId},
+							dataType:'json',
+							type:'post',
+							timeout:10000,
+							success:function(json){ 
+								app.showToast(2);
+								if(json.result == 'success'){ 
+									field = json.cList;
+									classId = json.cList[0].cId;
+									app.getId('infoTxt').innerHTML = json.cList[0].cName + _this.swithHwTypeTx(hwType) + '作业报告';
+									_this.loadHwReportInfo('load');
+								}else if(json.result == 'noInfo'){
+									app.getId('infoTxt').innerHTML = '<p style="color:#999;font-size:.48rem;">暂无班级</p>';
+								}
+							},
+							error:function(xhr,type,errorThrown){
+								app.showToast(2);
+								plus.nativeUI.toast('服务器错误');
+							} 
+						});
+					} 
+				};
+				page.init();
+				//系统返回时监听关闭layer层
+				document.addEventListener('closeLayer',function(){
+					setTimeout(function(){
+						mui.fire(opener,'showIndexLayer',{opt:'close'});
+						app.getId('layer').style.display = 'none';
+					},400);
+				});
+				//根据筛选条件监听对应加载信息
+				document.addEventListener('upDateHwReportInfo',function(e){
+					var currField = e.detail.currField;
+					classId = currField.classId;
+					hwType = currField.hwType;
+					selDate = currField.selDate;
+					app.getId('infoTxt').innerHTML = e.detail.clName + page.swithHwTypeTx(hwType) + '作业报告';
+					if(currField.tapOpt == 'sureBtn'){
+						setTimeout(function(){
+							mui.fire(opener,'showIndexLayer',{opt:'close'});
+							app.getId('layer').style.display = 'none';
+							page.loadHwReportInfo('load');
+						},400);
+					}
+				});
+			});
+		</script>
+		
+	</body>
+</html>

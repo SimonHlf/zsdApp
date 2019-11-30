@@ -1,0 +1,48 @@
+body{
+	background: #f2f2f2;
+}
+.taskAwradList{
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 1.5rem;
+	bottom: 0;
+	overflow:hidden;
+	overflow-y: auto;
+	-webkit-overflow-scrolling: touch;
+	background: #fff;
+}
+.taskAwradList li{
+	height: 1.2rem;
+	line-height: 1.2rem;
+	border-bottom: 1px solid #e6e6e6;
+	padding: 0 .2667rem;
+}
+.taskAwradList li .taskName{
+	width: 80%;
+	float: left;
+	font-size: .42rem;
+	color: #333;
+	text-overflow: ellipsis;
+	overflow: hidden;
+	white-space: nowrap;
+}
+.taskAwradList li .goldenBox{
+	width: 20%;
+	float: left;
+	display: flex;
+	justify-content: center;
+}
+.taskAwradList li .goldenBox p,
+.taskAwradList li .goldenBox i{
+	float: left;
+}
+.taskAwradList li .goldenBox p{
+	color: #333;
+	font-size: .45rem;
+	margin-right: .1rem;
+}
+.taskAwradList li .goldenBox i{
+	color: #f5aa29;
+	font-size: .55rem;
+}

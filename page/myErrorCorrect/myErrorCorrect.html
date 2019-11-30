@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/myErrorCorrect.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/mui.min.css"/>
+		<title>我的纠错</title>
+	</head>
+	<body class="paddingTop">
+		<div class="comHeader otherBg">
+			<a id="backBtn" class="posL" href="javascript:mui.back();"><i class="iconfont icon-fanhui"></i></a>
+			<span class="headerTit">我的纠错</span>
+		</div>
+		<div id="errListContainer" class="subErrList">
+			<div class="mui-scroll">
+				<ul id="errListUl"></ul>
+			</div>
+			<div id="noData" class="noData" style="display: none;"><img src="../../images/noData.png" /><p>暂无纠错记录！</p></div>
+		</div>
+		
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var userInfo = JSON.parse( localStorage.getItem('userInfo') ),pageNum = 1;
+			mui.init({
+				pullRefresh : {
+					container : "#errListContainer",
+					up : {
+						height:50,
+						auto:false,
+						contentrefresh : "正在加载...",
+						contentnomore:'没有更多数据了',
+						callback : getErrList_more
+					}
+				}
+			});
+			mui.plusReady(function(){
+				var page = {
+					init : function(){
+						this.bindEvent();
+						getErrList(null,'initload');
+					},
+					bindEvent : function(){
+						mui('#errListUl').on('tap','li',function(){
+							var lqeId = this.getAttribute('lqeId'),
+								loreName = this.getAttribute('loreName');
+							app.openwin('errDet.html',{lqeId:lqeId,loreName:loreName});
+						});
+					}
+				};
+				page.init();
+			});
+			//获取纠错列表
+			function getErrList(currObj,loadType){
+				var field = {userId:userInfo.userId,opt:'stu',page:pageNum,limit:10};
+				//console.log(JSON.stringify( field ))
+				app.showToast(1);
+				mui.ajax(http_ + '/lqe.do?action=getPageLqeData',{
+					data:field,
+					dataType:'json',
+					type:'post',
+					timeout:10000,  
+					success:function(json){ 
+						app.showToast(2);
+						//console.log(JSON.stringify(json))
+						if(json.msg == 'success'){ 
+							if(json.data.length > 0){
+								app.getId('noData').style.display = 'none';
+								renderErrList(json.data,currObj);
+							}else{
+								currObj.endPullupToRefresh(true);
+							}
+						}else if(json.msg == '暂无记录'){ 
+							$('.mui-pull').hide();
+							$('#errListUl').html('');
+							app.getId('noData').style.display = 'block';
+						}
+					},
+					error:function(xhr,type,errorThrown){
+						app.showToast(2);
+						plus.nativeUI.toast('服务器错误');
+					} 
+				});
+			}
+			function renderErrList(list,currObj){
+				var str = '';
+				for(var i=0;i<list.length;i++){
+					str += '<li lqeId="'+ list[i].lqeId +'" loreName="'+ list[i].loreName +'">';
+					str += '<p class="errTit ellip">'+ list[i].loreName +'</p>';
+					str += '<p class="smTit">'+ list[i].lqTitle +'</p>';
+					str += '<div class="botPart">';
+					str += '<p class="errTypeTxt ellip">'+ list[i].errorType +'</p>';
+					if(list[i].updateStatus == '已修改'){
+						str += '<p class="checkStaTxt hasCheck">已修改</p>';
+					}else if(list[i].updateStatus == '未修改'){
+						str += '<p class="checkStaTxt noCheck">未修改</p>';
+					}
+					str += '<p class="subTime">'+ list[i].addate +'</p>';
+					str += '</div>';
+					str += '</li>';
+				}
+				if(currObj != null){
+					$('#errListUl').append(str);
+					currObj.endPullupToRefresh(false);
+				}else{
+					$('#errListUl').html(str);
+				}
+			}
+			function getErrList_more(){
+				pageNum++;
+				getErrList(this,'pullLoad');
+			}
+		</script>
+	</body>
+</html>

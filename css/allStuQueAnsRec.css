@@ -1,0 +1,74 @@
+/* *{touch-action: none;} */
+#nav{
+	height: 1.2rem;
+	line-height: 1.2rem;
+	border-bottom: 1px solid #e6e6e6;
+	background: #fff;
+	position: relative;
+	z-index: 5;
+}
+#nav .swiper-slide span {
+	margin:0 5px;
+	text-align:center;
+	display:block;
+	font-size:.4rem;
+	color:#333333;
+}
+#nav .bar {
+	width: 100%;
+	height:3px;
+	position:absolute;
+	bottom:0px;
+}
+#nav .bar .color {
+	width:36px;
+	margin:0 auto;
+	height:3px;
+	background:#4d47f1;
+}
+#mainCon{
+	position: absolute;
+	left: 0;
+	right: 0;
+	top:2.5rem;
+	bottom: 0;
+}
+#mainCon .slidepage{
+	overflow: hidden;
+	overflow-y:auto;
+	-webkit-overflow-scrolling: touch;
+}
+.ansStaNum .listStaNum{
+	padding: 0 .2667rem;
+	height: 1.2rem;
+	line-height: 1.2rem;
+	background: #fff;
+	font-size: .4rem;
+	margin-bottom: .25rem;
+}
+.ansStaNum .listStaNum p{
+	float: left;
+	color: #333;
+}
+.ansStaNum .listStaNum p strong{
+	font-size: .48rem;
+	margin:0 .2rem;
+}
+.ansStaNum .listStaNum  i{
+	float: right;
+	font-size: .5rem;
+	color: #999;
+}
+.ansStaNum .listStaNum:first-child p strong{
+	color: #4d47f1;
+}
+.ansStaNum .listStaNum:nth-of-type(4n-2) p strong{
+	color: #e73098;
+}
+.ansStaNum .listStaNum:nth-of-type(4n-1)  p strong{
+	color: #f18347;
+}
+.ansStaNum .listStaNum:nth-of-type(4n)  p strong{
+	color: #4d47f1;
+}
+/* 4d47f1 e73098 */

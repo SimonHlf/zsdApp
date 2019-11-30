@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/parPaid.css"/>
+		<title>订单详情</title>
+	</head>
+	<body class="paddingTop">
+		<div class="comHeader otherBg">
+			<a id="backBtn" class="posL" href="javascript:mui.back();"><i class="iconfont icon-fanhui"></i></a>
+			<span class="headerTit">订单详情</span>
+		</div>
+		<div id="bascInfo" class="billDet">
+			<div class="topTitBill">
+				<div id="billType" class="billType"></div>
+				<p id="billTit" class="billTit"></p>
+				<p id="currNum" class="currNum"></p>
+			</div>
+			<div class="billItem">
+				<p>
+					<span>订单编号：</span>
+					<span id="orderNo"></span>
+				</p>
+				<p>
+					<span>创建时间：</span>
+					<span id="orderTime"></span>
+				</p>
+				<p>
+					<span>订单状态：</span>
+					<span id="orderSta"></span>
+				</p>
+				<p>
+					<span>购买时长：</span>
+					<span id="buyDays"></span>
+				</p>
+				<p id="feeDet">
+					<span>费用明细：</span>
+				</p>
+				<p id="feeDetCon"></p>
+			</div>
+		</div>
+		
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+			mui.plusReady(function(){
+				orderId = plus.webview.currentWebview().orderId;
+				var page = {
+					init : function(){
+						this.loadOrderDet();
+					},
+					loadOrderDet : function(){
+						var field = {userId:userInfo.userId,roleId:userInfo.roleId,orderId:orderId};
+						console.log(JSON.stringify( field ))
+						mui.ajax(http_ + '/order.do?action=getOrderDetail',{
+							data:field,
+							dataType:'json',
+							type:'post',
+							timeout:10000,
+							success:function(json){
+								//console.log(JSON.stringify( json ))
+								app.showToast(2);
+								if(json.msg == 'success'){
+									app.getId('orderNo').innerHTML = json.orderNo;
+									if(json.ntsId == 0){
+										app.getId('billType').innerHTML = '购';
+										app.getId('billTit').innerHTML = '会员购买';
+										app.getId('feeDet').style.display = 'block';		
+										app.getId('feeDetCon').style.display = 'block';	
+										app.getId('feeDetCon').innerHTML = json.orderDetail;
+									}else{
+										app.getId('billType').innerHTML = '绑';
+										app.getId('billTit').innerHTML = '绑定导师：' + json.ntName + '('+ json.schoolType + json.subName +')';
+									}
+									app.getId('currNum').innerHTML = '¥' + json.payMoney;
+									app.getId('orderTime').innerHTML = json.addDate;
+									if(json.comStatus == 1){//已完成
+										app.getId('orderSta').className = 'hasCompStaTxt';
+										app.getId('orderSta').innerHTML = '已完成';
+									}else if(json.comStatus == 2){//已取消
+										app.getId('orderSta').className = 'cancelStaTxt';
+										app.getId('orderSta').innerHTML = '已取消';
+									}
+									app.getId('buyDays').innerHTML = json.buyDays + '个月';
+								}else if(json.msg == 'noInfo'){
+									app.getId('bascInfo').innerHTML = '<div id="noData" class="noData"><img src="../../images/noData.png" /><p>暂无此订单信息！</p></div>'
+								}else if(json.msg == 'error'){
+									mui.toast('服务器错误');
+								}
+							},
+							error:function(xhr,type,errorThrown){
+								app.showToast(2);
+								console.log(errorThrown)
+							} 
+						})
+					}
+				};
+				page.init();
+			});
+		</script>
+	</body>
+</html>

@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/mui.min.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/transferTakeList.css"/>
+		<title>接管班级记录</title>
+	</head>
+	<body class="paddingTop">
+		<div class="comHeader otherBg">
+			<a id="backBtn" class="posL" href="javascript:mui.back();"><i class="iconfont icon-fanhui"></i></a>
+			<span class="headerTit">接管班级管理</span>
+			<span id="filterBtn" class="filterBtn"><i class="iconfont icon-shaixuan"></i></span>
+		</div>
+		<div class="subTit">
+			<span></span>
+			<p id="currTit">我的处理(未处理)</p>
+		</div>
+		<div id="takeListContainer" class="list">
+			<div class="mui-scroll">
+				<ul id="takeListUl"></ul>
+				<div id="noData" class="noData" style="display: none;"><img src="../../images/noData.png" /><p>暂无记录！</p></div>
+			</div>
+		</div>
+		<div class="botBtnFun">
+			<!-- <span>转让班级</span> -->
+			<span id="takeClassBtn">我要接管班级</span>
+		</div>
+		<div id="layer" class="layer"></div>
+		
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var userInfo = JSON.parse(localStorage.getItem('userInfo')),isDealFlag = false;
+			var jumpPagePos = '',sDate='',eDate='',checkStatus=0,pageNum=1,isPullLoadFlag = false,noDataPage = 0,globalOpt=2;//我的处理
+			mui.init({
+				beforeback : function(){
+					if(jumpPagePos == 'byHome'){//从首页消息提醒进来
+						var opener = plus.webview.getWebviewById('page/home_tea.html');
+						mui.fire(opener,'upDateTakeClassTips',{isDealFlag:isDealFlag});
+					}
+				},
+				pullRefresh : {
+					container : "#takeListContainer",
+					up : {
+						height:50,
+						auto:false,
+						contentrefresh : "正在加载...",
+						contentnomore:'没有更多数据了',
+						callback : getTakeClassesList_more
+					}
+				}
+			});
+			mui.plusReady(function(){
+				jumpPagePos = plus.webview.currentWebview().jumpPagePos;
+				isDealFlag = plus.webview.currentWebview().isDealFlag;
+				//byHome->我的处理 未处理 最近三天
+				var page = {
+					loadTakeList : function(){
+						this.bindEvent();
+						getTakeClassesData(null,'initLoad');
+					},
+					bindEvent : function(){
+						//跳转值接管申请页面
+						app.getId('takeClassBtn').addEventListener('tap',function(){
+							var currStatus = app.checkLoginStatus(userInfo.userId,userInfo.loginStatus);
+							if(currStatus){
+								app.openwin('takeClass.html',{isTakeFlag:false});
+							}
+						});
+						//条件筛选
+						app.getId('filterBtn').addEventListener('tap',function(){
+							app.getId('layer').style.display = 'block';
+							mui.openWindow({  
+								url :'filter.html',
+								id : 'filter.html', 
+								styles : {
+									top:0,//新页面顶部位置
+									right:'0px',
+									bottom:0,//新页面底部位置
+									width:'75%',//新页面宽度，默认为100%,
+								},
+								extras : {
+									sDate : sDate,
+									eDate : eDate,
+									globalOpt : globalOpt,
+									checkStatus : checkStatus
+								}
+							});
+						});
+						app.getId('layer').addEventListener('tap',function(){
+							var filterView = plus.webview.getWebviewById('filter.html');
+							filterView.close('pop-out');
+							setTimeout(function(){
+								app.getId('layer').style.display = 'none';
+							},400);
+						});
+					},
+					showCurrTypeTxt : function(globalOpt,checkStatus){
+						if(globalOpt == 2){//我的处理
+							if(checkStatus == 0){//未处理
+								app.getId('currTit').innerHTML = '我的处理(未处理)';
+							}else if(checkStatus == 1 ){
+								app.getId('currTit').innerHTML = '我的处理(已同意)';
+							}else if(checkStatus == 2 ){
+								app.getId('currTit').innerHTML = '我的处理(已拒绝)';
+							}
+						}else{//我的申请
+							if(checkStatus == 0){//未处理
+								app.getId('currTit').innerHTML = '我的申请(未处理)';
+							}else if(checkStatus == 1 ){
+								app.getId('currTit').innerHTML = '我的申请(已同意)';
+							}else if(checkStatus == 2 ){
+								app.getId('currTit').innerHTML = '我的申请(已拒绝)';
+							}
+						}
+					}
+				}; 
+				page.loadTakeList();
+				//从我要申请提交后返回至当前页面更新接管申请记录
+				document.addEventListener('upDateTakeList',function(e){
+					var isTakeFlag = e.detail.isTakeFlag;//true->设置了接管班级
+					if(isTakeFlag){
+						pageNum = 1;
+						globalOpt = 1;//更新我的申请记录
+						checkStatus = 0;
+						page.showCurrTypeTxt(globalOpt,checkStatus)
+						getTakeClassesData(null,'query');
+					}
+				});
+				//系统返回时监听关闭layer层
+				document.addEventListener('closeLayer',function(){
+					setTimeout(function(){
+						app.getId('layer').style.display = 'none';
+					},400);
+				});
+				//根据筛选条件更新对应接管班级记录
+				document.addEventListener('upTakeClassesList',function(e){
+					var currField = e.detail.currField;
+					checkStatus = currField.checkStatus;
+					globalOpt = currField.globalOpt;
+					sDate = currField.sDate;
+					eDate = currField.eDate;
+					page.showCurrTypeTxt(currField.globalOpt,currField.checkStatus);
+					if(currField.tapOpt == 'sureBtn'){
+						setTimeout(function(){
+							app.getId('layer').style.display = 'none';
+							isPullLoadFlag = false;
+							pageNum = 1;
+							getTakeClassesData(null,'query');
+						},400);
+					}
+				});
+			});
+			//获取接管班级各种记录
+			function getTakeClassesData(currObj,loadType){
+				app.showToast(1);
+				var field = {userId:userInfo.userId,opt:globalOpt,checkStatus:checkStatus,sDate:sDate,eDate:eDate,pageNo:pageNum};
+				//console.log(JSON.stringify( field ))
+				mui.ajax(http_ + '/applyClass.do?action=getApplyClassData',{
+					data:field,
+					dataType:'json',
+					type:'post',
+					timeout:10000,
+					success:function(json){ 
+						app.showToast(2); 
+						sDate = json.sDate;
+						eDate = json.eDate;
+						if(json.result == 'success'){
+							app.getId('noData').style.display = 'none';
+							renderTakeClassesList(json.acList,currObj);
+							if(loadType == 'query'){
+								$('.mui-pull').show();
+								mui('#takeListContainer').pullRefresh().refresh(true);
+							}
+						}else if(json.result == 'noInfo'){
+							if(currObj != null){
+								isPullLoadFlag = true;
+								noDataPage = pageNum-1;
+								currObj.endPullupToRefresh(true);
+							}else{
+								$('.mui-pull').hide();
+								$('#takeListUl').html('');
+								app.getId('noData').style.display = 'block';
+							}
+						}
+					},
+					error:function(xhr,type,errorThrown){
+						app.showToast(2);
+						plus.nativeUI.toast('服务器错误');
+					} 
+				});
+			}
+			//生成
+			function renderTakeClassesList(list,currObj){
+				var str = '';
+				for(var i=0;i<list.length;i++){
+					str += '<li>';
+					str += '<div class="dateTxt">';
+					str += '<p class="takeTypeTag tmpTake">'+ list[i].applyOptChi +'</p>';
+					if(list[i].checkRemark != ''){
+						str += '<p class="takeTypeTag remarkTxt">'+ list[i].checkRemark +'</p>';
+					}
+					str += '<p>'+ list[i].applyTime +'</p>';
+					str += '</div>';
+					str += '<p class="con">'+ list[i].applyDetail +'</p>';
+					if(list[i].checkStatusChi == '未处理'){
+						if(globalOpt == 2){//我的处理
+							str += '<div class="bot clearfix">';
+							str += '<span takeTypeTxt="'+ list[i].applyOptChi  +'" classInfo="'+ list[i].classInfo +'" appTeaName="'+ list[i].applyTeaName +'" acId="'+ list[i].acId +'" checkSta="2" class="refuseBtn">拒绝</span>';
+							str += '<em></em>';
+							str += '<span takeTypeTxt="'+ list[i].applyOptChi  +'" classInfo="'+ list[i].classInfo +'" appTeaName="'+ list[i].applyTeaName +'" acId="'+ list[i].acId +'" checkSta="1" class="agreeBtn">同意</span>';
+							str += '</div>';
+						}
+					}else if(list[i].checkStatusChi == '同意'){
+						str += '<span class="dealSta agreeSta"><i class="iconfont icon-yitongyi"></i></span>';
+					}else if(list[i].checkStatusChi == '拒绝'){
+						str += '<span class="dealSta refuseSta"><i class="iconfont icon-yijujue"></i></span>';
+					}
+					str += '</li>';
+				}
+				if(currObj != null){
+					$('#takeListUl').append(str);
+					currObj.endPullupToRefresh(false);
+				}else{
+					$('#takeListUl').html(str);
+				}
+				//拒绝refuseBtn
+				mui('#takeListUl').on('tap','.refuseBtn',function(){
+					var acId = this.getAttribute('acId'),
+						checkSta = this.getAttribute('checkSta'),
+						takeTypeTxt = this.getAttribute('takeTypeTxt'),
+						classInfo = this.getAttribute('classInfo'),
+						appTeaName = this.getAttribute('appTeaName');
+					showConfirmFun(acId,checkSta,'refuse',takeTypeTxt,classInfo,appTeaName);
+				});
+				//同意
+				mui('#takeListUl').on('tap','.agreeBtn',function(){
+					var acId = this.getAttribute('acId'),
+						checkSta = this.getAttribute('checkSta'),
+						takeTypeTxt = this.getAttribute('takeTypeTxt')
+						classInfo = this.getAttribute('classInfo'),
+						appTeaName = this.getAttribute('appTeaName');
+					showConfirmFun(acId,checkSta,'agree',takeTypeTxt,classInfo,appTeaName);
+				});
+			}
+			//处理统一/拒绝申请
+			function showConfirmFun(acId,checkSta,staOpt,takeTypeTxt,classInfo,appTeaName){
+				var btnArray = ['取消', '确定'],staOptMsg = '';
+				if(staOpt == 'agree'){//同意
+					staOptMsg = '是否同意'+ appTeaName +'老师对您'+ classInfo +'的'+ takeTypeTxt +'?';
+				}else{//拒绝
+					staOptMsg = '是否拒绝'+ appTeaName +'老师对您'+ classInfo +'的'+ takeTypeTxt +'?';
+				}
+				mui.confirm(staOptMsg, btnArray, function(e) {
+					if (e.index == 0){
+						app.showToast(1);
+						mui.ajax(http_ + '/applyClass.do?action=dealApplyClass',{
+							data:{userId:userInfo.userId,acId:acId,checkStatus:checkSta},
+							dataType:'json',
+							type:'post',
+							timeout:10000,
+							success:function(json){ 
+								app.showToast(2); 
+								if(json.result == 'success'){
+									plus.nativeUI.toast('处理成功~');
+									setTimeout(function(){
+										isDealFlag = true;//处理后变true 返回时 为首页时刷新提醒条数
+										pageNum = 1;
+										getTakeClassesData(null,'query');
+									},400);
+								}else if(json.result == 'error'){
+									plus.nativeUI.toast('服务器异常');
+								}
+							},
+							error:function(xhr,type,errorThrown){
+								app.showToast(2);
+								plus.nativeUI.toast('服务器异常');
+							} 
+						});
+						
+					}
+				});
+			}
+			function getTakeClassesList_more(){
+				pageNum++;
+				getTakeClassesData(this,'pullLoad');
+			}
+		</script>
+	</body>
+</html>

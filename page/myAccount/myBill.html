@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/myAccount.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/mobileSelect.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/mui.min.css"/>
+		<title>我的账单</title>
+	</head>
+	<body class="paddingTopBig">
+		<div class="comHeader otherBg">
+			<a id="backBtn" class="posL" href="javascript:mui.back();"><i class="iconfont icon-fanhui"></i></a>
+			<span class="headerTit">账单信息</span>
+		</div>
+		<!-- 筛选条件 -->
+		<div class="filter"> 
+			<!-- 年月份 -->
+			<div class="timeSel hasPosRea">
+				<input type="hidden" id="timeInp" value="" />
+				<p id="timeSelTxt" class="comSelTxtCon"></p>
+				<i class="iconfont icon-xiala"></i>
+			</div>
+			<!-- 打款状态 -->
+			<input type="hidden" id="compStaInp" value="0" />
+			<p id="compSta" class="compSta hasPosRea fl">
+				<span id="tixianSta" class="comSelTxtCon">全部</span>
+				<i class="iconfont icon-xiala"></i>
+			</p>
+		</div>
+		<div id="billContainer" class="billList">
+			<div class="mui-scroll">
+				<ul id="billListUl"></ul>
+			</div>
+			<div id="noData" class="noData" style="display: none;"><img src="../../images/noData.png" /><p>暂无账单记录！</p></div>
+		</div>
+		
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/datePicker.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/mobileSelect.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var billSta = [
+				{"type":0,"value":"全部"},
+				{"type":1,"value":"返现"},
+				{"type":2,"value":"提现"}
+			];
+			var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+			var pageNum = 1;
+			mui.init({
+				pullRefresh : {
+					container : "#billContainer",
+					up : {
+						height:50,
+						auto:false,
+						contentrefresh : "正在加载...",
+						contentnomore:'没有更多数据了',
+						callback : getBillList_more
+					}
+				}
+			});
+			mui.plusReady(function(){
+				var page = {
+					init : function(){
+						var currDate = new Date().getFullYear()+'-' + app.appendZero(new Date().getMonth()+1);
+						var dateStr = '<span>'+ currDate.split('-')[0] +'年</span><span>'+ currDate.split('-')[1] +'月</span>'
+						this.initTime();
+						this.bindEvent();
+						this.loadMyBillList();
+						app.getId('timeSelTxt').innerHTML = dateStr;
+					},
+					initTime : function(){
+						var calendar = new datePicker();
+						calendar.init({
+							'trigger': '#timeSelTxt',
+							/*按钮选择器，用于触发弹出插件*/
+							'type': 'ym',
+							/*模式：date日期；datetime日期时间；time时间；ym年月；*/
+							'minDate': '1900-1-1',
+							/*最小日期*/
+							'maxDate': new Date().getFullYear()+'-'+(new Date().getMonth()+1),
+							/*最大日期*/
+							'onSubmit': function() { /*确认时触发事件*/
+								app.getId('timeInp').value =  calendar.value;
+								app.getId('timeSelTxt').innerHTML = '<span>'+ calendar.value.split('-')[0] +'年</span><span>'+ calendar.value.split('-')[1] +'月</span>';
+								pageNum = 1;
+								getBillList(null,'query');
+							},
+							'onClose': function() { /*取消时触发事件*/ }
+						});
+					},
+					bindEvent : function(){
+						//提现状态
+						var tixianSta = new MobileSelect({
+							trigger: '#tixianSta',
+							title: '请选择提现状态',
+							wheels: [ 
+								{data: billSta}
+							],
+							position:[0], //初始化定位 打开时默认选中的哪个 如果不填默认为0
+							transitionEnd:function(indexArr, data){},
+							callback:function(indexArr, data){
+								app.getId('compStaInp').value = data[0].type;
+								pageNum = 1;
+								getBillList(null,'query');
+							}
+						});
+						mui('#billListUl').on('tap','li',function(){
+							var ntxId = this.getAttribute('ntxId');
+							app.openwin('billDetInfo.html',{ntxId:ntxId});
+						});
+					},
+					//我的账单记录
+					loadMyBillList : function(){
+						getBillList(null,'initload');
+					}
+				};
+				page.init();
+			});
+			//获取账单记录
+			function getBillList(currObj,loadType){
+				app.showToast(1);
+				var timeInp = app.getId('timeInp').value,
+					compStaInp = app.getId('compStaInp').value;
+				var field = {userId:userInfo.userId,operFlag:compStaInp,txDate:timeInp,page:pageNum};
+				//console.log(JSON.stringify( field ))
+				mui.ajax(http_ + '/netTeacher.do?action=listnTxReCord',{
+					data:field,
+					dataType:'json',
+					type:'post',
+					timeout:10000,  
+					success:function(json){ 
+						app.showToast(2);
+						//console.log(JSON.stringify( json ))
+						if(json.msg == 'success'){
+							if(json.data.length > 0){
+								app.getId('noData').style.display = 'none';
+								renderBillList(json.data,currObj);
+								if(loadType == 'query'){
+									$('.mui-pull').show();
+									mui('#billContainer').pullRefresh().refresh(true);
+								}
+							}else{
+								currObj.endPullupToRefresh(true);
+							}
+						}else if(json.msg == '暂无记录'){ 
+							if(currObj != null){
+								isPullLoadFlag = true;
+								noDataPage = pageNum-1;
+								currObj.endPullupToRefresh(true);
+							}else{
+								$('.mui-pull').hide();
+								$('#billListUl').html('');
+								app.getId('noData').style.display = 'block';
+							}
+						}
+					},
+					error:function(xhr,type,errorThrown){
+						app.showToast(2);
+						plus.nativeUI.toast('服务器错误');
+					} 
+				});
+			}
+			//生成账单记录DOM
+			function renderBillList(list,currObj){
+				var str = '';
+				for(var i=0;i<list.length;i++){
+					str += '<li ntxId="'+ list[i].id +'" class="clearfix">';
+					str += '<div class="typeTxt">'+ list[i].ntxName.substring(0,1) +'</div>';
+					str += '<div class="typeCon">';
+					str += '<p class="ellip">'+ list[i].ntxName +'</p>';
+					str += '<p class="timeP">'+ list[i].txDate +'</p>';
+					str += '</div>';
+					if(list[i].ntxName == '提现'){
+						str += '<div class="moneyNum hasGetCol">-'+ list[i].txMoney +'</div>';
+						if(list[i].opersta == '等待打款'){
+							str += '<span class="currSta waitSta">'+ list[i].opersta +'</span>';
+						}else{
+							str += '<span class="currSta hasGet">'+ list[i].opersta +'</span>';
+						}
+					}else if(list[i].ntxName == '收入'){
+						str += '<div class="moneyNum plus">+'+ list[i].txMoney +'</div>';
+					}
+					
+					str += '</li>';
+				}
+				if(currObj != null){
+					$('#billListUl').append(str);
+					currObj.endPullupToRefresh(false);
+				}else{
+					$('#billListUl').html(str);
+				}
+			}
+			function getBillList_more(){
+				pageNum++;
+				getBillList(this,'pullLoad');
+			}
+		</script>
+	</body>
+</html>

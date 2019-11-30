@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/parPaid.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/mui.min.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/filterNav.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/mobileSelect.css"/>
+		<title>订单中心</title>
+	</head>
+	<body class="paddingTop">
+		<div class="comHeader otherBg">
+			<a id="backBtn" class="posL" href="javascript:mui.back();"><i class="iconfont icon-fanhui"></i></a>
+			<span class="headerTit">订单中心</span>
+			<input type="hidden" id="orderStaInp" value="-1" />
+			<p class="comStaWrap hasPosRea">
+				<span id="orderStaTxt" class="comSelTxtCon">全部</span>
+				<i class="iconfont icon-xiala"></i>
+			</p>
+		</div>
+		<div class="filter fixedFilter">
+			<div class="timeInp">
+				<div class="innerTimeInp">
+					<input id="stDate" type="text" readonly placeholder="起始日期"/>
+					<i class="iconfont icon-rili"></i>
+				</div>
+				<span class="tilTxt">至</span>
+				<div class="innerTimeInp">
+					<input id="edDate" type="text"  readonly placeholder="结束日期"/>
+					<i class="iconfont icon-rili"></i>
+				</div>
+			</div>
+			<div id="searchBtn" class="search">
+				<i class="iconfont icon-sousuo"></i>
+			</div>
+		</div>
+		<div id="orderContainer" class="orderList">
+			<div class="mui-scroll">
+				<ul id="orderListUl"></ul>
+			</div>
+			<div id="noData" class="noData" style="display: none;"><img src="../../images/noData.png" /><p>暂无订单记录！</p></div>
+		</div>
+		
+		
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/mobileSelect.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var pageNum = 1,noDataPage = 0;
+			var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+			var orderStatus = [
+				{"type":-1,"value":"全部"},
+				{"type":0,"value":"未完成"},
+				{"type":1,"value":"已完成"},
+				{"type":2,"value":"已取消"}
+			];
+			mui.init({
+				pullRefresh : {
+					container : "#orderContainer",
+					up : {
+						height:50,
+						auto:false,
+						contentrefresh : "正在加载...",
+						contentnomore:'没有更多数据了',
+						callback : getOrderList_more
+					}
+				}
+			});
+			mui.plusReady(function(){
+				var page = {
+					init : function(){
+						this.bindEvent();
+						loadOrderList(null,'initload');
+						new MobileSelect({
+							trigger: '#orderStaTxt',
+							title: '请选择订单状态',
+							wheels: [ 
+								{data: orderStatus}
+							],
+							position:[0], //初始化定位 打开时默认选中的哪个 如果不填默认为0
+							transitionEnd:function(indexArr, data){},
+							callback:function(indexArr, data){
+								app.getId('orderStaInp').value = data[0].type;
+								pageNum = 1;
+								loadOrderList(null,'query');
+							}
+						});
+					},
+					bindEvent : function(){
+						//起始日期
+						var _this = this;
+						app.getId('stDate').ontouchend = function(){
+							_this.showPickDate('stDate');
+						}
+						//结束日期
+						app.getId('edDate').ontouchend = function(){
+							_this.showPickDate('edDate');
+						}
+						//查询
+						app.getId('searchBtn').ontouchend = function(){
+							var stDateVal = app.getId('stDate').value,
+								edDataVal = app.getId('edDate').value;
+							if(stDateVal == '' && edDataVal != ''){
+								plus.nativeUI.toast('请选择开始日期');
+								return;
+							}
+							if(stDateVal != '' && edDataVal == ''){
+								plus.nativeUI.toast('请选择结束日期');
+								return;
+							}
+							if(stDateVal > edDataVal){
+								plus.nativeUI.toast('开始日期不能大于结束日期');
+								return;
+							}
+							pageNum = 1;
+							loadOrderList(null,'query');
+						}
+						//已取消 已完成 查看订单详情
+						mui('#orderListUl').on('tap','.canCompLi',function(){
+							var orderId = this.getAttribute('orderId');
+							app.openwin('orderDet.html',{orderId:orderId});
+						});
+						//去支付 
+						mui('#orderListUl').on('tap','.goPayBtn',function(){
+							var orderId = this.getAttribute('orderId'),
+								ntsId = this.getAttribute('ntsId');
+							if(ntsId == 0){//会员购买
+								app.openwin('../buy/subOrder.html',{orderId:orderId,jumpPos:'perCen'});
+							}else{//绑定导师
+								app.openwin('../myNtTea/subOrder.html',{orderId:orderId,jumpPos:'perCen'});
+							}
+						});
+						//未完成下取消订单
+						mui('#orderListUl').on('tap','.cancelOrdBtn',function(){
+							var orderId = this.getAttribute('orderId');
+							var btnArray = ['确定','取消'];
+							mui.confirm('是否确定要取消当前订单?', '取消订单提示', btnArray, function(e) {
+								if(e.index == 0){
+									app.showToast(1);
+									mui.ajax(http_ + '/order.do?action=cancelOrder',{
+										data:{userId:userInfo.userId,roleId:userInfo.roleId,orderId:orderId},
+										dataType:'json',
+										type:'post',
+										timeout:10000,
+										success:function(json){
+											app.showToast(2);
+											if(json.result == 'success'){
+												mui.toast('取消订单成功');
+												setTimeout(function(){
+													pageNum = 1;
+													loadOrderList(null,'query');
+												},400);
+											}else if(json.msg == 'error'){
+												mui.toast('服务器错误');
+											}
+										},
+										error:function(xhr,type,errorThrown){
+											app.showToast(2);
+											console.log(errorThrown)
+										} 
+									})
+								}
+							});
+						});
+					},
+					showPickDate : function(obj){
+						var dDate = new Date();
+						if(app.getId(obj).value != ''){
+							var curr = app.getId(obj).value.split('-');
+							dDate.setFullYear(curr[0],(curr[1]-1),curr[2]);
+						}
+						plus.nativeUI.pickDate(function(e) { 
+							var d = e.date,currDate=''; 
+							currDate = d.getFullYear() + "-" + app.appendZero( (d.getMonth() + 1) ) + "-" + app.appendZero( d.getDate() );
+							app.getId(obj).value = currDate;
+						}, function(e) {
+						}, {  
+							title: "请选择日期",
+							date : dDate
+						});
+					}
+				};
+				page.init();
+			});
+			function loadOrderList(currObj,loadType){
+				app.showToast(1);
+				var comStatusInp = $('#orderStaInp').val(),
+					sDate = $('#stDate').val(),
+					eDate = $('#edDate').val();
+				var field = {userId:userInfo.userId,roleId:userInfo.roleId,page:pageNum,limit:10,comStatus:comStatusInp,sDate:sDate,eDate:eDate};
+				mui.ajax(http_ + '/order.do?action=getOrderData',{
+					data:field,
+					dataType:'json',
+					type:'post',
+					timeout:10000,
+					success:function(json){
+						app.showToast(2);
+						//console.log(JSON.stringify( json ))
+						app.getId('stDate').value = json.sDate;
+						app.getId('edDate').value = json.eDate;
+						if(json.msg == 'success'){
+							app.getId('noData').style.display = 'none';
+							renderOrderList(json.data,currObj);
+							if(loadType == 'query'){
+								$('.mui-pull').show();
+								mui('#orderContainer').pullRefresh().refresh(true);
+							}
+						}else if(json.msg == 'error'){
+							mui.toast('服务器错误');
+						}else if(json.msg == 'noInfo'){
+							if(currObj != null){
+								noDataPage = pageNum-1;
+								currObj.endPullupToRefresh(true);
+							}else{
+								$('.mui-pull').hide();
+								$('#orderListUl').html('');
+								app.getId('noData').style.display = 'block';
+							}
+						}
+					},
+					error:function(xhr,type,errorThrown){
+						app.showToast(2);
+						console.log(errorThrown)
+					} 
+				})
+			}
+			function renderOrderList(list,currObj){
+				var str = '';
+				for(var i=0;i<list.length;i++){
+					if(list[i].comStatus != 0){//已完成 已取消
+						str += '<li class="canCompLi" orderId="'+ list[i].orderId +'">';
+					}else{
+						str += '<li>';
+					}
+					str += '<div class="topPart clearfix">';
+					str += '<div class="typeTit">';
+					if(list[i].ntsId == 0){
+						str += '<span>购</span>';
+					}else{
+						str += '<span>绑</span>';
+					}
+					str += '</div>';
+					str += '<div class="paidCon">';
+					if(list[i].ntsId == 0){
+						str += '<p class="ntName">会员购买</span></p>';
+					}else{
+						str += '<p class="ntName">'+ list[i].ntName +'导师<span>('+ list[i].schoolType +''+ list[i].subName +')</span></p>';
+					}
+					str += '<p class="subName"><span>购买天数：</span>'+ list[i].buyDays +'天</p>';
+					str += '</div>';
+					str += '<div class="padiNum">';
+					str += '<p class="payTime">'+ list[i].addDate +'</p>';
+					str += '<p class="moneyNum">';
+					//str += '<i class="iconfont icon-wenhao"></i>';
+					str += '<strong>¥'+ list[i].payMoney +'</strong>';
+					str += '</p>';
+					str += '</div>';
+					str += '<div class="orderNum"><span>订单编号：</span>'+ list[i].orderNo +'</div>';
+					str += '</div>';
+					if(list[i].comStatus == 0){
+						str += '<div class="botPart">';
+						str += '<span class="cancelOrdBtn" orderId="'+ list[i].orderId +'">取消订单<em></em></span>';
+						str += '<span class="goPayBtn" ntsId="'+ list[i].ntsId +'" orderId="'+ list[i].orderId +'">去支付</span>';
+						str += '</div>';
+					}else if(list[i].comStatus == 1){//已完成
+						str += '<span class="hasCompIcon"><i class="iconfont icon-yiwancheng"></i></span>';
+					}else if(list[i].comStatus == 2){//已取消
+						str += '<span class="hasCancelIcon"><i class="iconfont icon-yiquxiao"></i></span>';
+					}
+					str += '</li>';
+				}
+				if(currObj != null){
+					$('#orderListUl').append(str);
+					currObj.endPullupToRefresh(false);
+				}else{
+					$('#orderListUl').html(str);
+				}
+			}
+			function getOrderList_more(){
+				pageNum++;
+				loadOrderList(this,'pullLoad');
+			}
+		</script>
+	</body>
+</html>

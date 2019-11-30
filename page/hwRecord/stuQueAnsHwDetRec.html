@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/viewBuffetDet.css"/>
+		<title>学生答题详细记录</title>
+	</head>
+	<body class="paddingTop">
+		<div class="comHeader otherBg">
+			<a id="backBtn" class="posL" href="javascript:mui.back();"><i class="iconfont icon-fanhui"></i></a>
+			<span class="headerTit"></span>
+		</div>
+		<div id="tabCon" class="tabCon viewStuQuesList">
+			<div id="xqjf" class="innerTabCon" style="display: block; opacity: 1;"></div>
+		</div>
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/comMethod.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			mui.plusReady(function(){
+				var tjId = plus.webview.currentWebview().tjId,
+					stuName = plus.webview.currentWebview().stuName;
+				var page = {
+					init : function(){
+						$('.headerTit').html(stuName + '同学答题详情');
+						this.loadAnsQuesList();
+					},
+					loadAnsQuesList : function(){
+						app.showToast(1);
+						var _this = this;
+						mui.ajax(http_ + '/hw.do?action=getSpecStuStudyRecordData',{
+							data:{tjId:tjId},
+							dataType:'json',
+							type:'post',
+							timeout:10000,
+							success:function(json){ 
+								app.showToast(2);
+								//console.log(JSON.stringify( json ))
+								if(json.result == 'success'){
+									_this.renderAnsQuesList(json.studyList);
+								}else if(json.result == 'noInfo'){
+									
+								}else if(json.result == 'error'){
+									plus.nativeUI.toast('服务器错误');
+								}
+							}, 
+							error:function(xhr,type,errorThrown){
+								app.showToast(2);
+								plus.nativeUI.toast('服务器错误');
+							} 
+						});
+					},
+					renderAnsQuesList : function(list){
+						var str = '';
+						for(var i=0;i<list.length;i++){
+							var j=0, answerA = "",answerB = "",answerC = "",answerD = "",answerE = "",answerF = "",answerOptionArray = new Array();
+							answerOptionArray = comMet.assignToArray(list[i].answerA,list[i].answerB,list[i].answerC,list[i].answerD,list[i].answerE,list[i].answerF);
+							str += '<div class="listTabCon"><label>';
+							if(list[i].result == -1){//未做
+								str += '<span class="currAnsState notAnsSta"></span>';
+							}else if(list[i].result == 0){//做错
+								str += '<span class="currAnsState ansWrongSta"></span>';
+							}else if(list[i].result == 1){//正确
+								str += '<span class="currAnsState ansRightSta"></span>';
+							}
+							<!-- 标题 -->
+							str += '<div class="detTitPart">';
+								str += '<div class="typeTit clearfix">';
+								str += '<strong class="fl">'+list[i].lqType+'</strong>';
+								if(list[i].queArea == 'hw'){
+									str += '<p class="fl">'+ list[i].btName +'</p>';
+								}
+								str += '</div>';
+								if(list[i].queArea == 'hw'){
+									str += '<p class="smTitPart">';
+									str += '<span>思维类型：</span>';
+									str += '<strong>'+ list[i].mindStr +'</strong></p>';
+									str += '<p class="smTitPart">';
+									str += '<span>能力类型：</span>';
+									str += '<strong>'+ list[i].abilityStr +'</strong></p>';
+								}
+							str += '</div>';
+							<!-- 题干 -->
+							str += '<div class="queSub"><p class="subTit">题干：</p>';
+							str += '<div class="queSubCon">'+ list[i].queSub +'</div>';
+							str += '</div>';
+							//选项 hwType为sys的时候存在
+							if(list[i].queArea == 'sys' && (list[i].lqType == '单选题' || list[i].lqType == '多选题' || list[i].lqType == '填空选择题')){
+								str += '<div class="quesOptBox">';
+								if(list[i].answerA != ""){
+									if(comMet.checkAnswerImg(list[i].answerA)){
+										answerA = "<img src='"+ answerOptionArray[j++] +"'/>";
+									}else{
+										answerA = answerOptionArray[j++];
+									}
+									str += '<div class="quesOpt"><span class="optionsWord">A</span><div class="optionsCon">'+ answerA +'</div></div>';
+								}
+								if(list[i].answerB != ""){
+									if(comMet.checkAnswerImg(list[i].answerB)){
+										answerB = "<img src='"+ answerOptionArray[j++] +"'/>";
+									}else{
+										answerB = answerOptionArray[j++];
+									}
+									str += '<div class="quesOpt"><span class="optionsWord">B</span><div class="optionsCon">'+ answerB +'</div></div>';
+								}
+								if(list[i].answerC != ""){
+									if(comMet.checkAnswerImg(list[i].answerC)){
+										answerC = "<img src='"+ answerOptionArray[j++] +"'/>";
+									}else{
+										answerC = answerOptionArray[j++];
+									}
+									str += '<div class="quesOpt"><span class="optionsWord">C</span><div class="optionsCon">'+ answerC +'</div></div>';
+								}
+								if(list[i].answerD != ""){
+									if(comMet.checkAnswerImg(list[i].answerD)){
+										answerD = "<img src='"+ answerOptionArray[j++] +"'/>";
+									}else{
+										answerD = answerOptionArray[j++];
+									}
+									str += '<div class="quesOpt"><span class="optionsWord">D</span><div class="optionsCon">'+ answerD +'</div></div>';
+								}
+								if(list[i].answerE != ""){
+									if(comMet.checkAnswerImg(list[i].answerE)){
+										answerE = "<img src='"+ answerOptionArray[j++] +"'/>";
+									}else{
+										answerE = answerOptionArray[j++];
+									}
+									str += '<div class="quesOpt"><span class="optionsWord">E</span><div class="optionsCon">'+ answerE +'</div></div>';
+								}
+								if(list[i].answerF != ""){
+									if(comMet.checkAnswerImg(list[i].answerF)){
+										answerF = "<img src='"+ answerOptionArray[j++] +"'/>";
+									}else{
+										answerF = answerOptionArray[j++];
+									}
+									str += '<div class="quesOpt"><span class="optionsWord">F</span><div class="optionsCon">'+ answerF +'</div></div>';
+								}
+								str += '</div>';
+							}
+							<!-- 答案 -->
+							if(list[i].myAnswer != undefined){
+								str += '<div class="myAnsRealAns clearfix">';
+								if(list[i].myAnswer != list[i].realAnswer){
+									str += '<p>'+ stuName +'的答案：<span class="queFailTxt">'+ list[i].myAnswer +'</span></p>';
+								}else{
+									str += '<p>'+ stuName +'的答案：<span class="quesSuccTxt">'+ list[i].myAnswer +'</span></p>';
+								}
+								str += '<p>正确答案：<span class="quesSuccTxt">'+ list[i].realAnswer +'</span></p>';
+								str += '</div>';
+							}
+							str += '</label></div>';
+						}
+						app.getId('xqjf').innerHTML = str;
+						var hasImgLen = $("#xqjf").find('img').length;
+						if(hasImgLen > 0){
+							$('#xqjf').find('img').each(function(k){
+								$('#xqjf').find('img').eq(k).attr('src', http_ + '/' + $('#xqjf').find('img').eq(k).attr('src'));
+							});
+						}
+					}
+				};
+				page.init();
+			});
+		</script>
+		
+	</body>
+</html>

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/myStu_nt.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/mui.min.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/mobileSelect.css"/>
+		<title>我的学生</title>
+	</head>
+	<body class="paddingTop">
+		<div class="comHeader hasBor">
+			<span id="headerTit" class="headerTit">我的学生</span>
+		</div>
+		<div class="filter">
+			<input type="hidden" id="bindStaInp" value="1" />
+			<div class="bindStaWrap hasPosRea">
+				<p id="bindStaTxt" class="comSelTxtCon">付费绑定</p>
+				<i class="iconfont icon-xiala hasDis"></i>
+			</div>
+			<div class="stuName">
+				<input type="text" id="stuNameInp" placeholder="请输入学生姓名" />
+			</div>
+			<div id="searchBtn" class="search">
+				<i class="iconfont icon-sousuo"></i>
+			</div>
+		</div>
+		<div id="stuListContainer" class="stuList">
+			<div class="mui-scroll">
+				<ul id="stuListUl"></ul>
+			</div>
+			<div id="noData" class="noData" style="display: none;"><img src="../../images/noData.png" /><p>暂无学生</p></div>
+		</div>
+		
+		
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/mobileSelect.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var userInfo = JSON.parse(localStorage.getItem('userInfo'));
+			var pageNum = 1,noDataPage = 0;
+			var bindStaData = [
+				{"type":-1,"value":"免费试用"},
+				{"type":1,"value":"付费绑定"},
+				{"type":0,"value":"取消绑定"},
+				{"type":2,"value":"免费绑定"},
+				{"type":3,"value":"绑定到期"}
+			]
+			mui.init({
+				pullRefresh : {
+					container : "#stuListContainer",
+					up : {
+						height:50,
+						auto:false,
+						contentrefresh : "正在加载...",
+						contentnomore:'没有更多数据了',
+						callback : getMyStuList_more
+					}
+				}
+			});
+			mui.plusReady(function(){
+				var page = {
+					init : function(){
+						this.bindEvent();
+						getMyStuList(null,'initload');
+						var ansStaSel = new MobileSelect({
+							trigger: '#bindStaTxt',
+							title: '请选择绑定状态',
+							wheels: [ 
+								{data: bindStaData}
+							],
+							position:[1], //初始化定位 打开时默认选中的哪个 如果不填默认为0
+							transitionEnd:function(indexArr, data){},
+							callback:function(indexArr, data){
+								app.getId('bindStaInp').value = data[0].type;
+								pageNum = 1;
+								getMyStuList(null,'query');
+							}
+						});
+					},
+					bindEvent : function(){
+						//搜索
+						app.getId('searchBtn').addEventListener('tap',function(){
+							pageNum = 1;
+							getMyStuList(null,'query');
+						});
+						//发送信息
+						mui('#stuListUl').on('tap','.sendMsgBtn',function(){
+							var stuId = this.getAttribute('stuId'),
+								stuName = this.getAttribute('stuName');
+							app.openwin('sendMsg.html',{stuId:stuId,stuName:stuName});
+						});
+						//跟踪指导
+						mui('#stuListUl').on('tap','.trackGuideBtn',function(){
+							var stuId = this.getAttribute('stuId'),
+								stuName = this.getAttribute('stuName');
+							app.openwin('../trackingGuide/trackingGuide.html',{stuId:stuId,stuName:stuName,jumpPos:'byStuList'});
+						});
+					}
+				};
+				page.init();
+			});
+			function getMyStuList(currObj,loadType){
+				var stuName = $('#stuNameInp').val(),
+					bindStaInp = $('#bindStaInp').val();
+				var field = {userId:userInfo.userId,stuName:escape(stuName),bindStatus:bindStaInp,limit:10,page:pageNum};
+				app.showToast(1);
+				mui.ajax(http_ + '/netTeacher.do?action=getBindStu',{
+					data:field,
+					dataType:'json',
+					type:'post',
+					timeout:10000,
+					success:function(json){
+						app.showToast(2);
+						console.log(JSON.stringify( json ))
+						if(json.msg == 'success'){
+							if(json.data.length > 0){
+								app.getId('noData').style.display = 'none';
+								rendeMyStuList(json.data,currObj);
+								if(loadType == 'query'){
+									$('.mui-pull').show();
+									mui('#stuListContainer').pullRefresh().refresh(true);
+								}
+							}else{
+								currObj.endPullupToRefresh(true);
+							}
+						}else if(json.msg == '暂无记录'){
+							if(currObj != null){
+								noDataPage = pageNum-1;
+								currObj.endPullupToRefresh(true);
+							}else{
+								$('.mui-pull').hide();
+								$('#stuListUl').html('');
+								app.getId('noData').style.display = 'block';
+							}
+						}
+					},
+					error:function(xhr,type,errorThrown){
+						app.showToast(2);
+						console.log(errorThrown)
+					} 
+				})
+			}
+			function rendeMyStuList(list,currObj){
+				var str = '';
+				//console.log(JSON.stringify( list ))
+				for(var i=0;i<list.length;i++){
+					str += '<li>';
+					str += '<div class="headPic"><img src="'+ http_ +'/'+ list[i].stuProtrait +'"/></div>';
+					str += '<div class="stuInfoCon">';
+					str += '<p class="stuNameInfo clearfix">';
+					str += '<strong>'+ list[i].stuName +'</strong>';
+					console.log(list[i].bindStatus)
+					if(list[i].bindStatus == 1){
+						str += '<span class="bindStaTxt ingSta">付费绑定</span>';
+					}else if(list[i].bindStatus == -1){//免费试用 
+						str += '<span class="bindStaTxt freeSta">免费试用</span>';
+					}else if(list[i].bindStatus == 2){
+						str += '<span class="bindStaTxt freeSta">免费绑定</span>';
+					}else if(list[i].bindStatus == 3){
+						str += '<span class="bindStaTxt timeEnd">绑定到期</span>';
+					}else if(list[i].bindStatus == 0){
+						str += '<span class="bindStaTxt timeEnd">取消绑定</span>';
+					}
+					str += '</p>';
+					str += '<p class="useTime">';
+					str += '使用期限：'+ list[i].bindDate +'<span class="tillTxt">至</span>' + list[i].endDate;
+					str += '</p>';
+					str += '</div>';
+				    str += '<div class="infoBtn">';
+					str += '<span class="btnGroup sendMsgBtn" stuId="'+ list[i].stuId +'" stuName="'+ list[i].stuName +'">发送信息<em></em></span>';
+					str += '<span class="btnGroup trackGuideBtn" stuId="'+ list[i].stuId +'" stuName="'+ list[i].stuName +'">跟踪指导</span>';
+					str += '</div>';
+					str += '</li>';
+				}
+				if(currObj != null){
+					$('#stuListUl').append(str);
+					currObj.endPullupToRefresh(false);
+				}else{
+					$('#stuListUl').html(str);
+				}
+			}
+			//获取更多学生
+			function getMyStuList_more(){
+				pageNum++;
+				getMyStuList(this,'pullLoad');
+			}
+		</script>
+	</body>
+</html>

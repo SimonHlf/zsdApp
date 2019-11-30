@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/selHomeWorkType.css"/>
+		<title>选择家庭作业类型</title>
+	</head>
+	<body class="paddingTop">
+		<div class="comHeader otherBg">
+			<a id="backBtn" class="posL" href="javascript:mui.back();"><i class="iconfont icon-fanhui"></i></a>
+			<span class="headerTit">选择作业类型</span>
+		</div>
+		<!--  选择作业类型 -->
+		<div class="homeWorkType">
+			<strong class="titStrong">作业类型</strong>
+			<div class="typeList">
+				<ul id="hwTypeUl">
+					<li class="hwTypeLi" currType="1">
+						<img class="jiatingImg" src="../../images/homeWork.png" alt="家庭作业"/>
+						<p>家庭作业</p>
+					</li>
+					<li class="hwTypeLi" currType="2">
+						<img class="kehouImg" src="../../images/kehoufuxi.png" alt="课后复习"/>
+						<p>课后复习</p>
+					</li>
+					<li class="hwTypeLi" currType="3">
+						<img class="keqianImg" src="../../images/keqianyuxi.png" alt="课前预习"/>
+						<p>课前预习</p>
+					</li>
+				</ul>
+			</div>
+		</div>
+		
+		<span id="nextStep" class="nextStep">下一步</span>
+		
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			mui.plusReady(function(){
+				var hwType = 0;
+				mui('#hwTypeUl').on('tap','li',function(){
+					var aLi = document.getElementsByTagName('li');
+					hwType = this.getAttribute('currType');
+					for(var i=0;i<aLi.length;i++){
+						aLi[i].className = '';
+					}
+					this.className = 'active';
+				});
+				app.getId('nextStep').addEventListener('tap',function(){
+					if(hwType == 0){
+						plus.nativeUI.toast('请选择作业类型');
+						return;
+					}
+					app.openwin('selGrade.html',{hwType:hwType});
+				});
+			});
+		</script>
+		
+	</body>
+</html>

@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/studyMap.css"/>
+		<title>家庭作业</title>
+	</head>
+	<body>
+		<div class="comHeader hasBor">
+			<a id="backBtn" class="posL" href="javascript:mui.back();"><i class="iconfont icon-fanhui"></i></a>
+			<span class="headerTit mapHeaderTit"></span> 
+			<span id="viewHisBtn" class="viewHisBtn"><i class="iconfont icon-jilu"></i></span>
+		</div>
+		<!-- 视频讲解 点拨指导 知识清单 解题示范 -->
+		<div class="studyMapFour">
+			<ul class="clearfix">
+				<li id="shipinBtn" loreTypeName="知识讲解"><p>知识讲解</p></li>
+				<li id="dianboBtn" loreTypeName="点拨指导"><p>点拨指导</p><i id="dianboIcon" class="iconfont icon-lock"></i></li>
+				<li id="qingdanBtn" loreTypeName="知识清单"><p>知识清单</p><i id="qingdanIcon" class="iconfont icon-lock"></i></li>
+				<li id="jietiBtn" loreTypeName="解题示范"><p>解题示范</p><i id="jietiIcon" class="iconfont icon-lock"></i></li>
+			</ul>
+		</div>
+		<!-- 学习Map -->
+		<div class="currStudyTit">
+			<span></span>
+			<p id="currTaskName" class="ellip">针对性诊断</p>
+		</div>
+		<div class="currLoreWrap">
+			<p class="currTxt clearfix">
+				<span class="fl">当前作业：</span>
+				<strong class="loreName fl ellip"></strong>
+			</p>
+			<div class="goldenBox">
+				<span id="goldenNum"></span>
+				<img src="../../images/golden.png"/>
+			</div>
+			<div id="mapTxt" class="mapTxt clearfix">
+				<span class="fl">溯源路线图</span>
+				<p class="levelTxt totalLevel fl"></p>
+				<p class="levelTxt totalLoreNum fl"></p>
+				<p id="viewSuyuanBtn" class="viewSuyuanBtn fl">查看溯源<i id="suyuanIcon" class="iconfont icon-lock"></i></p>
+			</div>
+			<!-- 开始诊断 开始答题 btn-->
+			<a id="goStudyBtn" class="goStudyBtn"><span id="btnVal"></span><i id="goStudyBtnIcon" class="iconfont icon-lock"></i></a>
+		</div>
+		
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/h.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var currStep = 0,jumpPos = 'hwStudy';
+			mui.plusReady(function(){
+				var field = plus.webview.currentWebview().field,
+					currPage = plus.webview.currentWebview().currPage,
+					currPos = plus.webview.currentWebview().currPos;
+				var page = {
+					data : {
+						pathType:'',
+						nextLoreId : 0,
+						loreType : '',
+						loreId : 0,
+						loreName : '',
+						subDetail : '',
+						showHwRecordStatus:0
+					},
+					init : function(){
+						h('.headerTit').html(plus.webview.currentWebview().loreName);
+						this.loadTaskDet();
+						this.bindEvent();
+					},
+					bindEvent : function(){
+						var _this = this
+						//视频讲解
+						app.getId('shipinBtn').addEventListener('tap',function(){
+							var loreTypeName = this.getAttribute('loreTypeName');
+							var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+							var currStatus = app.checkLoginStatus(userInfo.userId,userInfo.loginStatus);
+							if(currStatus){
+								var currField = { loreTypeName:escape(loreTypeName)};
+								mui.extend(currField,field);
+								app.openwin('../studyOnline/video.html',{field:currField,jumpPos:jumpPos});
+							}
+						});
+						//点拨指导
+						app.getId('dianboBtn').addEventListener('tap',function(){
+							if(currStep >= 1){
+								var loreTypeName = this.getAttribute('loreTypeName');
+								var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+								var currStatus = app.checkLoginStatus(userInfo.userId,userInfo.loginStatus);
+								if(currStatus){
+									var currField = { loreTypeName:escape(loreTypeName)};
+									mui.extend(currField,field);
+									app.openwin('../studyOnline/dianbozhidao.html',{field:currField,jumpPos:jumpPos});
+								}
+							}else{
+								mui.toast('请先观看知识讲解');
+							}
+						});
+						//知识清单
+						app.getId('qingdanBtn').addEventListener('tap',function(){
+							if(currStep >= 2){
+								var loreTypeName = this.getAttribute('loreTypeName');
+								var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+								var currStatus = app.checkLoginStatus(userInfo.userId,userInfo.loginStatus);
+								if(currStatus){
+									var currField = { loreTypeName:escape(loreTypeName)};
+									mui.extend(currField,field);
+									app.openwin('../studyOnline/zhishiqingdan.html',{field:currField,jumpPos:jumpPos});
+								}
+							}else{
+								mui.toast('请先观看点拨指导');
+							}
+						});
+						//解题示范 
+						app.getId('jietiBtn').addEventListener('tap',function(){
+							if(currStep >= 3){
+								var loreTypeName = this.getAttribute('loreTypeName');
+								var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+								var currStatus = app.checkLoginStatus(userInfo.userId,userInfo.loginStatus);
+								if(currStatus){
+									var currField = { loreTypeName:escape(loreTypeName)};
+									mui.extend(currField,field);
+									app.openwin('../studyOnline/jietishifan.html',{field:currField,jumpPos:jumpPos});
+								}
+							}else{
+								mui.toast('请性详细观看知识清单');
+							}
+						}); 
+						//查看溯源
+						app.getId('viewSuyuanBtn').addEventListener('tap',function(){
+							if(currStep >= 4){
+								var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+								var currStatus = app.checkLoginStatus(userInfo.userId,userInfo.loginStatus);
+								if(currStatus){
+									app.openwin('traceBackList.html',{field:field,currPos:currPos});
+								}
+							}else{
+								mui.toast('请详细学习解题示范');
+							}
+						});
+						//开始挑战 
+						app.getId('goStudyBtn').addEventListener('tap',function(){
+							var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+							var currStatus = app.checkLoginStatus(userInfo.userId,userInfo.loginStatus),flag = false;
+							if(currStep >= 4){
+								if(currStatus){
+									if(_this.data.showHwRecordStatus == 0){//正在进行家庭作业诊断
+										app.openwin('hwStudyQueList.html',{field:field,currPage:currPage,currBackStr:'backMapPage',studyRes:0,currPos:currPos});
+									}else{//溯源时的各种诊断
+										if(_this.data.pathType == 'diagnosis'){//各种诊断
+											var currField = {nextLoreIdArray: _this.data.nextLoreId,loreType:escape( _this.data.loreType )};
+											mui.extend(field,currField);
+											//tjId，userId(移动端传递),nextLoreIdArray,loreType
+											app.openwin('questionList.html',{field:field,currPage:currPage,currPos:currPos});
+										}else{//学习
+											var currField = {tjId:field.tjId,currentLoreId:_this.data.nextLoreId};
+											app.openwin('studyWelcome.html',{ currField: currField,currPage:currPage,loreName:_this.data.loreName,loreSmTit: _this.data.subDetail,currPos:currPos});
+										}
+									}
+								}
+							}else{
+								mui.toast('请详细观看解题示范');
+							}
+						});
+						app.getId('viewHisBtn').addEventListener('tap',function(){
+							app.openwin('hwStudyQueList.html',{field:field,currPage:currPage,studyRes:1,currPos:currPos});
+						});
+					},
+					loadTaskDet : function(){ 
+						var _this = this;
+						app.showToast(1);
+						mui.ajax(http_ + '/hw.do?action=getHwStudyMapData',{
+							data:field, 
+							dataType:'json',
+							type:'post',
+							timeout:10000,
+							success:function(json){
+								//console.log( JSON.stringify( json ) )
+								app.showToast(2);
+								if(json.result == 'success'){ 
+									h('#currTaskName').html('任务' + json.task + '：' + json.loreTaskName);
+									h('#goldenNum').html(json.money); 
+									h('#btnVal').html(json.buttonValue);
+									h('.loreName').html(json.loreName);
+									_this.data.loreName = json.loreName;
+									_this.data.subDetail = json.subDetail;
+									_this.data.pathType = json.pathType;
+									_this.data.nextLoreId = json.nextLoreIdArray;
+									_this.data.loreType = json.loreType;
+									_this.data.loreId = json.basicLoreId;
+									_this.data.showHwRecordStatus = json.showHwRecordStatus;
+									currStep = json.currStep;
+									_this.initStudyMapSta(json.currStep);
+									if(json.showHwRecordStatus == 1){
+										app.getId('viewHisBtn').style.display = 'block';
+									}
+									if(json.showTraceFlag){
+										app.getId('mapTxt').style.display = 'block';
+										h('.totalLevel').html('共' + json.stepCount + '级');
+										h('.totalLoreNum').html('共' + json.loreCount + '个知识点');
+									}
+								}else if(json.result == 'error'){
+									plus.nativeUI.toast('获取当前任务信息失败');
+								}
+							},
+							error:function(xhr,type,errorThrown){
+								app.showToast(2);
+								plus.nativeUI.toast('服务器异常');
+							}
+						});
+					},
+					initStudyMapSta : function(currStep){
+						if(currStep === 0){
+							h('#dianboIcon').show();
+							h('#qingdanIcon').show();
+							h('#jietiIcon').show();
+							h('#suyuanIcon').show();
+							h('#goStudyBtnIcon').show();
+						}else if(currStep == 1){
+							h('#dianboIcon').remove();
+							h('#qingdanIcon').show();
+							h('#jietiIcon').show();
+							h('#suyuanIcon').show();
+							h('#goStudyBtnIcon').show();
+						}else if(currStep == 2){
+							h('#dianboIcon').remove();
+							h('#qingdanIcon').remove();
+							h('#jietiIcon').show();
+							h('#suyuanIcon').show();
+							h('#goStudyBtnIcon').show();
+						}else if(currStep == 3){
+							h('#dianboIcon').remove();
+							h('#qingdanIcon').remove();
+							h('#jietiIcon').remove();
+							h('#suyuanIcon').show();
+							h('#goStudyBtnIcon').show();
+						}else if(currStep == 4){
+							h('#dianboIcon').remove();
+							h('#qingdanIcon').remove();
+							h('#jietiIcon').remove();
+							h('#suyuanIcon').remove();
+							h('#goStudyBtnIcon').remove();
+						}
+					}
+				};
+				page.init();
+				//返回更新stepNum
+				document.addEventListener('updateStepNum',function(){
+					page.loadTaskDet()
+				});
+				//更新当前地图数据
+				document.addEventListener('upDataMapData',function(){
+					page.loadTaskDet();
+				});
+			});
+		</script>
+		
+	</body>
+</html>

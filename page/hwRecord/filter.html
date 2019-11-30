@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<!-- <script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script> -->
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/> 
+		<link rel="stylesheet" type="text/css" href="../../fonts/iconfont.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/hwRecordFilter.css"/>
+		<title>作业记录筛选条件</title>
+	</head>
+	<body class="paddingTop">
+		<div class="comHeader otherBg">
+			<span class="headerTit">筛选</span>
+		</div>
+		<div id="moreFilter" class="moreFilter">
+			<input type="hidden" id="classInp" value="0"/>
+			<div class="comFilter">
+				<strong class="smTit">年级班级</strong>
+				<ul id="gradeUl" class="clearfix"></ul>
+			</div>
+			<div class="comFilter">
+				<input type="hidden" id="hwTypeInp" value="" />
+				<strong class="smTit">作业类型</strong>
+				<ul id="hwTypeUl" class="clearfix">
+					<li id="hwTypeLi0" class="active" currAttr = ''>全部</li>
+					<li id="hwTypeLi1" currAttr = '1'>家庭作业</li>
+					<li id="hwTypeLi2" currAttr='2'>课后复习</li>
+					<li id="hwTypeLi3" currAttr='3'>课前预习</li>
+				</ul>
+			</div>
+			<div id="checkStaBox" class="comFilter">
+				<input type="hidden" id="checkStaInp" value="-1"/>
+				<strong class="smTit">检查状态</strong>
+				<ul id="checkStaUl" class="clearfix">
+					<li id="checkStaLi0" class="active" currAttr = '-1'>全部</li>
+					<li currAttr='0'>待检查</li>
+					<li currAttr='1'>已检查</li>
+				</ul>
+			</div>
+			<div id="compStaBox" class="comFilter">
+				<input type="hidden" id="checkCompInp" value=""/>
+				<strong class="smTit">完成状态</strong>
+				<ul id="checkCopmUl" class="clearfix">
+					<li id="comStaLi_1" currAttr='-1'>全部</li>
+					<li id="comStaLi1" currAttr='1'>已完成</li>
+					<li id="comStaLi2" currAttr='2'>补做完成</li>
+					<li id="comStaLi0" currAttr='0'>未完成</li>
+				</ul>
+			</div>
+			<div id="timePart" class="comFilter">
+				<strong class="smTit">时间段</strong>
+				<div class="timeBox">
+					<i class="iconfont icon-qingjia"></i>
+					<i class="iconfont icon-qingjia lastChild"></i>
+					<input id="stDate" type="text" placeholder="请选择起始时间" readonly>
+					<span class="tillTxt">至</span>
+					<input id="edDate" type="text" placeholder="请选择结束时间" readonly>
+				</div>
+			</div>
+			<div id="singleTime" class="comFilter">
+				<strong class="smTit">时间</strong>
+				<div class="timeBox">
+					<i class="iconfont icon-qingjia"></i>
+					<input id="stDate_hr" type="text" placeholder="请选择时间" readonly>
+				</div>
+			</div>
+		</div>
+		<div class="filterBot">
+			<span id="cancelFilterBtn" class="cancelFilterBtn">重置</span>
+			<span id="loadHwRecBtn">确定</span>
+		</div>
+		
+		
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var userInfo = JSON.parse(localStorage.getItem('userInfo')),jumpPos = '',globalclId = 0,clName = '';
+			mui.init({
+				beforeback : function(){
+					var opener = plus.webview.currentWebview().opener();
+					mui.fire(opener,'closeLayer',{});
+					return true;
+				}
+			});
+			mui.plusReady(function(){
+				jumpPos = plus.webview.currentWebview().jumpPos;
+				if(jumpPos == 'hwRec_stu'){
+					app.getId('cancelFilterBtn').style.display = 'none';
+					app.getId('loadHwRecBtn').style.width = '100%';
+				}
+				//hwRec ->//老师查看其自身发布的作业记录  hwRec_stu->学生做老师发布作业的记录(单个学生的做题记录)
+				if(jumpPos == 'hwRec' || jumpPos == 'hwRec_stu'){
+					app.getId('timePart').style.display = 'block';
+					if(jumpPos == 'hwRec'){
+						var sDate = plus.webview.currentWebview().sDate,
+							eDate = plus.webview.currentWebview().eDate;
+						app.getId('checkStaBox').style.display = 'block';
+						app.getId('hwTypeLi0').style.display = 'block';
+					}else{
+						var pipeiField = plus.webview.currentWebview().field;
+						var sDate = pipeiField.sDate,
+							eDate = pipeiField.eDate;
+						app.getId('compStaBox').style.display = 'block';
+						//匹配年级班级以及作业类型和完成状态当前选中状态
+						if(pipeiField.hwType == 1){//家庭作业
+							app.getId('hwTypeLi1').className = 'active';
+						}else if(pipeiField.hwType == 2){//课后复习
+							app.getId('hwTypeLi2').className = 'active';
+						}else if(pipeiField.hwType == 3){//课前预习
+							app.getId('hwTypeLi3').className = 'active';
+						}
+						if(pipeiField.comStatus == 0){//未完成
+							app.getId('comStaLi0').className = 'active';
+						}else if(pipeiField.comStatus == 1){//已完成
+							app.getId('comStaLi1').className = 'active';
+						}else if(pipeiField.comStatus == 2){//补做完成
+							app.getId('comStaLi2').className = 'active';
+						}else{//全部
+							app.getId('comStaLi_1').className = 'active';
+						}
+						app.getId('hwTypeInp').value = pipeiField.hwType;
+						app.getId('checkCompInp').value = pipeiField.comStatus;
+						app.getId('classInp').value = plus.webview.currentWebview().classId;
+						globalclId = plus.webview.currentWebview().classId;
+					}
+				}else if(jumpPos == 'hwReport'){
+					var selDate = plus.webview.currentWebview().selDate;
+					app.getId('hwTypeLi1').className = 'active';
+					app.getId('singleTime').style.display = 'block';
+					app.getId('hwTypeInp').value = 1;//重置作业类型为家庭作业
+					var cList = plus.webview.currentWebview().currField;
+					clName = cList[0].cName;
+				}
+				var page = {
+					init : function(){
+						if(jumpPos == 'hwRec' || jumpPos == 'hwRec_stu'){//从作业记录跳转进来
+							app.getId('stDate').value = sDate;
+							app.getId('edDate').value = eDate;
+							this.loadClaslist();
+							this.getVal('checkStaUl','li','checkStaInp');
+							this.getVal('checkCopmUl','li','checkCompInp');
+						}else if(jumpPos == 'hwReport'){
+							this.renderClassHtml(cList);
+							app.getId('stDate_hr').value = selDate;
+						}
+						this.bindEvent();
+						this.getVal('gradeUl','li','classInp');
+						this.getVal('hwTypeUl','li','hwTypeInp');
+					},
+					bindEvent : function(){
+						var _this = this;
+						app.getId('loadHwRecBtn').addEventListener('tap',function(){
+							var classInpVal = app.getId('classInp').value,
+								hwTypeInpVal = app.getId('hwTypeInp').value,
+								checkStaInpVal = app.getId('checkStaInp').value,
+								stDateVal = app.getId('stDate').value,
+								edDateVal = app.getId('edDate').value,
+								stDate_hrVal = app.getId('stDate_hr').value; 
+								checkCompInpVal = app.getId('checkCompInp').value;
+							if(jumpPos == 'hwRec' ||  jumpPos == 'hwRec_stu'){//查询作业记录
+								if(stDateVal == '' && edDateVal != ''){
+									plus.nativeUI.toast('请选择起始时间');
+								}else if(stDateVal != '' && edDateVal == ''){
+									plus.nativeUI.toast('请选择结束时间');
+								}else if(stDateVal > edDateVal){
+									plus.nativeUI.toast('起始时间不能大于结束时间');
+								}else{
+									var opener = plus.webview.currentWebview().opener();
+									if(jumpPos == 'hwRec'){
+										var field = {classId:classInpVal,hwType:hwTypeInpVal,checkStatus:checkStaInpVal,sDate:stDateVal,eDate:edDateVal,tapOpt:'sureBtn'}
+										plus.webview.currentWebview().hide('pop-out');
+										mui.fire(opener,'upDateHwRecList',{currField:field});
+									}else{//单个学生作业做题记录
+										var currField = {classId:classInpVal,hwType:hwTypeInpVal,comStatus:checkCompInpVal,sDate:stDateVal,eDate:edDateVal,tapOpt:'sureBtn'}
+										plus.webview.currentWebview().hide('pop-out');
+										mui.fire(opener,'upDateHwRecList',{field:currField});
+									}
+								}
+							}else if(jumpPos == 'hwReport'){
+								var field = {classId:classInpVal,hwType:hwTypeInpVal,selDate:stDate_hrVal,tapOpt:'sureBtn'};
+								var opener = plus.webview.currentWebview().opener();
+								plus.webview.currentWebview().hide('pop-out');
+								mui.fire(opener,'upDateHwReportInfo',{currField:field,clName:clName});
+							}
+							
+						});
+						//重置
+						app.getId('cancelFilterBtn').addEventListener('tap',function(){
+							var aLi = app.getId('moreFilter').getElementsByTagName('li');
+							var field = {classId:0,hwType:'',checkStatus:-1,sDate:'',eDate:'',tapOpt:'resetBtn'};
+							for(var i=0;i<aLi.length;i++ ){
+								aLi[i].className = '';
+							}
+							if(jumpPos == 'hwRec' || jumpPos == 'hwRec_stu'){
+								app.getId('classInp').value = 0;
+								app.getId('hwTypeInp').value = '';
+								app.getId('checkStaInp').value = -1;
+								app.getId('stDate').value = sDate;
+								app.getId('edDate').value = eDate;
+								
+								app.getId('classLi0').className = 'active';
+								app.getId('hwTypeLi0').className = 'active';
+								app.getId('checkStaLi0').className = 'active';
+								var opener = plus.webview.currentWebview().opener();
+								mui.fire(opener,'upDateHwRecList',{currField:field});
+							}else if(jumpPos == 'hwReport'){
+								app.getId('classInp').value = globalclId;
+								app.getId('hwTypeInp').value = 1;
+								app.getId('stDate_hr').value = selDate;
+								
+								app.getId('classLi1').className = 'active';
+								app.getId('hwTypeLi1').className = 'active';
+								clName = cList[0].cName;
+							}
+						});
+						app.getId('stDate').addEventListener('tap',function(){
+							_this.showDate('stDate');
+						});
+						app.getId('stDate_hr').addEventListener('tap',function(){
+							_this.showDate('stDate_hr');
+						});
+						app.getId('edDate').addEventListener('tap',function(){
+							_this.showDate('edDate');
+						});
+					},
+					loadClaslist : function(){
+						var _this = this;
+						app.showToast(1);
+						mui.ajax(http_ + '/hw.do?action=getMyClassData',{
+							data:{userId:userInfo.userId},
+							dataType:'json',
+							type:'post',
+							timeout:10000,
+							success:function(json){ 
+								app.showToast(2);
+								if(json.result == 'success'){
+									_this.renderClassHtml(json.cList); 
+								}else if(json.result == 'noInfo'){
+									app.getId('gradeUl').innerHTML = '<p style="color:#999;font-size:.48rem;">暂无班级</p>'
+								}
+							},
+							error:function(xhr,type,errorThrown){
+								app.showToast(2);
+								plus.nativeUI.toast('服务器错误');
+							} 
+						});
+					}, 
+					renderClassHtml : function(list){
+						if(jumpPos == 'hwRec'){
+							var str = "<li id='classLi0' class='active' currAttr = '0'>全部</li>";
+						}else{
+							var str = "";
+						}
+						for(var i=0;i<list.length;i++){//globalclId
+							if(jumpPos == 'hwRec'){
+								str += "<li currAttr = '"+ list[i].cId +"'>";
+							}else if(jumpPos == 'hwRec_stu'){//学生作业记录页面
+								if(globalclId == list[i].cId){
+									str += "<li currAttr = '"+ list[i].cId +"' class='active'>";
+								}else{
+									str += "<li currAttr = '"+ list[i].cId +"'>";
+								}
+							}else{//作业报告页面 
+								if(i == 0){
+									str += "<li id='classLi1' currAttr = '"+ list[i].cId +"' class='active'>";
+									app.getId('classInp').value = list[i].cId;//重置当前班级id为循环第一个
+									globalclId = list[i].cId;
+								}else{
+									str += "<li currAttr = '"+ list[i].cId +"'>";
+								}
+							}
+							str += list[i].cName;
+							if(list[i].status == 1){
+								str += "<span class='tmpSpan'>(临)</span>"
+							}
+							str += "</li>";
+						}
+						app.getId('gradeUl').innerHTML = str;
+					},
+					showDate : function(obj){
+						var dDate = new Date(),_this = this;
+						if(app.getId(obj).value != ''){
+							var curr = app.getId(obj).value.split('-');
+							dDate.setFullYear(curr[0],(curr[1]-1),curr[2]);
+						}
+						plus.nativeUI.pickDate(function(e) { 
+							var d = e.date,currDate=''; 
+							currDate = d.getFullYear() + "-" + app.appendZero( (d.getMonth() + 1) ) + "-" + app.appendZero( d.getDate() );
+							app.getId(obj).value = currDate;
+						}, function(e) {
+						}, {  
+							title: "请选择日期",
+							date : dDate
+						});
+					},
+					getVal : function(parObj,obj,inpObj){
+						var _this = this;
+						mui('#' + parObj).on('tap',obj,function(){
+							var currAttr = this.getAttribute('currAttr');
+							var aEle = app.getId(parObj).getElementsByTagName('li');
+							app.getId(inpObj).value = currAttr;
+							if(parObj == 'gradeUl'){
+								clName = this.innerText;
+							}
+							for(var i=0;i<aEle.length;i++){
+								aEle[i].className = '';
+							}
+							this.className = 'active';
+						});
+					}
+				};
+				page.init();
+			});
+		</script>
+	</body>
+</html>

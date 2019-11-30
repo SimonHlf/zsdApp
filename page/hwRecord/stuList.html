@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/hwReport.css"/>
+		<title>题目对错学生列表</title>
+	</head>
+	<body class="paddingTop hasBg">
+		<div class="comHeader otherBg">
+			<a id="backBtn" class="posL" href="javascript:mui.back();"><i class="iconfont icon-fanhui"></i></a>
+			<span id="headerTit" class="headerTit"></span>
+		</div>
+		<div>
+			<div class="listStu">
+				<strong>正确人数</strong>
+				<ul id="rightStuList" class="clearfix"></ul>
+			</div> 
+			
+			<div id="wrongNum" class="listStu">
+				<strong>错误人数</strong>
+				<ul id="errorStuList" class="clearfix"></ul>
+			</div>
+			<div id="notDoneNum" class="listStu">
+				<strong>未做人数</strong>
+				<ul id="unStuList" class="clearfix"></ul>
+			</div>
+			
+		</div>
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			mui.plusReady(function(){
+				var currField = plus.webview.currentWebview().currField,
+					queIndex = plus.webview.currentWebview().queIndex;
+				//console.log(JSON.stringify( currField ))
+				var page = { 
+					init : function(){
+						app.getId('headerTit').innerHTML = '第' + queIndex + '题对错人数统计';
+						this.loadStuStaInfo();
+					},
+					//统计做对人数 做错人数以及未做人数
+					loadStuStaInfo : function(){
+						app.showToast(1);
+						var _this = this;
+						mui.ajax(http_ + '/hw.do?action=getSpecHwQueComSubStuDetail',{
+							data:currField,
+							dataType:'json',
+							type:'post',
+							timeout:10000,
+							success:function(json){ 
+								app.showToast(2);
+								if(json.result == 'success'){
+									_this.renderAnsRightStuList(json.succList);
+									_this.renderAnsErrorStuList(json.errorList);
+									_this.renderUnAnsStuList(json.unList);
+								}else if(json.result == 'error'){
+									plus.nativeUI.toast('服务器错误');
+								}
+							}, 
+							error:function(xhr,type,errorThrown){
+								app.showToast(2);
+								plus.nativeUI.toast('服务器错误');
+							} 
+						});
+					},
+					renderAnsRightStuList : function(list){
+						if(list.length > 0){
+							var str = '';
+							for(var i=0;i<list.length;i++){
+								str += '<li><div class="headImg"><img src="'+ http_ +'/'+ list[i].headImg +'"/></div><p class="ellip">'+ list[i].stuName +'</p></li>';
+							}
+							app.getId('rightStuList').innerHTML = str;
+						}else{
+							app.getId('rightStuList').innerHTML = '<p class="noAnsTxt">该题暂无做对记录</p>';
+						}
+					},
+					renderAnsErrorStuList : function(list){
+						if(list.length > 0){
+							var str = '';
+							for(var i=0;i<list.length;i++){
+								str += '<li><div class="headImg"><img src="'+ http_ +'/'+ list[i].headImg +'"/></div><p class="ellip">'+ list[i].stuName +'</p></li>';
+							}
+							app.getId('errorStuList').innerHTML = str;
+						}else{
+							app.getId('errorStuList').innerHTML = '<p class="noAnsTxt">该题暂无做错记录</p>';
+						}
+					},
+					renderUnAnsStuList : function(list){
+						console.log(JSON.stringify( list ))
+						if(list.length > 0){
+							var str = '';
+							for(var i=0;i<list.length;i++){
+								str += '<li><div class="headImg"><img src="'+ http_ +'/'+ list[i].headImg +'"/></div><p class="ellip">'+ list[i].stuName +'</p></li>';
+							}
+							app.getId('unStuList').innerHTML = str;
+						}else{
+							app.getId('unStuList').innerHTML = '<p class="noAnsTxt">该题暂无未错记录</p>';
+						}
+					}
+				};
+				page.init();
+			});
+		</script>
+		
+	</body>
+</html>

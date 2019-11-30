@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<title>学生学习记录总体统计</title>
+		<style>
+			body{
+				background: #f2f2f2;
+			}
+			.totalTongji{
+				position: absolute;
+				left: 0;
+				right: 0;
+				top: 1.55rem;
+				bottom: 0;
+				overflow: hidden;
+				overflow-y:auto;
+				-webkit-overflow-scrolling: touch;
+			}
+			.innerTongji{
+				width: 100%;
+				height: 55%;
+				background: #fff;
+			}
+			.innerTongji:last-child{
+				margin-top: .25rem;
+			}
+		</style>
+	</head>
+	<body class="paddingTop">
+		<div class="comHeader hasBor">
+			<a id="backBtn" class="posL" href="javascript:mui.back()"><i class="iconfont icon-fanhui"></i></a>
+			<span id="headerTit" class="headerTit" style="text-align: left;"></span>
+		</div>
+		<div class="totalTongji">
+			<div id="nengLiTongji" class="innerTongji"></div>
+			<div id="siweiTongji" class="innerTongji"></div>
+		</div>
+		
+		
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../libs/echarts.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+			mui.plusReady(function () {
+				var stuName = plus.webview.currentWebview().stuName,
+					stuId = plus.webview.currentWebview().stuId;
+				app.getId('headerTit').innerHTML = stuName + '个人自助餐学习记录总统计'
+			    var page = {
+					init : function(){
+						this.loadEchartData();
+					},
+					loadEchartData : function(){
+						var field = {userId:userInfo.userId,stuId:stuId,roleId:userInfo.roleId},_this = this;
+						mui.ajax(http_ + '/studyRecord.do?action=getBuffetChart',{
+							data:field, 
+							dataType:'json', 
+							type:'post',
+							timeout:10000,
+							beforeSend : function(){ 
+								app.showToast(1);
+							},
+							success:function(json){
+								app.showToast(2);
+								_this.loadAbilityChart(json.result[0].allAbilitySuccRate,json.result[0].allAbilityNumber);
+								_this.loadMindChart(json.result[0].allMindSuccRate,json.result[0].allMindNumber);
+							},
+							error:function(xhr,type,errorThrown){
+								app.showToast(2);
+								plus.nativeUI.toast('服务器连接超时');
+							}
+						}); 
+					},
+					//能力
+					loadAbilityChart : function(allAbilitySuccRate,allAbilityNumber){
+						var allAbilitySuccRate = allAbilitySuccRate.split(','),
+							ascNumberArr = allAbilityNumber.split(',').sort(function(a,b){
+								return a - b;
+							}),
+							maxNumber = ascNumberArr[ascNumberArr.length - 1],
+							allAbilityNumber = allAbilityNumber.split(','),
+							axisName = ['汇总自助餐能力正确率','汇总自助餐能力总数'];
+						var myChart = echarts.init(app.getId('nengLiTongji'));
+						var option = {
+							title: {
+								x : 'center',
+								text: '自助餐能力统计图',
+								textStyle:{
+									fontSize:16
+								}
+							},
+							tooltip: {trigger: 'axis'},
+							legend: {
+								y : '40px',
+								data: axisName
+							},
+							grid: {
+								x: 40,
+								x2: 40,
+								y: 100,
+								y2: 40
+							},
+							toolbox: {
+								show : false,
+								orient:'vertical',
+								y:'center',
+								feature : {
+									dataView : {show: true, readOnly: true},
+									magicType : {show: true, type: ['line', 'bar']},
+									restore : {show: true}
+									//saveAsImage : {show: true}
+								}
+							},
+							calculable: false,
+							xAxis: {
+								type: 'category',
+								data: ['理解', '分析', '表达', '实践', '质疑', '联想', '综合', '创新']
+								//data: ['定向', '发散', '逆向', '抽象', '类化', '移植', '形象', '联想']
+							},
+							yAxis : [
+								{
+									type : 'value',
+									name : '正确率',
+									min : 0,
+									max:100,
+									interval : 20,
+									axisLabel : {
+										formatter : '{value}%'
+									}
+								},
+								{
+									type : 'value',
+									name : '总数',
+									min : 0,
+									interval : maxNumber / 5,
+									axisLabel : {
+										formatter : '{value}'
+									}
+								}
+							],
+							series: [{
+								name: axisName[0],
+								type: 'bar',
+								data: allAbilitySuccRate
+							}, {
+								name: axisName[1],
+								type: 'bar',
+								yAxisIndex: 1,
+								data: allAbilityNumber
+							}]
+						};
+						// 使用刚指定的配置项和数据显示图表。
+						myChart.setOption(option);
+					},
+					//思维
+					loadMindChart : function(allMindSuccRate,allMindNumber){
+						var allMindSuccRate = allMindSuccRate.split(','),
+							ascNumberArr = allMindNumber.split(',').sort(function(a,b){
+								return a - b;
+							}),
+							maxNumber = ascNumberArr[ascNumberArr.length - 1],
+							allMindNumber = allMindNumber.split(','),
+							axisName = ['汇总自助餐思维正确率','汇总自助餐思维总数'];
+						var myChart = echarts.init(app.getId('siweiTongji'));
+						var option = {
+							title: {
+								x : 'center',
+								text: '自助餐思维统计图',
+								textStyle:{
+									fontSize:16
+								}
+							},
+							tooltip: {trigger: 'axis'},
+							legend: {
+								y : '40px',
+								data: axisName
+							},
+							grid: {
+								x: 40,
+								x2: 40,
+								y: 100,
+								y2: 40
+							},
+							toolbox: {
+								show : false,
+								orient:'vertical',
+								y:'center',
+								feature : {
+									dataView : {show: true, readOnly: true},
+									magicType : {show: true, type: ['line', 'bar']},
+									restore : {show: true}
+									//saveAsImage : {show: true}
+								}
+							},
+							calculable: false,
+							xAxis: {
+								type: 'category',
+								data : ['定向', '发散', '逆向', '抽象', '类化', '移植', '形象', '联想']
+							},
+							yAxis : [
+								{
+									type : 'value',
+									name : '正确率',
+									min : 0,
+									max:100,
+									interval : 20,
+									axisLabel : {
+										formatter : '{value}%'
+									}
+								},
+								{
+									type : 'value',
+									name : '总数',
+									min : 0,
+									interval : maxNumber / 5,
+									axisLabel : {
+										formatter : '{value}'
+									}
+								}
+							],
+							series: [{
+								name: axisName[0],
+								type: 'bar',
+								data: allMindSuccRate
+							}, {
+								name: axisName[1],
+								type: 'bar',
+								yAxisIndex: 1,
+								data: allMindNumber
+							}]
+						};
+						// 使用刚指定的配置项和数据显示图表。
+						myChart.setOption(option);
+					}
+			    }; 
+				page.init();
+			});
+		</script>
+	</body>
+</html>

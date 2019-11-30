@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/viewBuffetDet.css"/>
+		<title>查看详情</title>
+	</head>
+	<body class="paddingTop">
+		<div class="comHeader hasBor">
+			<a id="backBtn" class="posL" href="javascript:mui.back();"><i class="iconfont icon-fanhui"></i></a>
+			<span id="headerTit" class="headerTit">查看详情</span>
+		</div>
+		<div class="tabNav">
+			<ul>
+				<li class="active" currTypeCon="xqjf">兴趣激发</li>
+				<li currTypeCon="ffgn">方法归纳</li>
+				<li currTypeCon="swxl">思维训练</li>
+				<li currTypeCon="zlkf">智力开发</li>
+				<li currTypeCon="nlpy">能力培养</li>
+				<li currTypeCon="zgksl">中/高考涉猎</li>
+			</ul>
+		</div>
+		
+		<div class="tabCon">
+			<!-- 兴趣激发 -->
+			<div id="xqjf" class="innerTabCon" style="display: block; opacity: 1;"></div>
+			<!-- 方法归纳 -->
+			<div id="ffgn" class="innerTabCon"></div>
+			<!-- 思维训练  -->
+			<div id="swxl" class="innerTabCon"></div>
+			<!-- 智力开发  -->
+			<div id="zlkf" class="innerTabCon"></div>
+			<!-- 能力培养  -->
+			<div id="nlpy" class="innerTabCon"></div>
+			<!-- 中/高考涉猎  -->
+			<div id="zgksl" class="innerTabCon"></div>
+		</div>
+		
+		<!-- 已选 -->
+		<div class="hasChoice">
+			<span class="hasChoiceTxt">已选<em></em></span>
+			<div class="hasChoiceList">
+				<!-- <p class="noChoiceTxt">暂无选择记录</p> -->
+				<ul id="hasChoiceUl"></ul>
+			</div>
+			<div id="pubBtn" class="pubBtn">确定</div>
+		</div>
+		
+		
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../studyOnline/js/comStudy.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			mui.plusReady(function () {
+			    var currQuoteLoreId = plus.webview.currentWebview().currQuoteLoreId,
+					studyLogId = plus.webview.currentWebview().studyLogId,
+					hasCheckRes = plus.webview.currentWebview().hasCheckRes;
+				var page = {
+					init : function(){
+						this.bindEvent();
+						app.showToast(1);
+						this.loadBuffetDetList('xqjf','兴趣激发');
+						this.loadBuffetDetList('ffgn','方法归纳');
+						this.loadBuffetDetList('swxl','思维训练');
+						this.loadBuffetDetList('zlkf','智力开发');
+						this.loadBuffetDetList('nlpy','能力培养');
+						this.loadBuffetDetList('zgksl','中/高考涉猎');
+					},
+					bindEvent : function(){
+						var _this = this;
+						$('.tabNav li').on('click',function(){
+							var currTypeCon = $(this).attr('currTypeCon');
+							$(this).addClass('active').siblings().removeClass('active');
+							$(".innerTabCon").hide().css({"opacity":0});//全部题隐藏
+							$('#' + currTypeCon).show().animate({"opacity":1});
+						});
+						//确定
+						app.getId('pubBtn').addEventListener('tap',function(){
+							//获取返回的巴菲特编号列表
+							var buffetDetIdStr = getCheckBoxStatus("buffetDetInp");
+							//跳转至buffetSend页面
+							var currView = plus.webview.currentWebview(),
+								buffetSendView = currView.opener();
+							currView.close();
+							mui.fire(buffetSendView,'checkSelStatus',{buffetDetIdStr:buffetDetIdStr});
+						});
+					},
+					loadBuffetDetList : function(buffetWrap,buffetTypeName){
+						var _this = this;
+						mui.ajax(http_ + '/studyRecord.do?action=showBuffetDetail',{
+							data:{studyLogId:studyLogId,quoteLoreId:currQuoteLoreId,buffetTypeName:escape( buffetTypeName)},
+							dataType:'json',
+							type:'post',
+							timeout:10000,
+							success:function(json){
+								app.showToast(2);
+								//console.log( JSON.stringify( json ) )
+								if(json.result == 'success'){
+									app.getId('headerTit').innerHTML = json.loreName;
+									_this.renderBuffetDetHtml(json.buffetList,buffetWrap);
+								}else if(json.result == 'noInfo'){
+									$('#' + buffetWrap).html('<div class="noData"><img src="../../images/noData.png" /><p>暂无试题记录！</p></div>');
+								}else if(json.result == 'error'){
+									plus.nativeUI.toast('服务器错误');
+								}
+							},
+							error:function(xhr,type,errorThrown){
+								app.showToast(2);
+								plus.nativeUI.toast('服务器错误');
+							} 
+						});
+					},
+					renderBuffetDetHtml : function(list,buffetWrap){
+						var str = '';
+						for(var i=0;i<list.length;i++){
+							var j=0, answerA = "",answerB = "",answerC = "",answerD = "",answerE = "",answerF = "",answerOptionArray = new Array();
+							answerOptionArray = assignToArray(list[i].A,list[i].B,list[i].C,list[i].D,list[i].E,list[i].F);
+							str += '<div class="listTabCon"><label for="buffetInp_'+ list[i].buffetId +'" onclick="addBuffetItem('+ list[i].buffetId +')">';
+							str += '<input id="buffetInp_'+ list[i].buffetId +'" name="buffetDetInp" type="checkbox" value="'+ list[i].buffetId +'" title="'+ list[i].title +'" />';
+							str += '<span id="currSelSpan_'+ list[i].buffetId+'" class="currSelSpan"><i class="iconfont icon-duihao"></i></span>';
+							<!-- 标题 -->
+							str += '<div class="detTitPart">';
+								str += '<div class="typeTit clearfix">';
+								str += '<strong class="fl">'+ list[i].queType +'</strong>';
+								str += '<p class="fl">'+ list[i].title +'</p>';
+								str += '</div>';
+								str += '<p class="smTitPart">';
+								str += '<span>思维类型：</span>';
+								str += '<strong>'+ list[i].mindName +'</strong></p>';
+								str += '<p class="smTitPart">';
+								str += '<span>能力类型：</span>';
+								str += '<strong>'+ list[i].abilityName +'</strong></p>';
+							str += '</div>';
+							<!-- 题干 -->
+							str += '<div class="queSub"><p class="subTit">题干：</p>';
+							str += '<div class="queSubCon">'+ list[i].subject +'</div>';
+							str += '</div>';
+							<!-- quesOpt -->
+							str += '<div class="quesOptBox">';
+							if(list[i].A != "" && list[i].A != undefined){
+								if(checkAnswerImg(list[i].A)){
+									answerA = "<img src='"+ answerOptionArray[j++] +"'/>";
+								}else{
+									answerA = answerOptionArray[j++];
+								}
+								str += '<div class="quesOpt"><span class="optionsWord">A</span><div class="optionsCon">'+ answerA +'</div></div>';
+							}
+							if(list[i].B != "" && list[i].B != undefined){
+								if(checkAnswerImg(list[i].B)){
+									answerB = "<img src='"+ answerOptionArray[j++] +"'/>";
+								}else{
+									answerB = answerOptionArray[j++];
+								}
+								str += '<div class="quesOpt"><span class="optionsWord">B</span><div class="optionsCon">'+ answerB +'</div></div>';
+							}
+							if(list[i].C != "" && list[i].C != undefined){
+								if(checkAnswerImg(list[i].C)){
+									answerC = "<img src='"+ answerOptionArray[j++] +"'/>";
+								}else{
+									answerC = answerOptionArray[j++];
+								}
+								str += '<div class="quesOpt"><span class="optionsWord">C</span><div class="optionsCon">'+ answerC +'</div></div>';
+							}
+							if(list[i].D != "" && list[i].D != undefined){
+								if(checkAnswerImg(list[i].D)){
+									answerD = "<img src='"+ answerOptionArray[j++] +"'/>";
+								}else{
+									answerD = answerOptionArray[j++];
+								}
+								str += '<div class="quesOpt"><span class="optionsWord">D</span><div class="optionsCon">'+ answerD +'</div></div>';
+							}
+							if(list[i].E != "" && list[i].E != undefined){
+								if(checkAnswerImg(list[i].E)){
+									answerE = "<img src='"+ answerOptionArray[j++] +"'/>";
+								}else{
+									answerE = answerOptionArray[j++];
+								}
+								str += '<div class="quesOpt"><span class="optionsWord">E</span><div class="optionsCon">'+ answerE +'</div></div>';
+							}
+							if(list[i].F != "" && list[i].F != undefined){
+								if(checkAnswerImg(list[i].F)){
+									answerF = "<img src='"+ answerOptionArray[j++] +"'/>";
+								}else{
+									answerF = answerOptionArray[j++];
+								}
+								str += '<div class="quesOpt"><span class="optionsWord">F</span><div class="optionsCon">'+ answerF +'</div></div>';
+							}
+							str += '</div>';
+							<!-- 答案 -->
+							str += '<div class="realAns"><p>答案：</p><p>'+ list[i].answer +'</p></div>';
+							<!-- 解析 -->
+							str += '<div class="analysis"><p class="subTit">解析：</p>';
+							if(list[i].resolution == ''){
+								str += '<div class="analsisDet noTxt">暂无解析</div></div>';
+							}else{
+								str += '<div class="analsisDet">'+ list[i].resolution +'</div></div>';
+							}
+							<!-- 提示 -->
+							str += '<div class="tips"><p class="subTit">提示：</p>';
+							if(list[i].tips == 0){//暂无解析
+								str += '<div class="tipsDet noTxt">暂无提示</div></div>';
+							}else{
+								str += '<div class="tipsDet">'+ list[i].tips +'</div></div>';
+							}
+							str += '</label></div>';
+						}
+						$('#' + buffetWrap).html(str);
+						var hasImgLen = $("#" + buffetWrap).find('img').length;
+						if(hasImgLen > 0){
+							$("#" + buffetWrap).find('img').each(function(k){
+								$("#" + buffetWrap).find('img').eq(k).attr('src', http_ + '/' + $("#" + buffetWrap).find('img').eq(k).attr('src'));
+							});
+						}
+						this.initCheckBoxStatus();
+					},
+					//初始化已选中的buffet试题
+					initCheckBoxStatus : function(){
+						var checkObj = document.getElementsByName("buffetDetInp");
+						var resultStr = "";
+						if(hasCheckRes != ''){
+							var buffetIdArray = hasCheckRes.split(',');
+							var buffetLen = buffetIdArray.length;
+							for(var i = 0 ; i < checkObj.length ; i ++){
+								for(var j = 0 ; j < buffetLen ; j++){
+									if(checkObj[i].value == buffetIdArray[j]){
+										checkObj[i].checked = "checked";
+										resultStr += "<li id='hasChoiceLi_"+ buffetIdArray[j]+"' onclick=removeHasChoiceItem(this,"+ buffetIdArray[j] +")><span>"+checkObj[i].title+"</span><i class='iconfont icon-wrong'></i></li>";
+										$("#currSelSpan_"+buffetIdArray[j]).addClass("hasSelect");
+										break;
+									}
+								}
+							}
+							$("#hasChoiceUl").html(resultStr)
+						}
+					}
+				};
+				page.init();
+			});
+			function getCheckBoxStatus(checkObj){
+				var selectOptions = document.getElementsByName(checkObj);
+				var resultStr = "";
+				for(var i = 0 ; i < selectOptions.length ; i++){
+					if(selectOptions[i].checked){
+						resultStr += selectOptions[i].value + ",";
+					}
+				}
+				if(resultStr != ""){
+					resultStr = resultStr.substring(0,resultStr.length - 1);
+				}
+				return resultStr;
+			}
+			function addBuffetItem(buffetId){
+				var checkStatus = $("#buffetInp_"+buffetId).prop("checked");
+				var checkInpTit = $("#buffetInp_"+buffetId).attr("title");
+				if(checkStatus){
+					$("#currSelSpan_"+buffetId).addClass("hasSelect");
+					$("#hasChoiceUl").append("<li id='hasChoiceLi_"+buffetId+"' onclick=removeHasChoiceItem(this,"+ buffetId +")><span>"+checkInpTit+"</span><i class='iconfont icon-wrong'></i></li>");
+				}else{
+					$("#currSelSpan_"+buffetId).removeClass("hasSelect");
+					$("#hasChoiceLi_"+buffetId).remove();
+				}
+			}
+			//移除已选择的
+			function removeHasChoiceItem(obj,buffetId){
+				$(obj).remove();
+				$('#buffetInp_' + buffetId).attr('checked',false);
+				$("#currSelSpan_"+buffetId).removeClass("hasSelect");
+			}
+		</script>
+		
+		
+	</body>
+</html>

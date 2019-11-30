@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/myAccount.css"/>
+		<title>账单详情</title>
+	</head>
+	<body class="paddingTop" style="background: #fff;">
+		<div class="comHeader otherBg">
+			<a id="backBtn" class="posL" href="javascript:mui.back();"><i class="iconfont icon-fanhui"></i></a>
+			<span class="headerTit">账单详情</span>
+		</div>
+		<div class="billDet">
+			<div class="topTitBill">
+				<div id="billType" class="billType"></div>
+				<!-- <p class="currStaTxt">状态：收入</p> -->
+				<p id="billTit" class="billTit"></p>
+				<p id="currNum" class="currNum"></p>
+			</div>
+			<div class="billItem">
+				<p>
+					<span>当前状态：</span>
+					<span id="currStaTxt"></span>
+				</p>
+				<p class="zhichu">
+					<span>打款状态：</span>
+					<span id="operstaSp"></span>
+				</p>
+				<p class="zhichu">
+					<span>提现时间：</span>
+					<span id="time"></span>
+				</p>
+				<p class="shouru">
+					<span>返现时间：</span>
+					<span id="fanxianTime"></span>
+				</p>
+				<p class="zhichu">
+					<span>银行名称：</span>
+					<span id="bankName"></span>
+				</p>
+				<p class="zhichu">
+					<span>银行账号：</span>
+					<span id="bankNum"></span>
+				</p>
+				<p class="zhichu">
+					<span>打款时间：</span>
+					<span id="operaTime"></span>
+				</p>
+				<p class="shouru">
+					<span>备<em></em>注：</span>
+					<span id="remark"></span>
+				</p>
+			</div>
+		</div>
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/h.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			mui.plusReady(function(){
+				var ntxId = plus.webview.currentWebview().ntxId;
+				var page = {
+					init : function(){
+						this.bindEvent();
+						this.loadBillDetInfo();
+					},
+					bindEvent : function(){
+						
+					},
+					loadBillDetInfo : function(){
+						var _this = this;
+						app.showToast(1);
+						mui.ajax(http_ + '/netTeacher.do?action=nTxRecordDetail',{
+							data:{ntxId:ntxId},
+							dataType:'json',
+							type:'post',
+							timeout:10000,  
+							success:function(json){ 
+								app.showToast(2);
+								//console.log(JSON.stringify( json ))
+								if(json.data[0].ntxTitle == '提现'){
+									h('.shouru').hide();
+									app.getId('billType').innerHTML = '提';
+									app.getId('billTit').innerHTML = json.data[0].ntxTitle;
+									app.getId('currNum').className = 'currNum wait';
+									app.getId('currNum').innerHTML = '-' + json.data[0].txMoney + '<em class="yuanTxt">元</em>';
+									if(json.data[0].opersta == '等待打款'){
+										app.getId('operstaSp').className = 'wait';
+									}else if(json.data[0].opersta == '已打款'){
+										app.getId('operstaSp').className = 'hasGet';
+									}
+									app.getId('currStaTxt').innerHTML = json.data[0].ntxTitle;
+									app.getId('operstaSp').innerHTML = json.data[0].opersta;
+									app.getId('time').innerHTML = json.data[0].txDate;
+									app.getId('bankName').innerHTML = json.data[0].bankName;
+									app.getId('bankNum').innerHTML = json.data[0].bankNo;
+									app.getId('operaTime').innerHTML = json.data[0].operDate == '' ? '暂未打款' : json.data[0].operDate;
+								}else if(json.data[0].ntxTitle == '返现'){
+									h('.zhichu').hide();
+									app.getId('billType').innerHTML = '返';
+									app.getId('billTit').innerHTML = json.data[0].ntxTitle;
+									app.getId('currNum').className = 'currNum hasGet';
+									app.getId('currNum').innerHTML = '+' + json.data[0].txMoney + '<em class="yuanTxt">元</em>';
+									app.getId('remark').innerHTML = json.data[0].reMark;
+									app.getId('currStaTxt').innerHTML = json.data[0].ntxTitle;
+									app.getId('fanxianTime').innerHTML = json.data[0].txDate;
+								}
+							},
+							error:function(xhr,type,errorThrown){
+								app.showToast(2);
+								plus.nativeUI.toast('服务器错误');
+							} 
+						});
+					}
+				};
+				page.init();
+			});
+		</script>
+	</body>
+</html>

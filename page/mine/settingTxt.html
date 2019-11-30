@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/mine.css"/>
+		<title></title>
+	</head>
+	<body>
+		<!-- 主要应用于修改昵称 姓名 邮箱 -->
+		<div class="comHeader otherBg">
+			<a id="backBtn" class="posL"><i class="iconfont icon-fanhui"></i></a>
+			<span class="headerTit">修改昵称</span>
+			<a id="saveInfoBtn" class="posR posRTxt" style="color: #fff;">保存</a>
+		</div>
+		<div class="fixTxt">
+			<input id="editInp" type="text" placeholder="请输入昵称(16字内)" maxlength="16"/>
+		</div>
+		
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var userId = 0;
+			mui.plusReady(function () {
+			   var page = {
+				   init : function(){
+					   app.backFun(); 
+					   this.initNickName();
+					   this.bindEvent();
+				   },
+				   initNickName : function(){
+					   var _self = plus.webview.currentWebview();
+					   if(_self.currArgu != '' || _self.currArgu != undefined){
+						   app.getId('editInp').value = _self.currArgu;
+					   }
+					   userId = _self.userId;
+				   },
+				   bindEvent : function(){
+					   app.getId('saveInfoBtn').addEventListener('tap',function(){
+						    //var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+						    //var currStatus = app.checkLoginStatus(userInfo.userId,userInfo.loginStatus);
+							var innerTxt = app.getId('editInp').value;
+							if(innerTxt == ''){
+								mui.toast('请输入昵称');
+								return;
+							}
+							if(app.isEmojiCharacter(innerTxt)){
+								mui.toast('昵称不能带有特殊表情');
+								return;
+							}
+							mui.ajax(http_ + '/user.do?action=updateUserByStuInfo',{
+								data:{userId:userId,nickName:escape(innerTxt)},
+								dataType:'json',
+								type:'post',
+								timeout:10000,
+								beforeSend : function(){
+									app.showToast(1,'保存中...');
+								},
+								success:function(json){
+									app.showToast(2);
+									if(json.msg == 'success'){
+										mui.toast('设置成功'); 
+										var settingTxt = plus.webview.currentWebview(),
+											opener = settingTxt.opener();
+										mui.fire(opener,'updateNick',{nickName:innerTxt});
+										settingTxt.close('pop-out');
+									}else if(json.msg == 'fail'){
+										app.showToast(2);
+										mui.toast('设置信息失败');
+									}
+								},
+								error:function(xhr,type,errorThrown){
+									app.showToast(2);
+									mui.toast('服务器连接失败'); 
+								}
+							});
+					   });
+				   }
+			   }; 
+			   page.init();
+			});
+		</script>
+	</body>
+</html>

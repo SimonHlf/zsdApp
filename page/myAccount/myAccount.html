@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/myAccount.css"/>
+		<title>我的账户</title>
+	</head>
+	<body class="paddingTop">
+		<div class="comHeader otherBg">
+			<a id="backBtn" class="posL" href="javascript:mui.back();"><i class="iconfont icon-fanhui"></i></a>
+			<span class="headerTit">我的账户</span>
+		</div>
+		<div class="accNum">
+			<p>账户余额</p>
+			<strong id="totalNum"></strong>
+			<span id="applyTxBtn" class="applyTxBtn">申请提现</span>
+		</div>
+		<!-- 可提现 等待到账 已到帐 -->
+		<div class="myAccItem">
+			<ul>
+				<li>
+					<p>可提现</p>
+					<strong id="accNum"></strong>
+				</li>
+				<li>
+					<p>等待到账</p>
+					<strong id="waitCash"></strong>
+				</li>
+				<li>
+					<p>已到帐</p>
+					<strong id="hasGet"></strong>
+				</li>
+			</ul>
+		</div>
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+			var accMoney = 0;
+			mui.plusReady(function(){
+				var page = {
+					init : function(){
+						this.bindEvent();
+						this.loadMyAccInfo();
+					},
+					bindEvent : function(){
+						app.getId('applyTxBtn').addEventListener('tap',function(){
+							app.openwin('applyCashOut.html',{accMoney:accMoney,isUpFlag:false});
+						});
+					},
+					loadMyAccInfo : function(){
+						var _this = this;
+						app.showToast(1);
+						mui.ajax(http_ + '/netTeacher.do?action=myAccount',{
+							data:{userId:userInfo.userId},
+							dataType:'json',
+							type:'post',
+							timeout:10000,  
+							success:function(json){ 
+								app.showToast(2);
+								app.getId('totalNum').innerHTML = json.accMoney + '<span>元</span>';
+								app.getId('accNum').innerHTML = json.accMoney + '元';
+								app.getId('waitCash').innerHTML = json.ytxCash + '元';
+								app.getId('hasGet').innerHTML = json.txCash + '元';
+								accMoney = json.accMoney;
+							},
+							error:function(xhr,type,errorThrown){
+								app.showToast(2);
+								plus.nativeUI.toast('服务器错误');
+							} 
+						});
+					}
+				};
+				page.init();
+				document.addEventListener('upDateAccInfo',function(e){
+					var isUpFlag = e.detail.isUpFlag;
+					if(isUpFlag){
+						console.log("jinlaile")
+						page.loadMyAccInfo();
+					}
+				})
+			});
+		</script>
+	</body>
+</html>

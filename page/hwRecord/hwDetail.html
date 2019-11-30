@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/hwDetail.css"/>
+		<title>作业详情</title>
+	</head> 
+	<body id="body" class="paddingTop">
+		<div class="comHeader otherBg">
+			<a id="backBtn" class="posL" href="javascript:mui.back();"><i class="iconfont icon-fanhui"></i></a>
+			<span class="headerTit">作业详情</span>
+		</div>
+		<div class="hwDetIntro">
+			<p id="hwDetTit"></p>
+			<p id="hwStatus" class="beingSta"></p>
+		</div>
+		<div id="hwDetNav" class="hwDetNav">
+			<p class="active" isLoadFlag='true' currId='stuComp'>学生完成情况</p>
+			<p isLoadFlag='false' currId='accuracy'>题目正确率</p>
+		</div>
+		<div class="hwDetCon">
+			
+			
+			<!-- 学生完成情况 -->
+			<div id="stuComp" class="innerDetCon stuComp" style="display: block;">
+				<!-- 平均分和知识点名称 -->
+				<div class="averageLore">
+					<div class="averageScore">
+						<p class="scoreNum">
+							<strong id="avgScore"></strong>
+							<span>分</span>
+						</p>
+						<p class="scoreTxt">班级平均分</p>
+					</div>
+					<div class="loreName">
+						<p id="loreNameTxt" class="loreNameTxt multiEllip"></p>
+						<p class="loreNameTit">知识点</p>
+					</div>
+				</div>
+				
+				<!-- 按时完成 补做完成 未完成 人数 -->
+				<div class="completePeoWrap clearfix">
+					<div class="compPeo sameBox">
+						<p id="asCompNum"></p>
+						<p>按时完成</p>
+					</div>
+					<div class="buzuoCompPeo sameBox">
+						<p id="bzCompNum"></p>
+						<p>补做完成</p>
+					</div>
+					<div class="noCompPeo sameBox">
+						<p id="noCompNum"></p>
+						<p>未完成</p>
+					</div>
+				</div>
+				<!-- 学生情况 分数 正确率 -->
+				<div class="stuListWrap">
+					<strong>学生做题概况</strong>
+					<div id="stuListNav" class="stuListNav">
+						<div class="innerStuListNav">
+							<p class="oneWid">姓名</p>
+							<p class="towWid">分数</p>
+							<p class="towWid">正确</p>
+							<p class="towWid">错误</p>
+							<p class="towWid">未做</p>
+							<p class="towWid">详情</p>
+						</div>
+					</div>
+					<div id="stuList" class="stuList"></div>
+				</div>
+			</div>
+			
+			<!-- 题目正确率 -->
+			<div id="accuracy" class="innerDetCon accuracy">
+				<div id="tongji" class="tongji"></div>
+			</div>
+			
+		</div>
+		<span id="checkHwBtn" class="checkHwBtn">检查作业</span>
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/circles.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var currPage = 0,currOpt='',userInfo = JSON.parse( localStorage.getItem('userInfo') ),jumpPos = '',homeCheckOpt = '';
+			window.onscroll  = function(){
+				var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+				if(scrollTop >= 336){
+					app.getId('stuListNav').className = 'stuListNav hasFixed';
+				}else{
+					app.getId('stuListNav').className = 'stuListNav';
+				}
+			}
+			mui.init({
+				beforeback : function(){
+					if(jumpPos == 'byHome'){//从首页->作业记录按钮->作业记录页面跳转进来
+						var hwRecList = plus.webview.getWebviewById('hwRecord/hwRecordList.html');
+						mui.fire(hwRecList,'upDateList',{currPage:currPage,currOpt:currOpt});
+					}else if(jumpPos == 'home'){//从首页当日作业记录跳转进来
+						var hwHomeList = plus.webview.getWebviewById('page/home_tea.html'),isSendFlag = false;
+						homeCheckOpt == 'noCheck' ? isSendFlag = true : isSendFlag = false;
+						mui.fire(hwHomeList,'upDateSendData',{isSendFlag:isSendFlag});
+					}else if(jumpPos == 'bySelGrade'){//从首页->作业记录按钮->作业记录页面跳转进来
+						var hwRecList = plus.webview.getWebviewById('../hwRecord/hwRecordList.html');
+						mui.fire(hwRecList,'upDateList',{currPage:currPage,currOpt:currOpt});
+					}
+					return true;
+				}
+			}); 
+			mui.plusReady(function(){
+				var hwSendId = plus.webview.currentWebview().hwSendId,
+					userId = plus.webview.currentWebview().userId;
+				homeCheckOpt = plus.webview.currentWebview().checkOpt;
+				currPage = plus.webview.currentWebview().currPage;
+				currOpt = plus.webview.currentWebview().currOpt;
+				jumpPos = plus.webview.currentWebview().jumpPos;
+				var page = {
+					init : function(){
+						if(homeCheckOpt == 'noCheck'){
+							app.getId('body').className = 'paddingTop hasMargBot';
+							app.getId('checkHwBtn').style.display = 'block';
+						}
+						this.loadHWDetInfo();
+						this.bindEvent();
+					},
+					bindEvent : function(){
+						//学生完成情况 以及 题目正确率tab切换
+						var aP = app.getId('hwDetNav').getElementsByTagName('p'),
+							innerDetCon = document.querySelectorAll('.innerDetCon'),
+							_this = this;
+						mui('#hwDetNav').on('tap','p',function(i){
+							var isLoadFlag = this.getAttribute('isLoadFlag'),
+								currId = this.getAttribute('currId');
+							for(var i=0;i<aP.length;i++){
+								aP[i].className = '';
+								innerDetCon[i].style.display = 'none';
+								
+							}
+							this.className = 'active';
+							app.getId(currId).style.display = 'block';
+							if(isLoadFlag == 'false'){
+								//题目正确率
+								app.showToast(1);				
+								mui.ajax(http_ + '/hw.do?action=getSpecHwQueComDetail',{
+									data:{userId:userId,hwSendId:hwSendId},
+									dataType:'json',
+									type:'post',
+									timeout:10000,
+									success:function(json){ 
+										//console.log(JSON.stringify( json ))
+										app.showToast(2);
+										if(json.result == 'success'){
+											_this.renderAccuracy(json.queList);
+										}else if(json.result == 'noInfo'){
+											app.getId('tongji').innerHTML = '<p class="noDataTxt">暂无记录</p>';
+										}else if(json.result == 'error'){
+											plus.nativeUI.toast('服务器错误');
+										}
+									}, 
+									error:function(xhr,type,errorThrown){
+										app.showToast(2);
+										plus.nativeUI.toast('服务器错误');
+									} 
+								});
+								this.setAttribute('isLoadFlag','true');
+							}
+						});
+						//检查作业
+						app.getId('checkHwBtn').addEventListener('tap',function(){
+							var btnArray = ['确定','取消'];
+							mui.confirm('是否确定要完成检查作业？', '检查作业提示', btnArray, function(e) {
+								if (e.index == 0){
+									app.showToast(1);
+									mui.ajax(http_ + '/hw.do?action=checkHw',{
+										data:{roleId:userInfo.roleId,hwSendId:hwSendId},
+										dataType:'json',
+										type:'post',
+										timeout:10000,
+										success:function(json){ 
+											//console.log(JSON.stringify( json ))
+											app.showToast(2);
+											if(json.result == 'success'){
+												plus.nativeUI.toast('完成检查作业！');
+												setTimeout(function(){
+													//当前关闭,执行刷新作业记录list页面
+													mui.back();
+													var currView = plus.webview.currentWebview();
+													currView.close();
+												},500);
+											}else if(json.result == 'error'){
+												plus.nativeUI.toast('服务器错误');
+											}
+										}, 
+										error:function(xhr,type,errorThrown){
+											app.showToast(2);
+											plus.nativeUI.toast('服务器错误');
+										} 
+									});
+								}
+							});
+						});
+					},
+					renderAccuracy : function(list){
+						var str = '<ul class="clearfix">';
+						var percentArr = [];
+						for(var i=0;i<list.length;i++){
+							str += '<li queId="'+ list[i].queId +'">';
+							str += '<div class="percent"><div id="circles'+ i +'" class="circle"></div></div>';
+							str += '<p>第'+ (i+1) +'题</p>';
+							str += '</li>';
+							percentArr.push(list[i].succRate);
+						}
+						str += '</ul>';
+						app.getId('tongji').innerHTML = str;
+						this.circleProgress(percentArr);
+						mui('#tongji').on('tap','li',function(){
+							var queId = this.getAttribute('queId');
+							var field = {hwSendId:hwSendId,userId:userId,queId:queId};
+							app.openwin('allStuAnsQueRec.html',{currField:field});
+						});
+					},
+					circleProgress : function(percentArr){
+						var totalPercent = 100;
+						var currColor = '#999';
+						var iLen = percentArr.length;
+						for(var i=0;i<iLen;i++){
+							percentArr[i] == 0 ? currColor='#999' : currColor='#f18347';
+							var child = document.getElementById('circles' + i);
+							Circles.create({
+								id:         child.id,
+								value:      percentArr[i],
+				  				maxValue:   totalPercent,
+								text:       function(value){return value + '%';},
+								radius:     22,
+								width:      2,
+								colors:     ['#999', currColor]
+							});
+						}
+					},
+					loadHWDetInfo : function(){
+						var _this = this;
+						app.showToast(1);
+						mui.ajax(http_ + '/hw.do?action=getSpecHwStuComDetail',{
+							data:{userId:userId,hwSendId:hwSendId},
+							dataType:'json',
+							type:'post',
+							timeout:10000,
+							success:function(json){ 
+								//console.log(JSON.stringify( json ))
+								app.showToast(2);
+								app.getId('hwDetTit').innerHTML = json.hwTitle;
+								app.getId('hwStatus').innerHTML = json.endStatus;
+								app.getId('avgScore').innerHTML = json.avgScore;
+								app.getId('asCompNum').innerHTML = json.zsComNum + '人';
+								app.getId('bzCompNum').innerHTML = json.bzComNum + '人';
+								app.getId('noCompNum').innerHTML = json.unComNum + '人';
+								app.getId('loreNameTxt').innerHTML = json.loreInfo;
+								if(json.result == 'success'){
+									_this.renderStuQuesList(json.stuInfo);
+								}else if(json.result == 'noInfo'){
+									app.getId('stuList').innerHTML = '<p class="noDataTxt_stu">暂无学生做题记录</p>';
+								}else if(json.result == 'error'){
+									plus.nativeUI.toast('服务器错误');
+								}
+							}, 
+							error:function(xhr,type,errorThrown){
+								app.showToast(2);
+								plus.nativeUI.toast('服务器错误');
+							} 
+						});
+					},
+					renderStuQuesList : function(list){
+						var str = '<ul>';
+						//console.log(JSON.stringify( list ))
+						for(var i=0;i<list.length;i++){
+							str += '<li class="clearfix">';
+							str += '<p class="oneWid ellip">'+ list[i].stuName +'</p>';
+							str += '<p class="towWid score">'+ list[i].hwScore +'分</p>';
+							str += '<p class="towWid rightCol">'+ list[i].succNum +'道</p>';
+							str += '<p class="towWid errCol">'+ list[i].errorNum +'道</p>';
+							str += '<p class="towWid errCol">'+ list[i].unNum +'道</p>';
+							str += '<p tjId="'+ list[i].tjId +'" stuName="'+ list[i].stuName +'" class="viewDetBtn towWid">查看</p></li>';
+						}
+						str += '</ul>';
+						app.getId('stuList').innerHTML = str;
+						var stuList = app.getId('stuList');
+						var aLi = stuList.getElementsByTagName('li');
+						for(var i=0;i<aLi.length;i++){
+							if(i%2 == 1){
+								aLi[i].className = 'clearfix oddBgColor';
+							}
+						}
+						mui('#stuList').on('tap','.viewDetBtn',function(){
+							var tjId = this.getAttribute('tjId'),
+								stuName = this.getAttribute('stuName');
+							app.openwin('stuQueAnsHwDetRec.html',{tjId:tjId,stuName:stuName});
+						});
+					}
+				};
+				page.init();
+			});
+		</script>
+	</body>
+</html>

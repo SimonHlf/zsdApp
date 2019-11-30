@@ -1,0 +1,292 @@
+.subTit{
+	height: 1.1rem;
+	line-height: 1.1rem;
+	background: #fff;
+	position: relative;
+	box-shadow: 0 3px 5px rgba(0,0,0,.1);
+	z-index: 10;
+	font-size:.42rem;
+	padding: 0 .2667rem;
+	font-weight: bold;
+	text-indent: .25rem;
+}
+.subTit span{
+	width: 4px;
+	height: 40%;
+	position: absolute;
+	left: .2667rem;
+	top:28%;
+	background: #4d47f1;
+	border-radius: 10px;
+}
+.subTit p{
+	color: #333;
+}
+.list{
+	position: absolute;
+	left: 0;
+	right: 0;
+	top:2.4rem;
+	bottom: 1.5rem;
+	background: #f2f2f2;
+	overflow: hidden;
+	overflow-y: auto;
+	-webkit-overflow-scrolling: touch;
+}
+.list li{
+	padding: .2rem .2667rem 0;
+	background: #fff;
+	margin-bottom: .25rem;
+	position: relative;
+}
+.list li .tit{
+	height: .8rem;
+	line-height: .8rem;
+}
+.list li .tit strong{
+	font-size: .45rem;
+	color: #333;
+	float: left;
+}
+.list li .tit span{
+	font-size: .4rem;
+	float: right;
+	color: #999;
+}
+.list li .con{
+	font-size: .4rem;
+	color: #333;
+	padding: .2rem 0;
+}
+.list li .con strong{
+	color:#4d47f1 ;
+	font-weight: normal;
+}
+.list li .dateTxt{
+	height: .8rem;
+	line-height: .8rem;
+	color: #999;
+}
+.list li .dateTxt p.takeTypeTag{
+	height: .65rem;
+	line-height: .65rem;
+	padding: 0 .2rem;
+	font-size: .35rem;
+	color: #fff;
+	margin-top: .075rem;
+}
+.list li .dateTxt p.takeTypeTag.tmpTake{
+	background: #4d47f1;
+}
+.list li .dateTxt p.takeTypeTag.remarkTxt{
+	background: #ccc;
+	margin-left: .2rem;
+}
+.list li .dateTxt p.takeTypeTag.foreverTake{
+	background: red;
+}
+.list li .dateTxt p{
+	float: left;
+}
+.list li .dateTxt p:last-child{
+	float: right;
+}
+.list li .bot{
+	height:1.2rem;
+	border-top: 1px solid #e6e6e6;
+	position: relative;
+}
+.list li .bot span{
+	width: 50%;
+	height: 100%;
+	line-height: 1.2rem;
+	float: left;
+	text-align: center;
+	font-size: .4rem;
+}
+.list li .bot em{
+	width: 1px;
+	height: .6rem;
+	background: #e6e6e6;
+	position: absolute;
+	left: 50%;
+	top:0.3rem;
+}
+.list li .bot span:first-child,
+.list li span.dealSta.refuseSta i{
+	color: #e10080;
+}
+.list li .bot span:last-child,
+.list li span.dealSta.agreeSta i{
+	color: #4d47f1;
+}
+.list li span.dealSta{
+	position: absolute;
+	right:.25rem;
+	top:.4rem;
+}
+.list li span.dealSta i{
+	font-size: 1.4rem;
+}
+.botBtnFun{
+	width: 100%;
+	height: 1.5rem;
+	line-height: 1.5rem;
+	position: fixed;
+	left: 0;
+	bottom: 0;
+	background: #fff;
+	box-shadow: 0 -3px 5px rgba(0,0,0,.1);
+	z-index: 10;
+}
+.botBtnFun span{
+	width: 55%;
+	height: 1rem;
+	line-height: 1rem;
+	float: left;
+	margin-top: .25rem;
+	background: #4d47f1;
+	color: #fff;
+	font-size: .45rem;
+	text-align: center;
+	border-radius: 4px;
+	margin-left: 26%;
+}
+/* 转让接管班级 */
+.takeTransferBox{
+	padding: 0 .2667rem;
+	height: 1.4rem;
+	line-height: 1.4rem;
+	background: #fff;
+	margin-bottom: .25rem;
+	border-bottom: 1px solid #e6e6e6;
+}
+.takeTransferBox span.titSpan{
+	width: 25%;
+	height: 100%;
+	float: left;
+	font-size: .4rem;
+	color: #333;
+	font-weight: bold;
+}
+.takeTransferBox p{
+	width: 75%;
+	height: 100%;
+	float: left;
+	font-size: .4rem;
+	color: #999;
+	position: relative;
+}
+.takeTransferBox p span{
+	width: 90%;
+	height: 100%;
+	float: left;
+	text-align: center;
+}
+.takeTransferBox p.hasSel{
+	color: #333;
+}
+.takeTransferBox p i{
+	font-size: .5rem;
+	color: #999;
+}
+.takeTransferBtn{
+	width: 60%;
+	height: 1rem;
+	line-height: 1rem;
+	background: #4d47f1;
+	font-size: .45rem;
+	color: #fff;
+	text-align: center;
+	display: block;
+	margin:.8rem auto 0;
+	border-radius: 4px;
+}
+#classSel{
+	width: 100%;
+	height: 6rem;
+	position: fixed;
+	left: 0;
+	bottom:-100%;
+	background: #fff;
+	z-index: 1000;
+	-webkit-animation-timing-function:cubic-bezier(0.25,0.1,0.25,1);
+	-webkit-animation-fill-mode:forwards;
+	animation-timing-function:cubic-bezier(0.25,0.1,0.25,1);
+	animation-fill-mode:forwards;
+}
+.animation{
+	-webkit-animation:mymove .5s; /* Safari and Chrome */
+	animation:mymove .5s;
+}
+.animationClose{
+	animation:myMoveClose .5s;
+	-webkit-animation:myMoveClose .5s; /* Safari and Chrome */
+}
+@keyframes mymove{
+	from {bottom:-100%;}
+	to {bottom:0%;}
+}
+@-webkit-keyframes mymove { /* Safari and Chrome */
+	from {bottom:-100%;}
+	to {bottom:0%;}
+}
+@keyframes myMoveClose{
+	from {bottom:0%;}
+	to {bottom:-100%;}
+}
+@-webkit-keyframes myMoveClose {/* Safari and Chrome */
+	from {bottom:0%;}
+	to {bottom:-100%;}
+}
+.selHead{
+	height: 1.2rem;
+	line-height: 1.2rem;
+	font-size: .42rem;
+	text-align: center;
+	color: #333;
+	border-bottom: 1px solid #e6e6e6;
+}
+.selConBox{
+	height: 4.8rem;
+	overflow: hidden;
+	overflow-y: auto;
+	-webkit-overflow-scrolling: touch;
+}
+.selConBox ul{
+	width: 90%;
+	margin:0 auto;
+}
+.selConBox li{
+	height: 1.2rem;
+	line-height: 1.2rem;
+	text-align: center;
+	font-size: .42rem;
+	color: #666;
+	-webkit-tap-highlight-color: transparent;
+	border-bottom: 1px solid #e6e6e6;
+}
+.selConBox li.active{
+	color: #4d47f1;
+	font-weight: 600;
+}
+.noDataTxt{
+	font-size: .4rem;
+	color: #999;
+	text-align: center;
+	margin-top: 2rem;
+}
+/* 注释 */
+.noteTxt{
+	padding: 0 .2667rem;
+	font-size: .38rem;
+	color: #e10082;
+	margin-top: .35rem;
+}
+.noteTxt p{
+	line-height: .8rem;
+	text-indent: 1em;
+}
+.noteTxt p.noIndent{
+	text-indent: 0;
+}

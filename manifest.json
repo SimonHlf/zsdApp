@@ -1,0 +1,380 @@
+{
+    "@platforms" : [ "android", "iPhone", "iPad" ],
+    "id" : "H500564F5", /*应用的标识，创建应用时自动生成，勿手动修改*/
+    "name" : "知识典", /*应用名称，程序桌面图标名称*/
+    "version" : {
+        "name" : "1.0.0", /*应用版本名称*/
+        "code" : "83"
+    },
+    "description" : "知识典，将课本知识进行了细胞化分解。在知识的源头处打破章节、学科的界线，并通过网络的交互功能实现了知识点之间的互通、互补。学生利用诊断评测进行溯源查找，而后网络导学再帮助学生将查找到了知识漏洞进行有效弥补。让学习过程事半功倍，让查漏补缺轻松简单。", /*应用描述信息*/
+    "icons" : {
+        "72" : "icon.png"
+    },
+    "launch_path" : "index_st.html", /*应用的入口页面，默认为根目录下的index.html；支持网络地址，必须以http://或https://开头*/
+    "developer" : {
+        "name" : "", /*开发者名称*/
+        "email" : "", /*开发者邮箱地址*/
+        "url" : "http://www.dcloud.io"
+    },
+    "permissions" : {
+        "Cache" : {
+            "description" : "管理应用缓存"
+        },
+        "Console" : {
+            "description" : "跟踪调试输出日志"
+        },
+        "Events" : {
+            "description" : "应用扩展事件"
+        },
+        "Speech" : {
+            "description" : "管理语音识别插件"
+        },
+        "Share" : {},
+        "Push" : {},
+        "VideoPlayer" : {},
+        "Uploader" : {
+            "description" : "文件上传，管理文件上传任务"
+        },
+        "File" : {
+            "description" : "文件系统"
+        },
+        "Payment" : {}
+    },
+    "plus" : {
+        "splashscreen" : {
+            "autoclose" : true, /*是否自动关闭程序启动界面，true表示应用加载应用入口页面后自动关闭；false则需调plus.navigator.closeSplashscreen()关闭*/
+            "waiting" : true
+        },
+        "allowsInlineMediaPlayback" : true, /*对IOS应用有效, 当需要用到VIDEO播放时,设置不让视频自动弹出播放*/
+        "runmode" : "liberate", /*应用的首次启动运行模式，可取liberate或normal，liberate模式在第一次启动时将解压应用资源（Android平台File API才可正常访问_www目录）*/
+        "signature" : "Sk9JTiBVUyBtYWlsdG86aHIyMDEzQGRjbG91ZC5pbw==", /*可选，保留给应用签名，暂不使用*/
+        "distribute" : {
+            "apple" : {
+                "appid" : "", /*iOS应用标识，苹果开发网站申请的appid，如io.dcloud.HelloH5*/
+                "mobileprovision" : "", /*iOS应用打包配置文件*/
+                "password" : "", /*iOS应用打包个人证书导入密码*/
+                "p12" : "", /*iOS应用打包个人证书，打包配置文件关联的个人证书*/
+                "devices" : "universal", /*iOS应用支持的设备类型，可取值iphone/ipad/universal*/
+                "frameworks" : []
+            },
+            "google" : {
+                "packagename" : "", /*Android应用包名，如io.dcloud.HelloH5*/
+                "keystore" : "", /*Android应用打包使用的密钥库文件*/
+                "password" : "", /*Android应用打包使用密钥库中证书的密码*/
+                "aliasname" : "", /*Android应用打包使用密钥库中证书的别名*/
+                "hardwareAccelerated " : true, /*对安卓有效, 开启硬件加速， 当你的应用需要用到视频播放时，需要开启这个，也可以单个页面开启*/
+                "permissions" : [
+                    "<uses-feature android:name=\"android.hardware.camera\"/>",
+                    "<uses-feature android:name=\"android.hardware.camera.autofocus\"/>",
+                    "<uses-permission android:name=\"android.permission.ACCESS_COARSE_LOCATION\"/>",
+                    "<uses-permission android:name=\"android.permission.ACCESS_FINE_LOCATION\"/>",
+                    "<uses-permission android:name=\"android.permission.ACCESS_NETWORK_STATE\"/>",
+                    "<uses-permission android:name=\"android.permission.ACCESS_WIFI_STATE\"/>",
+                    "<uses-permission android:name=\"android.permission.CALL_PHONE\"/>",
+                    "<uses-permission android:name=\"android.permission.CAMERA\"/>",
+                    "<uses-permission android:name=\"android.permission.CHANGE_NETWORK_STATE\"/>",
+                    "<uses-permission android:name=\"android.permission.CHANGE_WIFI_STATE\"/>",
+                    "<uses-permission android:name=\"android.permission.FLASHLIGHT\"/>",
+                    "<uses-permission android:name=\"android.permission.GET_ACCOUNTS\"/>",
+                    "<uses-permission android:name=\"android.permission.INTERNET\"/>",
+                    "<uses-permission android:name=\"android.permission.MODIFY_AUDIO_SETTINGS\"/>",
+                    "<uses-permission android:name=\"android.permission.MOUNT_UNMOUNT_FILESYSTEMS\"/>",
+                    "<uses-permission android:name=\"android.permission.READ_CONTACTS\"/>",
+                    "<uses-permission android:name=\"android.permission.READ_LOGS\"/>",
+                    "<uses-permission android:name=\"android.permission.READ_PHONE_STATE\"/>",
+                    "<uses-permission android:name=\"android.permission.RECORD_AUDIO\"/>",
+                    "<uses-permission android:name=\"android.permission.VIBRATE\"/>",
+                    "<uses-permission android:name=\"android.permission.WAKE_LOCK\"/>",
+                    "<uses-permission android:name=\"android.permission.WRITE_CONTACTS\"/>",
+                    "<uses-permission android:name=\"android.permission.WRITE_EXTERNAL_STORAGE\"/>",
+                    "<uses-permission android:name=\"android.permission.WRITE_SETTINGS\"/>"
+                ]
+            },
+            "orientation" : [ "portrait-primary" ], /*应用支持的方向，portrait-primary：竖屏正方向；portrait-secondary：竖屏反方向；landscape-primary：横屏正方向；landscape-secondary：横屏反方向*/
+            "icons" : {
+                "ios" : {
+                    "prerendered" : true, /*应用图标是否已经高亮处理，在iOS6及以下设备上有效*/
+                    "auto" : "", /*应用图标，分辨率：512x512，用于自动生成各种尺寸程序图标*/
+                    "iphone" : {
+                        "normal" : "", /*iPhone普通屏幕程序图标，分辨率：57x57*/
+                        "retina" : "", /*iPhone高分屏程序图标，分辨率：114x114*/
+                        "retina7" : "", /*iPhone iOS7高分屏程序图标，分辨率：120x120*/
+                        "spotlight-normal" : "", /*iPhone Spotlight搜索程序图标，分辨率：29x29*/
+                        "spotlight-retina" : "", /*iPhone高分屏Spotlight搜索程序图标，分辨率：58x58*/
+                        "spotlight-retina7" : "", /*iPhone iOS7高分屏Spotlight搜索程序图标，分辨率：80x80*/
+                        "settings-normal" : "", /*iPhone设置页面程序图标，分辨率：29x29*/
+                        "settings-retina" : "",
+                        "app@2x" : "F:/myEclipse/zsdAppIcon/ios/120ios.png",
+                        "app@3x" : "F:/myEclipse/zsdAppIcon/ios/180ios.png",
+                        "spotlight@2x" : "F:/myEclipse/zsdAppIcon/ios/80ios.png",
+                        "spotlight@3x" : "F:/myEclipse/zsdAppIcon/ios/120ios.png",
+                        "settings@2x" : "F:/myEclipse/zsdAppIcon/ios/58ios.png",
+                        "settings@3x" : "F:/myEclipse/zsdAppIcon/ios/87ios.png",
+                        "notification@2x" : "F:/myEclipse/zsdAppIcon/ios/40ios.png",
+                        "notification@3x" : "F:/myEclipse/zsdAppIcon/ios/60ios.png"
+                    },
+                    "ipad" : {
+                        "normal" : "", /*iPad普通屏幕程序图标，分辨率：72x72*/
+                        "retina" : "", /*iPad高分屏程序图标，分辨率：144x144*/
+                        "normal7" : "", /*iPad iOS7程序图标，分辨率：76x76*/
+                        "retina7" : "", /*iPad iOS7高分屏程序图标，分辨率：152x152*/
+                        "spotlight-normal" : "", /*iPad Spotlight搜索程序图标，分辨率：50x50*/
+                        "spotlight-retina" : "", /*iPad高分屏Spotlight搜索程序图标，分辨率：100x100*/
+                        "spotlight-normal7" : "", /*iPad iOS7 Spotlight搜索程序图标，分辨率：40x40*/
+                        "spotlight-retina7" : "", /*iPad iOS7高分屏Spotlight搜索程序图标，分辨率：80x80*/
+                        "settings-normal" : "", /*iPad设置页面程序图标，分辨率：29x29*/
+                        "settings-retina" : "",
+                        "app" : "F:/myEclipse/zsdAppIcon/ios/76ipad.png",
+                        "proapp@2x" : "F:/myEclipse/zsdAppIcon/ios/167ipad.png",
+                        "spotlight" : "F:/myEclipse/zsdAppIcon/ios/40ios.png",
+                        "spotlight@2x" : "F:/myEclipse/zsdAppIcon/ios/80ios.png",
+                        "settings" : "F:/myEclipse/zsdAppIcon/ios/29 ipad.png",
+                        "settings@2x" : "F:/myEclipse/zsdAppIcon/ios/58ios.png",
+                        "notification" : "F:/myEclipse/zsdAppIcon/ios/20 ipad.png",
+                        "notification@2x" : "F:/myEclipse/zsdAppIcon/ios/40ios.png",
+                        "app@2x" : "F:/myEclipse/zsdAppIcon/ios/156ipad.png"
+                    }
+                },
+                "android" : {
+                    "mdpi" : "", /*普通屏程序图标，分辨率：48x48*/
+                    "ldpi" : "", /*大屏程序图标，分辨率：48x48*/
+                    "hdpi" : "F:/myEclipse/zsdAppIcon/Android/72.png", /*高分屏程序图标，分辨率：72x72*/
+                    "xhdpi" : "F:/myEclipse/zsdAppIcon/Android/96.png", /*720P高分屏程序图标，分辨率：96x96*/
+                    "xxhdpi" : "F:/myEclipse/zsdAppIcon/Android/144.png",
+                    "xxxhdpi" : "F:/myEclipse/zsdAppIcon/Android/192.png"
+                }
+            },
+            "splashscreen" : {
+                "ios" : {
+                    "iphone" : {
+                        "default" : "", /*iPhone3启动图片选，分辨率：320x480*/
+                        "retina35" : "", /*3.5英寸设备(iPhone4)启动图片，分辨率：640x960*/
+                        "retina40" : ""
+                    },
+                    "ipad" : {
+                        "portrait" : "", /*iPad竖屏启动图片，分辨率：768x1004*/
+                        "portrait-retina" : "", /*iPad高分屏竖屏图片，分辨率：1536x2008*/
+                        "landscape" : "", /*iPad横屏启动图片，分辨率：1024x748*/
+                        "landscape-retina" : "", /*iPad高分屏横屏启动图片，分辨率：2048x1496*/
+                        "portrait7" : "", /*iPad iOS7竖屏启动图片，分辨率：768x1024*/
+                        "portrait-retina7" : "", /*iPad iOS7高分屏竖屏图片，分辨率：1536x2048*/
+                        "landscape7" : "", /*iPad iOS7横屏启动图片，分辨率：1024x768*/
+                        "landscape-retina7" : ""
+                    }
+                },
+                "android" : {
+                    "mdpi" : "", /*普通屏启动图片，分辨率：240x282*/
+                    "ldpi" : "", /*大屏启动图片，分辨率：320x442*/
+                    "hdpi" : "", /*高分屏启动图片，分辨率：480x762*/
+                    "xhdpi" : "", /*720P高分屏启动图片，分辨率：720x1242*/
+                    "xxhdpi" : ""
+                }
+            },
+            "plugins" : {
+                "speech" : {
+                    "ifly" : {}
+                },
+                "payment" : {
+                    "alipay" : {}
+                }
+            }
+        }
+    },
+    "dependencies" : {
+        "pages" : {
+            "index_st.html" : {
+                "resources" : [ "page/home.html" ],
+                "refer" : [ "login.html" ],
+                "priority" : 0
+            },
+            "login.html" : {
+                "resources" : [],
+                "refer" : [ "register.html" ],
+                "priority" : 0
+            }
+        },
+        "idle" : {
+            "resources" : [
+                "test.html",
+                "page/studyOnline/welcome.html",
+                "page/studyOnline/images/video.png",
+                "css/common/cropper.min.css",
+                "css/hwDetail.css",
+                "page/transferTakeClasses/filter.html",
+                "css/common/reset.css",
+                "page/mine/settingPassword.html",
+                "page/pubHw/selChaptList.html",
+                "page/studyOnline/studyWelcome.html",
+                "css/transferTakeList.css",
+                "pullDownList.html",
+                "plugins/iscroll.js",
+                "plugins/mui.picker.js",
+                "page/buffetSend/buffetStudyLog.html",
+                "css/taskAward.css",
+                "page/studyOnline/js/questionList.js",
+                "page/studyOnline/questionList.html",
+                "css/subQuesError.css",
+                "images/treeIcon.png",
+                "plugins/flexible.js",
+                "fonts/iconfont.ttf",
+                "libs/echarts.min.js",
+                "page/mine/myErrorColle.html",
+                "page/mine/myJzInfo.html",
+                "page/mine/myLearningRecord.html",
+                "css/myLearningRecord.css",
+                "images/head.png",
+                "page/transferTakeClasses/takeClass.html",
+                "css/hwReport.css",
+                "css/common/mui.poppicker.css",
+                "fonts/mui.ttf",
+                "page/buffetStudy/buffetStudyMain.html",
+                "page/mine/viewAnswer.html",
+                "images/groupIcon.png",
+                "css/stepStudy.css",
+                "page/buffetSend/studyLogTongji.html",
+                "page/hwRecord/filter.html",
+                "css/filterNav.css",
+                "plugins/picker.js",
+                "page/home_tea.html",
+                "page/studyOnline/images/jietishifan.png",
+                "css/buffetStudyMain.css",
+                "plugins/jquery.min.js",
+                "images/taideng.png",
+                "page/studyOnline/taskAward.html",
+                "css/pullRefresh.css",
+                "css/hwRecordList.css",
+                "images/kehoufuxi.png",
+                "page/buffetStudy/studyMap.html",
+                "images/subject/icon.png",
+                "images/sonTreeIcon.png",
+                "test1.html",
+                "page/pubHw/selQueList.html",
+                "page/hwRecord/stuQueAnsHwDetRec.html",
+                "plugins/mobileSelect.min.js",
+                "page/buffetSend/stuList.html",
+                "circle.html",
+                "plugins/loadDetail.js",
+                "page/buffetSend/buffetSend.html",
+                "images/logo.png",
+                "js/mui.min.js",
+                "page/ntTeacher.html",
+                "page/buffetStudy/studyWelcome.html",
+                "page/studyOnline/jietishifan.html",
+                "page/studyOnline/subQuesError.html",
+                "page/pubHw/confirmPub.html",
+                "page/hwRecord/stuList.html",
+                "page/hwRecord/allStuAnsQueRec.html",
+                "page/home_nt.html",
+                "css/common/mui.picker.css",
+                "images/teaBanner.jpg",
+                "page/studyOnline/images/zhishiqingdan.png",
+                "page/mine/qinFenFilter.html",
+                "css/login.css",
+                "css/viewAnswer.css",
+                "css/viewBuffetDet.css",
+                "images/abilityBg.jpg",
+                "page/studyOnline/studyMap.html",
+                "page/studyOnline/video.html",
+                "page/studyOnline/dianbozhidao.html",
+                "css/mine.css",
+                "images/golden.png",
+                "fonts/iconfont.css",
+                "css/selHomeWorkType.css",
+                "images/homeWork.png",
+                "page/mine/setting.html",
+                "css/mui.min.css",
+                "page/studyOnline/traceBackList.html",
+                "page/mine/cropper.html",
+                "page/hwReport/stuList.html",
+                "page/buffetStudy/stepStudy.html",
+                "images/awrad.png",
+                "page/mine/myTiwen.html",
+                "css/common/common.css",
+                "css/halfFilter.css",
+                "css/common/mobileSelect.css",
+                "page/mine/qinfenReport.html",
+                "fonts/iconfont.woff",
+                "plugins/h.min.js",
+                "page/stuDoHw/doHwMainList.html",
+                "images/tongjiBg.png",
+                "findPassword.html",
+                "page/hwRecord/hwRecordList.html",
+                "images/rightError.png",
+                "css/common/fadeInOut.css",
+                "page/mine/myTongjiBaogao.html",
+                "page/mine/learnRecordDet.html",
+                "page/studyOnline/stepStudy.html",
+                "page/studyOnline/chapterList.html",
+                "images/noData1.png",
+                "css/qinfenReport.css",
+                "page/transferTakeClasses/transferClass.html",
+                "css/traceBackList.css",
+                "page/buy.html",
+                "css/hwAnswerList.css",
+                "css/home_tea.css",
+                "css/chapterList.css",
+                "css/abillityRep.css",
+                "css/allStuQueAnsRec.css",
+                "page/pubHw/selGrade.html",
+                "page/buffetStudy/traceBackList.html",
+                "plugins/mui.poppicker.js",
+                "page/mine/mine.html",
+                "page/mine/settingTxt.html",
+                "libs/cityData.js",
+                "plugins/cropper.min.js",
+                "images/bootPic.jpg",
+                "css/common/swiper.min.css",
+                "css/selLoreList.css",
+                "page/studyOnline/js/comStudy.js",
+                "css/teachingClass.css",
+                "css/buffetSend.css",
+                "page/hwReport/hwReport.html",
+                "page/studyOnline/zhishiqingdan.html",
+                "page/buffetStudy/buffetQuestionList.html",
+                "page/studyOnline/images/dianbozhidao.png",
+                "images/tongjiIcon.png",
+                "plugins/app.js",
+                "css/hwRecordFilter.css",
+                "pullDown.html",
+                "images/bg.png",
+                "page/studyOnline/js/stepStudy.js",
+                "images/mainBanner.jpg",
+                "images/keqianyuxi.png",
+                "page/mine/settingEmail.html",
+                "page/studyOnline/images/gongguxunlian.png",
+                "css/confirmPub.css",
+                "css/doHwMainList.css",
+                "plugins/footer.js",
+                "plugins/swiper.min.js",
+                "css/index.css",
+                "page/buffetSend/studyLogDet.html",
+                "plugins/jquery-3.1.1.slim.min.js",
+                "page/buffetStudy/questionList.html",
+                "page/buffetSend/viewBuffetDet.html",
+                "images/ansStatus.png",
+                "page/transferTakeClasses/teachingClass.html",
+                "bootPage.html",
+                "page/buffetStudy/js/questionList_bf.js",
+                "page/mine/mine_tea.html",
+                "css/stuList.css",
+                "css/buffetStudyLog.css",
+                "images/bggif.gif",
+                "page/mine/myAbilityRep_st.html",
+                "page/hwReport/hwAnswerRecList.html",
+                "css/studyMap.css",
+                "plugins/circles.min.js",
+                "plugins/comMethod.js",
+                "page/transferTakeClasses/transferTakeList.html",
+                "page/hwRecord/hwDetail.html",
+                "page/buffetSend/stuTotalStudyLogTongji.html",
+                "fonts/iconfont.woff2",
+                "images/noData.png",
+                "fonts/iconfont.eot",
+                "page/pubHw/selHwType.html",
+                "css/questionList.css",
+                "css/welcome.css",
+                "page/mine/settingPhone.html"
+            ]
+        }
+    }
+}

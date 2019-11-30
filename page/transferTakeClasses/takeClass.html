@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/transferTakeList.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/mobileSelect.css"/>
+		<title>接管班级申请</title>
+	</head>
+	<body class="paddingTop">
+		<div class="comHeader otherBg">
+			<a id="backBtn" class="posL"  href="javascript:mui.back();"><i class="iconfont icon-fanhui"></i></a>
+			<span class="headerTit">接管班级申请</span>
+		</div>
+		<div class="takeTransferBox">
+			<span class="titSpan">接管类型：</span>
+			<input type="hidden" id="takeTypeInp" value="1" />
+			<p class="hasSel">
+				<span id="takeType" class="comSelTxtCon">临时接管</span>
+				<i class="iconfont icon-xiala"></i>
+			</p>
+		</div>
+		
+		<div class="takeTransferBox">
+			<span class="titSpan">接管年级：</span>
+			<input type="hidden" id="takeGradeInp" />
+			<p id="gradeWrap">
+				<span id="takeGrade" class="comSelTxtCon">请选择年级</span>
+				<i class="iconfont icon-xiala"></i>
+			</p>
+		</div>
+		
+		<div class="takeTransferBox">
+			<span class="titSpan">接管班级：</span>
+			<input type="hidden" id="takeClassInp" />
+			<p id="classWrap" class="classWrap">
+				<span id="takeClass" class="comSelTxtCon">请选择要接管班级</span>
+				<i class="iconfont icon-xiala"></i>
+			</p>
+		</div>
+		
+		<div class="takeTransferBox">
+			<span class="titSpan">老师姓名：</span>
+			<p id="teaNameWrapP">
+				<span id="teaNameWrap">请选择班级</span>
+			</p>
+		</div>
+		
+		<span id="takeTransferBtn" class="takeTransferBtn">提交申请</span>
+		<div id="layer" class="layer"></div>
+		<div id="classSel" class="comSelectBox">
+			<div class="selHead">选择班级</div>
+			<div class="selConBox">
+				<ul id="selClassUl"></ul>
+			</div>
+		</div>
+		
+		<div class="noteTxt">
+			<p class="noIndent">注：</p>
+			<p>1、临时接管：申请老师拥有临时使用权，无所有权。</p>
+			<p>2、永久接管：申请老师拥有永久使用权，所有权。</p>
+			<p>3、使用权：发布、检查作业权。</p>
+			<p>4、所有权：转让班级权。</p>
+			<p>5、提交申请后须被申请方老师确认同意后方可使用。</p>
+		</div>
+		
+		
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/mobileSelect.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var userInfo = JSON.parse(localStorage.getItem('userInfo')),isTakeFlag = false;
+			var takeTypeArr = [{"type":1,"value":"临时接管"},{"type":2,"value":"永久接管"}];
+			var isLoadFlag_tp = true,isLoadGradeFlag = true;//创建接管类型Flag
+			mui.init({
+				beforeback : function(){
+					var takeListView = plus.webview.currentWebview().opener();
+					mui.fire(takeListView,'upDateTakeList',{isTakeFlag : isTakeFlag});
+					return true;
+				}
+			});
+			mui.plusReady(function(){
+				isTakeFlag = plus.webview.currentWebview().isTakeFlag;
+				var page = {
+					init : function(){
+						this.createTakeTypeSel();
+						this.loadGradeList();//加载年级班级Sel
+						this.bindEvent();
+					},
+					bindEvent : function(){
+						var _this = this;
+						app.getId('takeTransferBtn').addEventListener('tap',function(){	
+							var applyOpt = app.getId('takeTypeInp').value,
+								takeGradeInp = app.getId('takeGradeInp').value,
+								takeClassInp = app.getId('takeClassInp').value,
+								teaName = app.getId('teaNameWrap').innerText,
+								takeGradeTxt = app.getId('takeGrade').innerText,
+								takeClassTxt = app.getId('takeClass').innerText;
+							if(takeGradeInp == ''){
+								plus.nativeUI.toast('请选择年级');
+							}else if(takeClassInp == ''){
+								plus.nativeUI.toast('请选择班级');
+							}else{
+								var btnArray = ['确定', '取消'];
+								var takeTypeTxt = applyOpt == 1 ?　'临时接管' : '永久接管';
+								var gradeClassStr = takeGradeTxt + takeClassTxt;
+								mui.confirm('是否确定要'+ takeTypeTxt + teaName +'老师的'+ gradeClassStr +'？', btnArray, function(e) {
+									if (e.index == 0){
+										var currStatus = app.checkLoginStatus(userInfo.userId,userInfo.loginStatus);
+										if(currStatus){
+											app.showToast(1);
+											var field = {userId:userInfo.userId,applyOpt:applyOpt,classId:takeClassInp};
+											mui.ajax(http_ + '/applyClass.do?action=addApplyClass',{
+												data:field,
+												dataType:'json',
+												type:'post',
+												timeout:10000,
+												success:function(json){ 
+													app.showToast(2); 
+													if(json.result == 'success'){
+														isTakeFlag = true;
+														plus.nativeUI.toast('您的'+ takeTypeTxt +'申请已提交，等待'+ teaName +'老师的处理...');
+														setTimeout(function(){
+															mui.back();
+														},400);
+													}else if(json.result == 'error'){
+														plus.nativeUI.toast('服务器异常');
+													}else if(json.result == 'existInfo'){
+														plus.nativeUI.toast('该班级您已申请'+ takeTypeTxt +',等待'+ teaName +'老师的处理...');
+													}
+												},
+												error:function(xhr,type,errorThrown){
+													app.showToast(2);
+													plus.nativeUI.toast('服务器异常');
+												} 
+											});
+										}
+									}
+								});
+							}
+						});
+						app.getId('takeClass').addEventListener('tap',function(){
+							app.getId('layer').style.display = 'block';
+							app.getId('classSel').className = 'animation';
+						});
+						app.getId('layer').addEventListener('tap',function(){
+							_this.classSelShow();
+						});
+
+						mui('#selClassUl').on('tap','li',function(){
+							var aLi = document.getElementsByTagName('li');
+							var cId = this.getAttribute('cId'),
+								teaName = this.getAttribute('teaName');
+							for(var i=0;i<aLi.length;i++){
+								aLi[i].className = '';
+							}
+							this.className = 'active';
+							app.getId('classWrap').className = 'hasSel';
+							app.getId('teaNameWrapP').className = 'hasSel';
+							app.getId('takeClass').innerHTML = this.innerText;
+							app.getId('takeClassInp').value = cId;
+							app.getId('teaNameWrap').innerHTML = teaName;
+							_this.classSelShow();
+						});
+					},
+					classSelShow : function(){
+						app.getId('classSel').className = 'animationClose';
+						setTimeout(function(){
+							app.getId('layer').style.display = 'none';
+						},400);
+					},
+					createTakeTypeSel : function(){
+						if(isLoadFlag_tp){
+							var takeTypeSel = new MobileSelect({
+								trigger: '#takeType',
+								title: '选择接管类型',
+								wheels: [ 
+									{data: takeTypeArr}
+								],
+								position:[0], 
+								transitionEnd:function(indexArr, data){},
+								callback:function(indexArr, data){
+									app.getId('takeTypeInp').value = data[0].type;
+									console.log(app.getId('takeTypeInp').value)
+								}
+							});
+						}
+						isLoadFlag_tp = false;
+					},
+					//加载年级列表
+					loadGradeList : function(){
+						var _this = this;
+						app.showToast(1);
+						mui.ajax(http_ + '/applyClass.do?action=getValidGradeData',{
+							data:{userId:userInfo.userId},
+							dataType:'json',
+							type:'post',
+							timeout:10000,
+							success:function(json){ 
+								app.showToast(2); 
+							//	console.log(JSON.stringify( json ))
+								if(json.result == 'success'){
+									if(isLoadGradeFlag){
+										_this.createGradeSel(json.gradeList);
+									}
+									isLoadGradeFlag = false;
+								}else if(json.result == 'noInfo'){
+									app.getId('takeGrade').innerHTML = '暂无年级';
+								}
+							},
+							error:function(xhr,type,errorThrown){
+								app.showToast(2);
+								plus.nativeUI.toast('服务器错误');
+							} 
+						});
+					},
+					//创建年级sel
+					createGradeSel : function(list){
+						var _this = this,currSelGradNum=0;
+						for(var i=0;i<list.length;i++){
+							if(list[i].selFlag){
+								currSelGradNum = i;
+								app.getId('gradeWrap').className = 'hasSel';
+								app.getId('takeGradeInp').value = list[i].gradeNo;
+								app.getId('takeGrade').innerHTML = list[i].gradeName;
+								_this.loadClassListByGradeNo(list[i].gradeNo);//初始进来根据gradeNo加载对应班级
+							}
+						}
+						var gradeSel = new MobileSelect({
+							trigger: '#takeGrade',
+							title: '选择年级',
+							wheels: [ 
+								{data: list}
+							],
+							position:[currSelGradNum], //初始化定位 打开时默认选中的哪个 如果不填默认为0
+							transitionEnd:function(indexArr, data){},
+							keyMap:{"id":"gradeNo","value":"gradeName"},
+							callback:function(indexArr, data){
+								app.getId('takeGradeInp').value = data[0].gradeNo;
+								app.getId('classWrap').className = '';
+								app.getId('teaNameWrapP').className = '';
+								app.getId('takeClass').innerHTML = '请选择要接管班级';
+								app.getId('takeClassInp').value = '';
+								app.getId('teaNameWrap').innerHTML = '请选择班级';
+								
+								//每次选择不同年级更新不同年级对应的班级
+								_this.loadClassListByGradeNo(data[0].gradeNo);
+								
+							}
+						});
+					},
+					//根据gradeNo加载班级列表
+					loadClassListByGradeNo : function(gradeNo){
+						var _this = this;
+						app.showToast(1);
+						mui.ajax(http_ + '/applyClass.do?action=getValidClassData',{
+							data:{userId:userInfo.userId,gradeNo:gradeNo},
+							dataType:'json',
+							type:'post',
+							timeout:10000,
+							success:function(json){ 
+								//console.log(JSON.stringify( json ))
+								app.showToast(2); 
+								if(json.result == 'success'){
+									_this.renderClassListHtml(json.cList);
+								}else if(json.result == 'noInfo'){
+									app.getId('selClassUl').innerHTML = '<p class="noDataTxt">暂无班级</p>';
+								}
+							},
+							error:function(xhr,type,errorThrown){
+								app.showToast(2);
+								plus.nativeUI.toast('服务器错误');
+							} 
+						});
+					},
+					renderClassListHtml : function(list){
+						var str = '',_this = this;
+						if(list.length > 0){
+							for(var i=0;i<list.length;i++){
+								str += '<li teaName="'+ list[i].teaName +'" cId="'+ list[i].cId +'">'+ list[i].cName +'</li>';
+							}
+							app.getId('selClassUl').innerHTML = str;
+						}else{
+							app.getId('selClassUl').innerHTML = '<p class="noDataTxt">暂无班级</p>';
+						}
+						
+					}
+				};
+				page.init();
+			});
+		</script>
+	</body>
+</html>

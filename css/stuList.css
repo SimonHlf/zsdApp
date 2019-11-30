@@ -1,0 +1,73 @@
+body.hasBg{
+	background: #f2f2f2;
+}
+.stuList{
+	padding: .2667rem;
+}
+.stuList li{
+	float: left;
+	width:1.8rem;
+	text-align: center;
+	margin-right: .11rem;
+	margin-bottom: .25rem;
+}
+.stuList li:nth-of-type(5n){
+	margin-right: 0;
+}
+.stuList li img,
+.stuList li .imgBox{
+	width: 1.3333rem;
+	height: 1.3333rem;
+	border-radius: 50%;
+}
+.stuList li img{
+	display: inline-block;
+}
+.stuList li .imgBox{
+	margin:0 auto;
+	line-height: 1.333rem;
+	background: #f2f2f2;
+	font-size: .4rem;
+}
+.stuList li p{
+	widows: 100%;
+	font-size: .4rem;
+	color: #333;
+	margin-top: .1rem;
+}
+.stuList li.currSelAct p{
+	color: #4d47f1;
+}
+.stuPart{
+	margin-bottom: .25rem;
+}
+.stuModTit{
+	height: 1.2rem;
+	line-height: 1.2rem;
+	padding: 0 .2667rem;
+	font-size: .42rem;
+	color: #333;
+	background: #fff;
+	position: relative;
+	text-indent: .2rem;
+	font-weight: 620;
+	border-bottom: 1px solid #e6e6e6;
+}
+.stuModTit span{
+	width: 4px;
+	height: .5rem;
+	position: absolute;
+	left: .2667rem;
+	top:.32rem;
+	background: #4d47f1;
+	border-radius: 6px;
+}
+.noStuTxt{
+	line-height: 1.2rem;
+	text-align: center;
+	font-size: .4rem;
+	color: #999;
+}
+#allStuPart{
+	display: none;
+}

@@ -1,0 +1,413 @@
+body{
+	background: #fff;
+}
+body.bodyBg{
+	background: #f2f2f2;
+}
+/* 导师列表 */
+.myNtModTit{
+	height: 1.2rem;
+	line-height: 1.2rem;
+	padding: 0 .2667rem;
+	font-size: .42rem;
+	color: #333;
+	background: #fff;
+	position: relative;
+	text-indent: .2rem;
+	font-weight: 620;
+	border-bottom: 1px solid #e6e6e6;
+	display: block;
+}
+.myNtModTit span{
+	width: 4px;
+	height: .5rem;
+	position: absolute;
+	left: .2667rem;
+	top:.32rem;
+	background: #4d47f1;
+	border-radius: 6px;
+}
+.myNtModTit em,
+.triEm{
+	width: 0;
+	height: 0;
+	border-width: .18rem;
+}
+.myNtModTit em.botTri,
+.triEm{
+	margin-top: .55rem;
+	border-style: solid dashed dashed dashed;
+}
+.myNtModTit em{
+	float: right;
+	border-color: #4d47f1 transparent transparent transparent;
+}
+.triEm{
+	border-color: #999 transparent transparent transparent;
+	position: absolute;
+	left: 1.2rem;
+	top: -.05rem;
+	z-index: 1;
+}
+.myNtModTit em.leftTri{
+	margin-top: .45rem;
+	margin-right: -.1rem;
+	border-style: dashed dashed dashed solid; 
+	border-color: transparent transparent transparent #666 ;
+}
+.myNtList{
+	padding: .5rem .5rem 0;
+	min-height: 5.8rem;
+}
+.myNtList li{
+	width: 4.2rem;
+	height: 5.35rem;
+	background: #fff;
+	float: left;
+	border-radius: 4px;
+	box-shadow: 0 0 5px rgba(0,0,0,.1);
+	margin-bottom: .5rem; 
+}
+.myNtList li:nth-of-type(2n){
+	float: right;
+}
+.myNtList li .ntPic{
+	height: 2rem;
+	position: relative;
+}
+.myNtList li .ntPic img.dec{
+	width: 4.2rem;
+	height: 2rem;
+	border-radius: 4px 4px 0 0;
+}
+.myNtList li .ntPic .headPic{
+	width: 1.4rem;
+	height: 1.4rem;
+	border:2px solid #fff;
+	position: absolute;
+	left: 50%;
+	margin-left: -.72rem;
+	border-radius: 50%;
+	bottom:-.7rem;
+}
+.myNtList li .ntPic .headPic img{
+	width: 100%;
+	height: 100%;
+	border-radius: 50%;
+}
+.ntInfo{
+	margin-top: .75rem;
+	text-align: center;
+}
+.ntInfo strong{
+	font-size: .4rem;
+	color: #333;
+	font-weight: 620;
+}
+.ntInfo .subName,
+.ntInfo .endTime{
+	font-size: .35rem;
+	color: #666;
+}
+.bindBtn{
+	width: 100%;
+	height: .9rem;
+	line-height: .9rem;
+	display: block;
+	color: #fff;
+	margin-top: .1rem;
+	border-radius: 0 0 4px 4px;
+	font-size: .38rem;
+}
+.bindBtn.sevenDay{
+	background:#544ef2 ;
+}
+.bindBtn.shengxue{
+	background:#e6e6e6 ;
+	color: #fff;
+}
+.endTime.hasOverEnd{
+	color: #e10080;
+}
+.noNtData,
+.noNtInfo{
+	width: 3.6rem;
+	height: 3.1rem;
+	text-align: center;
+	margin:1rem auto 0;
+	font-size: .4rem;
+	color: #999;
+}
+.noNtData img,
+.noNtInfo img{
+	width: 3.4266rem;
+	height: 2.3066rem;
+}
+.ntNum{
+	font-size: .35rem;
+	color: #e10080;
+}
+.bascInfo{
+	background: #fff;
+	margin-bottom: .25rem;
+}
+.bindNtBtn{
+	width: 15%;
+	height: 100%;
+	position: absolute;
+	right: 0;
+	top:0;
+	text-align: right;
+	display: none;
+}
+.bindNtBtn i{
+	color: #333;
+	font-size: .5rem;
+	display: block;
+	margin-right: .2667rem;
+}
+.addNtByCode{
+	width: 80%;
+	height: 4rem;
+	background: #fff;
+	border-radius: 6px;
+	position: fixed;
+	left: 10%;
+	top: 50%;
+	margin-top: -2rem;
+	z-index: 1000;
+	display: none;
+}
+.btnTop{
+	height: 1rem;
+	line-height: 1rem;
+	font-size: .4rem;
+}
+.btnTop span{
+	padding: 0 .4rem;
+}
+.btnTop span:first-child{
+	float: left;
+	color: #999;
+}
+.btnTop span:last-child{
+	float: right;
+	color: #4d47f1;
+}
+.inpWrap{
+	width: 80%;
+	height: 1.2rem;
+	line-height: 1.2rem;
+	margin:.3rem auto 0;
+	border-bottom: 1px solid #ccc;
+}
+.inpWrap input{
+	width: 100%;
+	height: 100%;
+	border:none;
+	font-size: .45rem;
+	color: #333;
+	text-align: center;
+	display: block;
+	font-weight: 650;
+}
+.inpWrap input::-webkit-input-placeholder{
+	color: #999;
+	font-weight: normal;
+	font-size: .4rem;
+}
+/* 导师基本信息 */
+.modTit{
+	height: 1.2rem;
+	line-height: 1.2rem;
+	border-bottom: 1px solid #e6e6e6;
+	padding: 0 .2667rem;
+	font-size: .45rem;
+	color:#4d47f1 ;
+	font-weight: 650;
+}
+.basicItem{
+	height: 1.2rem;
+	line-height: 1.2rem;
+	border-bottom: 1px solid #e6e6e6;
+	padding: 0 .35rem;
+	font-size: .4rem;
+	color: #333;
+}
+.basicItem_spec{
+	border-bottom: 1px solid #e6e6e6;
+	padding: 0 .35rem;
+	font-size: .4rem;
+	color: #333;
+	position: relative;
+}
+.basicItem span{
+	width: 3rem;
+	color: #999;
+	float: left;
+	margin-right: .25rem;
+}
+.basicItem_spec span{
+	width: 3rem;
+	height: 100%;
+	color: #999;
+	position: absolute;
+	left: .35rem;
+	top:0;
+	display: flex;
+	align-items: center;
+}
+.basicItem_spec p{
+	margin-left: 3.25rem;
+	min-height: 1.2rem;
+	display: flex;
+	align-items: center;
+	color: #333;
+	padding: .2rem 0;
+}
+.basicItem p{
+	float: left;
+}
+.basicItem p#feeNum{
+	font-size: .5rem;
+	margin-right: .25rem;
+}
+.basicItem p.discortTxt{
+	height: .45rem;
+	line-height: .45rem;
+	float: left;
+	padding: 0 .1rem;
+	background: -webkit-linear-gradient(left, #f77062 , #f44572); /* Safari 5.1 - 6.0 */
+	background: -o-linear-gradient(right, #f77062, #f44572); /* Opera 11.1 - 12.0 */
+	background: -moz-linear-gradient(right, #f77062, #f44572); /* Firefox 3.6 - 15 */
+	background: linear-gradient(to right, #f77062 , #f44572); /* 标准的语法 */
+	font-size: .28rem;
+	margin:.38rem 0 0 0rem;
+	color: #fff;
+	display: none;
+}
+.mothWrap{
+	width: 62%;
+	float: left;
+	font-size: .4rem;
+	position: relative;
+}
+.mothWrap p{
+	padding-right: 1rem;
+	position: relative;
+	z-index: 2;
+	font-weight: 620;
+	color:#4d47f1 !important;
+}
+.feeNumTxt,
+.hasZkTxt,
+.monthTxtOrd{
+	font-weight: 620;
+	color:#4d47f1 !important;
+}
+.feeNumTxt em{
+	font-weight: normal;
+	font-size: .38rem;
+	font-style: normal;
+}
+.noZkTxt{
+	color: #e10080;
+}
+.subOrder{
+	width: 60%;
+	height: 1rem;
+	line-height: 1rem;
+	background: #4d47f1;
+	font-size: .45rem;
+	color: #fff;
+	text-align: center;
+	display: block;
+	margin:1rem auto 0;
+	border-radius: 4px;
+}
+.payOpt{
+	height: 1.5rem;
+	line-height: 1.5rem;
+	background: #fff;
+}
+.payIcon{
+	width: 15%;
+	height: 100%;
+	float: left;
+	text-align: center;
+}
+.payIcon i{
+	font-size: .55rem;
+	display: block;
+}
+.payIcon.weixin i{
+	color: #22ac38;
+}
+.payIcon.alipay i{
+	color: #08a1f8;
+	font-size: .68rem;
+}
+.payOptTxt{
+	width: 85%;
+	height: 100%;
+	float: left;
+	border-bottom: 1px solid #e6e6e6;
+}
+.payOptTxt.noBor{
+	border-bottom: none;
+}
+.payOptTxt label{
+	width: 100%;
+	height: 100%;
+	display: block;
+	position: relative;
+}
+.payOptTxt label input{
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	left: 0;
+	top:0;
+}
+.payOptTxt label p {
+	font-size: .45rem;
+	color: #333;
+	float: left;
+	margin-left: .25rem;
+}
+.payOptTxt label span{
+	float: right;
+	width: .55rem;
+	height: .55rem;
+	border:1px solid #ccc;
+	border-radius: 50%;
+	margin-top: .45rem;
+	position: relative;
+	margin-right: .2667rem;
+}
+.payOptTxt label span i{
+	position: absolute;
+	left: 0.01rem;
+	top:-.46rem;
+	font-size: .5rem;
+	font-weight: 620;
+	color: #fff;
+}
+.payOptTxt label.active span{
+	border:1px solid #4d47f1;
+	background: #4d47f1;
+}
+#payWrap,
+#pay,
+#overEndNtList,
+#triEm,
+#payFudao_fee,
+#payTime_fee,
+#payTime_Freefee,
+#subOrder,
+#freeBtn{
+	display: none;
+}
+.noNtInfo{
+	display: none;
+}

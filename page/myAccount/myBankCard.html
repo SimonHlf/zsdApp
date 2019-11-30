@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/myAccount.css"/>
+		<script src="https://at.alicdn.com/t/font_1400864_k88kgaqz1u.js" type="text/javascript" charset="utf-8"></script>
+		<title>我的银行卡</title>
+	</head>
+	<body class="paddingTop">
+		<div class="comHeader otherBg">
+			<a id="backBtn" class="posL" href="javascript:mui.back();"><i class="iconfont icon-fanhui"></i></a>
+			<span class="headerTit">我的银行卡</span>
+			<span id="addBankBtn" class="addBtn"><i class="iconfont icon-tianjia"></i></span>
+			<span id="editBankBtn" class="addBtn"><i class="iconfont icon-xiugai1"></i></span>
+		</div>
+		<div id="myBankCard" class="myBankCard"></div>
+		<div id="noData" class="noData" style="display: none;">
+			<img src="../../images/noData.png" /><p>暂无银行卡！</p>
+		</div>
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+			mui.plusReady(function(){
+				var page = {
+					init : function(){
+						this.bindEvent();
+						this.loadMyBankCard();
+					},
+					bindEvent : function(){
+						//添加银行卡
+						app.getId('addBankBtn').addEventListener('tap',function(){
+							app.openwin('addBankCard.html',{currType:'addNew'});
+						});
+						app.getId('editBankBtn').addEventListener('tap',function(){
+							var bankName = app.getId('bankName').innerHTML,
+								bankNum = app.getId('cardNum').innerHTML;
+							var bankInfo = {bankName:bankName,bankNum:bankNum}
+							app.openwin('addBankCard.html',{currType:'editBank',bankInfo:bankInfo});
+						});
+					},
+					loadMyBankCard : function(){
+						var _this = this;
+						app.showToast(1);
+						mui.ajax(http_ + '/netTeacher.do?action=myBankCard',{
+							data:{userId:userInfo.userId},
+							dataType:'json',
+							type:'post',
+							timeout:10000,  
+							success:function(json){ 
+								app.showToast(2);
+								if(json.bankName == ''){
+									app.getId('editBankBtn').style.display = 'none';
+									app.getId('noData').style.display = 'block';
+									app.getId('addBankBtn').style.display = 'block';
+								}else{//存在数据
+									app.getId('editBankBtn').style.display = 'block';
+									app.getId('noData').style.display = 'none';
+									app.getId('addBankBtn').style.display = 'none';
+									_this.renderBankInfo(json.bankName,json.bankNum);
+								}
+							},
+							error:function(xhr,type,errorThrown){
+								app.showToast(2);
+								plus.nativeUI.toast('服务器错误');
+							} 
+						});
+					},
+					renderBankInfo : function(bankName,bankNum){
+						var str = '';
+						str += '<div class="card blueCol">';
+						str += '<div class="topCard clearfix">';
+						str += '<div class="cardIcon">';
+						str += '<svg class="icon-svg bankCard" aria-hidden="true"><use xlink:href="#'+ this.getBankIcon(bankName) +'"></use></svg>';
+						str += '</div>';
+						str += '<p id="bankName">'+ bankName +'</p>';
+						str += '<span>储蓄卡</span></div>';
+						str += '<p id="cardNum" class="cardNum">'+ bankNum +'</p>';
+						//str += '<span class="fixBtn">修改</span></div>';
+						app.getId('myBankCard').innerHTML = str;
+					},
+					getBankIcon : function(bankName){
+						var bankIcon = '';
+						if(bankName == '中国银行'){
+							bankIcon = 'icon-zhongguoyinhang';
+						}else if(bankName == '中国工商银行'){
+							bankIcon = 'icon-gongshangyinhang';
+						}else if(bankName == '中国农业银行'){
+							bankIcon = 'icon-nongyeyinhang';
+						}else if(bankName == '中国建设银行'){
+							bankIcon = 'icon-jianhang';
+						}else if(bankName == '中国邮政储蓄银行'){
+							bankIcon = 'icon-youzhengyinhang';
+						}else if(bankName == '招商银行'){
+							bankIcon = 'icon-zhaoshangyinhang';
+						}else if(bankName == '交通银行'){
+							bankIcon = 'icon-jiaotongyinhang';
+						}else if(bankName == '中信银行'){
+							bankIcon = 'icon-zhongxinyinhang';
+						}else if(bankName == '中国民生银行'){
+							bankIcon = 'icon-minshengyinhang';
+						}else if(bankName == '中国光大银行'){
+							bankIcon = 'icon-guangdayinhang';
+						}else if(bankName == '兴业银行'){
+							bankIcon = 'icon-xingyeyinhang';
+						}else if(bankName == '浦发银行'){
+							bankIcon = 'icon-pufayinhang';
+						}else if(bankName == '广发银行'){
+							bankIcon = 'icon-guangfayinhang';
+						}else if(bankName == '华夏银行'){
+							bankIcon = 'icon-huaxiayinhang';
+						}else if(bankName == '上海银行'){
+							bankIcon = 'icon-shanghaiyinhang';
+						}
+						return bankIcon;
+					}
+				};
+				page.init();
+				document.addEventListener('updateBankInfo',function(){
+					page.loadMyBankCard();
+				})
+			});
+		</script>
+	</body>
+</html>

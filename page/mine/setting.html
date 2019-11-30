@@ -1,0 +1,288 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/mine.css"/>
+		<title>设置</title>
+	</head>
+
+	<body>
+		<div class="comHeader otherBg">
+			<a id="backBtn" class="posL"><i class="iconfont icon-fanhui"></i></a>
+			<span class="headerTit">设置</span>
+		</div>
+		<div class="settingList">
+			<ul>
+				<li id="headImgLi">
+					<span class="itemTit">头像</span>
+					<img id="headPicSm" src=""/>
+					<i class="iconfont icon-more"></i>
+				</li>
+				<li id="nickNamePar">
+					<span class="itemTit">昵称</span>
+					<p id="nickName" class="settingTxt"></p>
+					<i class="iconfont icon-more"></i>
+				</li>
+				<li id="realNamePar">
+					<span class="itemTit">姓名</span>
+					<p id="realName" class="settingTxt"></p>
+					<i id="parMoreIcon" class="iconfont icon-more"></i>
+				</li>
+				<li id="birthPar">
+					<span class="itemTit">生日</span>
+					<p id="birth" class="settingTxt"></p>
+					<i class="iconfont icon-more"></i>
+				</li> 
+				<li id="sexPar">
+					<span class="itemTit">性别</span>
+					<p id="sex" class="settingTxt"></p>
+					<i class="iconfont icon-more"></i>
+				</li>
+			</ul>
+		</div>
+		<div class="settingList hasTop">
+			<ul>
+				<li>
+					<span class="itemTit">账号</span>
+					<p id="acc" class="settingTxt"></p>
+				</li>
+				<li id="fixPassPar">
+					<span class="itemTit">密码</span>
+					<p id="fixPass" class="settingTxt">修改密码</p>
+					<i class="iconfont icon-more"></i>
+				</li>
+				<li id="emailPar">
+					<span class="itemTit">邮箱</span>
+					<p id="email" class="settingTxt"></p>
+					<i class="iconfont icon-more"></i>
+				</li>
+				<li id="phoneNumPar">
+					<span class="itemTit">手机</span>
+					<p id="phoneNum" class="settingTxt"></p>
+					<i class="iconfont icon-more"></i>
+				</li>
+			</ul>
+		</div>
+		<div class="loginOut">
+			<p class="loginOutBtn">退出登录</p>
+		</div>
+		
+		
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			mui.init();
+			mui.plusReady(function () { 
+				var _self = plus.webview.currentWebview(),userInfo=JSON.parse(localStorage.getItem('userInfo'));
+				var page = {
+					init : function(){
+						app.backFun(); 
+						this.loadUserInfo();
+						this.bindEvent();
+						if(userInfo.roleId == stuPar_role_id){//家长身份下增加修改真实姓名
+							app.getId('parMoreIcon').style.display = 'block';
+						}
+					}, 
+					//加载用户信息
+					loadUserInfo : function(){
+						mui.ajax(http_ + '/user.do?action=getStuInfo',{
+							data:{userId:_self.userId},
+							dataType:'json', 
+							type:'post',
+							timeout:10000,//超时时间设置为10秒；
+							beforeSend : function(){
+								app.showToast(1);
+							},
+							success:function(json){
+								app.showToast(2);
+								app.getId('nickName').innerText = json.nickName;
+								app.getId('realName').innerText = json.realName;
+								app.getId('birth').innerText = json.birthDay;
+								app.getId('sex').innerText = json.sex;
+								app.getId('acc').innerText = json.account;
+								app.getId('email').innerText = json.email;
+								app.getId('phoneNum').innerText = json.mobile;
+								if(json.portrait == ''){
+									app.getId('headPicSm').src = userInfo.portrait;
+								}else{
+									app.getId('headPicSm').src = http_ + '/' + json.portrait;
+								}
+							}, 
+							error:function(xhr,type,errorThrown){
+								app.showToast(2);
+								mui.toast('服务器连接失败');
+							}
+						});
+					},
+					//更新用户信息
+					upDateUserInfo : function(currField){
+						var field = {userId:_self.userId};
+						mui.extend(field,currField);
+						mui.ajax(http_ + '/user.do?action=updateUserByStuInfo',{
+							data:field,
+							dataType:'json',
+							type:'post',
+							timeout:10000,
+							success:function(json){
+								if(json.msg == 'success'){
+									mui.toast('设置成功'); 
+								}else if(json.msg == 'fail'){
+									mui.toast('设置信息失败');
+								}
+							},
+							error:function(xhr,type,errorThrown){
+								app.showToast(2);
+								mui.toast('服务器连接失败');
+							}
+						});
+					},
+					bindEvent : function(){ 
+						var _this = this;
+						if(userInfo.roleId == stuPar_role_id){
+							//家长身份下修改更新真实姓名
+							app.getId('realNamePar').addEventListener('tap',function(){
+								var currRealName = app.getId('realName').innerText;
+								app.openwin('upDateRealName.html',{userId:_self.userId,currRealName:currRealName});
+							});
+						}
+						//设置用户头像
+						app.getId('headImgLi').addEventListener('tap',function(){
+							app.openwin('cropper.html',{userId:_self.userId});
+						});
+						//添加编辑昵称
+						app.getId('nickNamePar').addEventListener('tap',function(){
+							var nickName = app.getId('nickName').innerText;
+							app.openwin('./settingTxt.html',{userId:_self.userId,currArgu:nickName});
+						});
+						//设置生日 
+						var _this = this;
+						document.querySelector('#birthPar').addEventListener('tap',function(){
+							var dDate = new Date(),birth = app.getId('birth').innerText;
+							if(birth != ''){
+								var currBirth = birth.split('-');
+								dDate.setFullYear(currBirth[0],(currBirth[1]-1),currBirth[2]);
+							}
+							var minDate = new Date(); 
+							minDate.setFullYear(1900, 0, 1);
+							var maxDate = new Date();
+							var year= maxDate.getFullYear(),month=maxDate.getMonth(),nowDate=maxDate.getDate();
+							maxDate.setFullYear(year, month, nowDate);
+							plus.nativeUI.pickDate(function(e) {  
+								var d = e.date,currDate=''; 
+								app.getId('birth').classList = 'settingTxt';
+								currDate = d.getFullYear() + "-" + app.appendZero( (d.getMonth() + 1) ) + "-" + app.appendZero( d.getDate() );
+								app.getId('birth').innerText = currDate;
+								_this.upDateUserInfo({"birthday":currDate});
+							}, function(e) {
+							}, { 
+								title: "请选择日期",
+								date : dDate,
+								minDate: minDate,
+								maxDate: maxDate
+							});
+						});
+						//设置性别
+						app.getId('sexPar').addEventListener('tap',function(){
+							plus.nativeUI.actionSheet(
+								{cancel:'取消',buttons:[{
+									title:'男'
+								},{
+									title:'女'
+								}]},
+								function(e){
+									//0取消
+									//从上往下逐渐-1
+									if(e.index == 1){
+										app.getId('sex').innerText = '男';
+										_this.upDateUserInfo({"sex":'m'});
+									}if(e.index == 2){
+										app.getId('sex').innerText = '女';
+										_this.upDateUserInfo({"sex":'f'});
+									}else if(e.index == 0){
+									} 
+								}
+							);
+						});
+						//设置密码
+						app.getId('fixPassPar').addEventListener('tap',function(){
+							app.openwin('./settingPassword.html',{userId:_self.userId});
+						});
+						//设置邮箱 
+						app.getId('emailPar').addEventListener('tap',function(){
+							var email = app.getId('email').innerText;
+							app.openwin('./settingEmail.html',{userId:_self.userId,currArgu:email});
+						});
+						//设置手机号码
+						app.getId('phoneNumPar').addEventListener('tap',function(){
+							var phone = app.getId('phoneNum').innerText;
+							app.openwin('./settingPhone.html',{userId:_self.userId,currArgu:phone});
+						});
+						document.querySelector('.loginOutBtn').addEventListener('tap',function(){
+							var btnArray = ['确定','取消'];
+							mui.confirm('确定要退出登录吗？', '提示', btnArray, function(e) {
+								if (e.index == 0){
+									if(localStorage.getItem('userInfo') != null){
+										if(userInfo.roleId == 4){//班内老师
+											var filterView = plus.webview.getWebviewById('hwRecord/filter.html');
+											if(filterView != null){
+												filterView.close('none');
+											}
+										}
+										if(userInfo.roleId == stu_role_id){//学生
+											var mine= plus.webview.getWebviewById('page/mine/mine.html');
+										}else if(userInfo.roleId == tea_role_id){//班内老师
+											var mine= plus.webview.getWebviewById('page/mine/mine_tea.html');
+										}else if(userInfo.roleId == ntTea_role_id){
+											var mine= plus.webview.getWebviewById('page/mine/mine_nt.html');
+										}else if(userInfo.roleId == stuPar_role_id){
+											var mine= plus.webview.getWebviewById('page/mine/mine_par.html');
+										}
+										//var mine= plus.webview.getWebviewById('page/mine/mine.html');
+										var loginView = plus.webview.getWebviewById('login');
+										mui.fire(loginView,"noLoginCheck",{opt:'noLogin_user'});
+										mui.fire(mine,'upDateUserInfo',{}); 
+										mui.fire(mine,'setUserObj',{}); 
+										localStorage.removeItem("userInfo"); //清除用户信息
+										plus.webview.currentWebview().close("pop-out");	
+										mui.toast("退出成功");  
+									}
+								}
+							});
+						});  
+					}
+				};
+				page.init();
+				//更新用户头像
+				document.addEventListener('updateUserHeadImg',function(e){
+					var userPic=e.detail.userPic;
+					app.getId("headPicSm").src = userPic;
+				});
+				//设置nickName
+				document.addEventListener('updateNick',function(e){
+					var nickName=e.detail.nickName;
+					app.getId("nickName").innerText = nickName;
+				});
+				//设置realName
+				document.addEventListener('upDateRealName',function(e){
+					var realName=e.detail.realName;
+					app.getId("realName").innerText = realName;
+				});
+				//设置邮箱
+				document.addEventListener('updateEmail',function(e){
+					var email=e.detail.email;
+					app.getId("email").innerText = email;
+				});
+				//设置手机号码
+				document.addEventListener('updatePhone',function(e){
+					var phone=e.detail.phone;
+					app.getId("phoneNum").innerText = phone;
+				});
+			})
+		</script>
+	</body>
+
+</html>

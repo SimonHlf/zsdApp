@@ -1,0 +1,196 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../fonts/iconfont.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/mine.css"/>
+		<title>我的</title>
+	</head>
+	<body>
+		<div class="header">
+			<div class="headTit">
+				我的
+				<a id="settingBtn"><i class="iconfont icon-shezhi"></i></a>
+			</div>
+			<div id="userInfo" class="userInfo">
+				<img id="headPic_noLog" src="../../images/head.png"/>
+				<img id="headPic" src=""/>
+				<!-- 登录前 -->
+				<div class="infoBox noLogin"> 
+					<h2>未登录</h2>
+					<p class="noLoginTxt">登录体验更多功能</p>
+				</div>
+				<!-- 登录后 -->
+				<div class="infoBox hasLogin">
+					<strong id="account" class="bigMargTop"></strong>
+					<p id="jzAcc" class="jzAcc"></p>
+				</div>
+			</div>
+		</div>
+		<!-- 我的学习 -->
+		<div class="myLearning hasMargTop">
+			<div class="list">
+				<ul>
+					<li id="orderListLi">
+						<span class="iconBox"><i class="iconfont icon-order"></i></span>
+						<span class="perCenItemTxt">订单列表</span>
+						<i class="iconfont icon-more"></i>
+					</li>
+					<li id="qinfenLi">
+						<span class="iconBox"><i class="iconfont icon-baogao"></i></span>
+						<span class="perCenItemTxt">孩子勤奋报告</span>
+						<i class="iconfont icon-more"></i>
+					</li>
+					<li id="nengliLi">
+						<span class="iconBox"><i class="iconfont icon-nengli"></i></span>
+						<span class="perCenItemTxt">孩子能力报告</span>
+						<i class="iconfont icon-more"></i>
+					</li>
+					<li id="tongjiLi">
+						<span class="iconBox"><i class="iconfont icon-baogao"></i></span>
+						<span class="perCenItemTxt">自助餐统计报告</span>
+						<i class="iconfont icon-more"></i>
+					</li>
+					<li id="myStudio">
+						<span class="iconBox"><i class="iconfont icon-gongzuoshi"></i></span>
+						<span class="perCenItemTxt">家长群</span>
+						<i class="iconfont icon-more"></i>
+					</li>
+					<li id="joinStudio">
+						<span class="iconBox"><i class="iconfont icon-gongzuoshi"></i></span>
+						<span class="perCenItemTxt">我加入的家长群</span>
+						<i class="iconfont icon-more"></i>
+					</li> 
+				</ul>
+			</div>
+		</div>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/h.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var userId = 0,loginStatus=0;
+			mui.plusReady(function () { 
+				set_userinfo();
+				app.getId('userInfo').addEventListener('tap',function(){
+					var loginView = plus.webview.getWebviewById('login');
+					var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+					var currStatus = userInfo == null ? false : true;
+					if(currStatus){
+						app.openwin('setting.html',{userId:userInfo.userId});
+					}else{
+						mui.fire(loginView,"noLoginCheck",{opt:'noLogin_user'});
+						app.doLogin();
+					}
+				}); 
+				//跳转至设置页面 
+				app.getId('settingBtn').addEventListener('tap',function(){
+					var loginView = plus.webview.getWebviewById('login');
+					var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+					var currStatus = userInfo == null ? false : true;
+					if(currStatus){
+						app.openwin('setting.html',{userId:userInfo.userId});
+					}else{
+						mui.fire(loginView,"noLoginCheck",{opt:'noLogin_user'});
+						app.doLogin();
+					}
+				}); 
+				//订单列表
+				app.getId('orderListLi').addEventListener('tap',function(){
+					var loginView = plus.webview.getWebviewById('login');
+					var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+					var currStatus = userInfo == null ? false : true;
+					if(currStatus){  
+						app.openwin('../orderCen/orderCen.html');
+					}else{
+						mui.fire(loginView,"noLoginCheck",{opt:'noLogin_user'});
+						app.doLogin();
+					}
+				}); 
+				//孩子能力报告 
+				app.getId('nengliLi').addEventListener('tap',function(){
+					var loginView = plus.webview.getWebviewById('login');
+					var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+					var currStatus = userInfo == null ? false : true;
+					if(currStatus){ 
+						app.openwin('./myAbilityRep_st.html',{userId:userInfo.userId,roleId:userInfo.roleId});
+					}else{
+						mui.fire(loginView,"noLoginCheck",{opt:'noLogin_user'});
+						app.doLogin();
+					}
+				}); 
+				//孩子勤奋报告
+				app.getId('qinfenLi').addEventListener('tap',function(){
+					var loginView = plus.webview.getWebviewById('login');
+					var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+					var currStatus = userInfo == null ? false : true;
+					if(currStatus){
+						app.openwin('./qinfenReport.html');
+						//app.openwin('setting.html',{userId:userInfo.userId});
+					}else{
+						mui.fire(loginView,"noLoginCheck",{opt:'noLogin_user'});
+						app.doLogin();
+					}
+				}); 
+				//自助餐统计报告
+				app.getId('tongjiLi').addEventListener('tap',function(){
+					var loginView = plus.webview.getWebviewById('login');
+					var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+					var currStatus = userInfo == null ? false : true;
+					if(currStatus){
+						app.openwin('./myTongjiBaogao.html',{jumpRole:'stPar'});
+					}else{
+						mui.fire(loginView,"noLoginCheck",{opt:'noLogin_user'});
+						app.doLogin();
+					}
+				});
+				//家长群
+				app.getId('myStudio').addEventListener('tap',function(){
+					var loginView = plus.webview.getWebviewById('login');
+					var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+					var currStatus = userInfo == null ? false : true;
+					if(currStatus){
+						app.openwin('../parGroup/parGroup.html');
+					}else{
+						mui.fire(loginView,"noLoginCheck",{opt:'noLogin_user'});
+						app.doLogin();
+					}
+				}); 
+				//我加入的家长群
+				app.getId('joinStudio').addEventListener('tap',function(){
+					var loginView = plus.webview.getWebviewById('login');
+					var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+					var currStatus = userInfo == null ? false : true;
+					if(currStatus){
+						app.openwin('../parGroup/myJoinParGroup.html');
+					}else{
+						mui.fire(loginView,"noLoginCheck",{opt:'noLogin_user'});
+						app.doLogin();
+					}
+				});
+				function set_userinfo(){
+					if(localStorage.getItem("userInfo") != null){
+						document.querySelector('.noLogin').style.display = 'none';
+						app.getId('headPic_noLog').style.display = 'none';
+						document.querySelector('.hasLogin').style.display = 'block';
+						app.getId('headPic').style.display = 'block';
+						var userInfo=JSON.parse(localStorage.getItem("userInfo"));
+						app.getId('account').innerText = userInfo.userName; 
+						app.getId('headPic').src = userInfo.portrait;
+					}else{ 
+						document.querySelector('.noLogin').style.display = 'block';
+						document.querySelector('.hasLogin').style.display = 'none';
+						app.getId('headPic_noLog').style.display = 'block';
+						app.getId('headPic').style.display = 'none';
+					}
+				} 
+				document.addEventListener('upDateUserInfo',function(){
+					set_userinfo();
+				}); 
+			});
+		</script> 
+	</body>
+
+</html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/myStudio.css"/>
+		<title>编辑我的家长群</title>
+	</head>
+	<body class="paddingTop">
+		<div class="comHeader otherBg">
+			<a id="backBtn" class="posL"  href="javascript:mui.back();"><i class="iconfont icon-fanhui"></i></a>
+			<span class="headerTit">编辑我的家长群</span>
+		</div>
+		<div class="editItem">
+			<span>家长群名称：</span>
+			<input id="studioName" type="text" placeholder="请输入家长群名称(16字内)" maxlength="16"/>
+		</div>
+		<div class="editItem_spec">
+			<span>家长群介绍：</span>
+			<div class="proTxt">
+				<textarea id="studioProfile" maxlength="150" name="content" placeholder="请输入家长群介绍(150字内)"></textarea>
+			</div>
+		</div>
+		<span id="saveBtn" class="saveBtn">保存</span>
+		
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var isUpFlag = false;
+			mui.init({
+				beforeback : function(){
+					var opener = plus.webview.currentWebview().opener();
+					mui.fire(opener,'updateStudioInfo',{isUpFlag:isUpFlag});
+					return true;
+				} 
+			});
+			mui.plusReady(function(){
+				var parGroupId = plus.webview.currentWebview().parGroupId,
+					studioName = plus.webview.currentWebview().studioName,
+					studioPro = plus.webview.currentWebview().studioPro;
+				isUpFlag = plus.webview.currentWebview().isUpFlag;
+				app.getId('studioName').value = studioName;
+				app.getId('studioProfile').value = studioPro;
+				var page = {
+					editStudiInfo : function(){
+						app.getId('saveBtn').addEventListener('tap',function(){
+							var studioName = app.trim(app.getId('studioName').value),
+								studioProfile = app.trim(app.getId('studioProfile').value);
+							if(studioName == ''){
+								mui.toast('请输入家长群名称');
+								return;
+							}
+							if(app.isEmojiCharacter( studioName )){
+								mui.toast('家长群名称不能带有特殊表情');
+								return;
+							}
+							if(studioProfile != '' && app.isEmojiCharacter( studioProfile )){
+								mui.toast('家长群介绍不能带有特殊表情');
+								return;
+							}
+							app.showToast(1);
+							mui.ajax(http_ + '/parentClub.do?action=updateParentClub',{
+								data:{pclubId:parGroupId,clubName:escape(studioName),clubProfile:escape(studioProfile)},
+								dataType:'json',
+								type:'post',
+								timeout:10000,  
+								success:function(json){ 
+									app.showToast(2);
+									if(json.msg == 'success'){
+										plus.nativeUI.toast('保存家长群信息成功');
+										isUpFlag = true;
+										setTimeout(function(){
+											mui.back();
+										},400);
+									}else if(json.msg == 'fail'){
+										plus.nativeUI.toast('保存家长群信息失败');
+									}
+									
+								},
+								error:function(xhr,type,errorThrown){
+									app.showToast(2);
+									plus.nativeUI.toast('服务器错误');
+								} 
+							});
+						});
+					}
+				};
+				page.editStudiInfo();
+			});
+		</script>
+	</body>
+</html>
