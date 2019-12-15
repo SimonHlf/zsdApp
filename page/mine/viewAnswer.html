@@ -77,7 +77,9 @@
 				studyLogId = 0,
 				loreId = 0,
 				loreName = '',
-				osName = '';
+				osName = '',
+				stuName = '';
+			var userInfo = JSON.parse( localStorage.getItem('userInfo') );
 			if(window.plus) {
 				plusReady();
 			} else { // 兼容老版本的plusready事件
@@ -87,13 +89,12 @@
 				loreId = plus.webview.currentWebview().loreId;
 				studyLogId = plus.webview.currentWebview().studyLogId,
 				loreName = plus.webview.currentWebview().loreName;
+				stuName = plus.webview.currentWebview().stuName;
 				osName = plus.os.name;
 				if(plus.os.name == 'Android'){
 					page.init(); 
 				}
 			}
-			//document.addEventListener('plusready',plusReady,false);
-			
 			var page = {
 				init : function(){
 					app.backFun();
@@ -227,7 +228,12 @@
 				},
 				//渲染学习详情
 				renderStudyDetList : function(wrapperObj,list){
-					var oUl = $("#" + wrapperObj + " ul"),str='';
+					var oUl = $("#" + wrapperObj + " ul"),str='',currRoleTxt = '';
+					if(userInfo.roleId == stu_role_id){
+						currRoleTxt = '我的';
+					}else if(userInfo.roleId == ntTea_role_id || userInfo.roleId == tea_role_id){
+						currRoleTxt = stuName + '的';
+					}
 					for(var i=0;i<list.length;i++){
 						var j=0, answerA = "",answerB = "",answerC = "",answerD = "",answerE = "",answerF = "",answerOptionArray = new Array();
 						answerOptionArray = assignToArray(list[i].A,list[i].B,list[i].C,list[i].D,list[i].E,list[i].F);
@@ -289,9 +295,9 @@
 						//myAnsRealAns
 						str += '<div class="myAnsRealAns clearfix">';
 						if(list[i].myAns != list[i].realAns){
-							str += '<p>我的答案：<span class="queFailTxt">'+ list[i].myAns +'</span></p>';
+							str += '<p>'+ currRoleTxt +'答案：<span class="queFailTxt">'+ list[i].myAns +'</span></p>';
 						}else{
-							str += '<p>我的答案：<span class="quesSuccTxt">'+ list[i].myAns +'</span></p>';
+							str += '<p>'+ currRoleTxt +'答案：<span class="quesSuccTxt">'+ list[i].myAns +'</span></p>';
 						}
 						str += '<p>正确答案：<span class="quesSuccTxt">'+ list[i].realAns +'</span></p>';
 						str += '</div></li>';

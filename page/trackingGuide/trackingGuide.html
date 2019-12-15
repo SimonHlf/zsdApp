@@ -64,7 +64,7 @@
 		<script src="../../plugins/getBindStuList.js" type="text/javascript" charset="utf-8"></script>
 		<script src="../../plugins/mobileSelect.min.js" type="text/javascript" charset="utf-8"></script>
 		<script type="text/javascript">
-			var userInfo = JSON.parse(localStorage.getItem('userInfo')),jumpPos = '',stuId = 0;
+			var userInfo = JSON.parse(localStorage.getItem('userInfo')),jumpPos = '',stuId = 0,stuName = '';
 			var guideSta = [
 				{"type":0,"value":"全部"},
 				{"type":1,"value":"未指导"},
@@ -158,8 +158,8 @@
 				page.init();
 				//切换学生加载对应学生的答疑列表
 				document.addEventListener('switchStudent',function(e){
-					var stuName = e.detail.stuField.split(',')[0],
-						stuId = e.detail.stuField.split(',')[1];
+					var stuId = e.detail.stuField.split(',')[1];
+					stuName = e.detail.stuField.split(',')[0];
 					app.getId('stuIdInp').value = stuId;
 					loadLearnRecordList();
 				});

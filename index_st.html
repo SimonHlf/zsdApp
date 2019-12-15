@@ -126,7 +126,7 @@
 						currType = this.getAttribute('currType');
 					if (targetTab == activeTab) {
 						return;
-					}
+					} 
 					var self = plus.webview.currentWebview();
 					//隐藏当前;
 					for(var i=0;i<subpages.length;i++){
@@ -183,24 +183,15 @@
 				}
 				
 			});
-			/*var currVersion = '';
-			mui.getJSON('manifest.json', null, function(manifest){
-				var versionName = manifest.version.name;
-				var versionCode = Number(manifest.version.code);
-				mui.toast("版本名称："+versionName+"，版本code："+versionCode);
-				currVersion = manifest.version.name;
-				checkVersion();
-			
-			});*/
-			function checkVersion(){
-				mui.ajax(http_ + '/baseInfo.do?action=getNewAppVersion',{
+			plus.runtime.getProperty(plus.runtime.appid,function(inf){
+				/*mui.ajax(http_ + '/baseInfo.do?action=getNewAppVersion',{
 					data:{opt:'new'},
 					dataType:'json',
 					type:'post', 
-					timeout:10000,
+					timeout:10000, 
 					success:function(json){
 						if(json.result == 'success'){
-							if(currVersion != json.version){
+							if(inf.version != json.version){
 								var btnArray = ['确定','取消'];
 								mui.confirm('检查到当前版本有最新更新，下载升级?', '版本更新提示', btnArray, function(e) {
 									if(e.index == 0){
@@ -212,7 +203,7 @@
 												if(status == 200){
 													plus.nativeUI.showWaiting("安装更新文件...");
 													//plus.runtime.install(d.filename);
-													 plus.runtime.install(d.filename,{},function(){
+													plus.runtime.install(d.filename,{},function(){
 														plus.nativeUI.closeWaiting();        
 														plus.nativeUI.alert("应用资源更新完成！",function(){
 															plus.runtime.restart();
@@ -221,7 +212,10 @@
 														plus.nativeUI.closeWaiting();        
 														plus.nativeUI.alert("安装更新文件失败["+e.code+"]："+e.message);
 													});
-												}
+												}else {
+													mui.toast("下载更新失败！");
+													plus.nativeUI.closeWaiting();
+												} 
 											}
 										);
 										dtask.start();
@@ -236,9 +230,8 @@
 						app.showToast(2);
 						console.log(errorThrown)
 					} 
-				})
-			}
-			//checkVersion();
+				});*/
+			});
 		});  
 	</script>
 </body>

@@ -48,6 +48,7 @@
 		<script type="text/javascript">
 			var jumpPos = '',studyLogId = 0,loreId = 0,loreName = '';
 			var userInfo = JSON.parse( localStorage.getItem('userInfo') );
+			var stuName = '';
 			mui.init({
 				beforeback : function(){
 					var studyRecView = plus.webview.currentWebview().opener();
@@ -59,8 +60,8 @@
 				studyLogId = plus.webview.currentWebview().studyLogId;
 				jumpPos = plus.webview.currentWebview().jumpPos;
 				if(jumpPos == 'byTrackGuide'){
-					var stuName = plus.webview.currentWebview().stuName,
-						guideStaNum = plus.webview.currentWebview().guideStaNum;
+					stuName = plus.webview.currentWebview().stuName;
+					var guideStaNum = plus.webview.currentWebview().guideStaNum;
 					$('#recordTit').html(stuName + '同学的学习明细');
 				}
 				var page = {
@@ -224,7 +225,7 @@
 					loreName = $(obj).attr('loreName');
 				var studyAnsDet = plus.webview.getWebviewById('viewAnswer.html');
 				if(!studyAnsDet){
-					studyAnsDet = plus.webview.create('viewAnswer.html','viewAnswer.html',{},{loreName:loreName,loreId:loreId,studyLogId:studyLogId});
+					studyAnsDet = plus.webview.create('viewAnswer.html','viewAnswer.html',{},{loreName:loreName,loreId:loreId,studyLogId:studyLogId,stuName:stuName});
 					studyAnsDet.show('pop-in');
 				} 
 			}
