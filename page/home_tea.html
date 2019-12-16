@@ -24,14 +24,32 @@
 		</div>
 		<!-- 导航 -->
 		<div class="nav clearfix">
-			<a id="pubHwBtn" href="javascript:void(0)">
-				<i class="iconfont icon-zuoye"></i>
-				<span>布置作业</span>
-			</a>
-			<a id="hwHisBtn" href="javascript:void(0)">
-				<i class="iconfont icon-xiugaijilu"></i>
-				<span>作业记录</span>
-			</a>
+			<ul class="clearfix">
+				<li id="pubHwBtn">
+					<a class="blockA">
+						<span class="iconBox">
+							<img src="../images/buzhizuoye.png" alt="布置作业"/>
+						</span>
+						<strong>布置作业</strong>
+					</a>
+				</li>
+				<li id="hwGenzongBtn">
+					<a class="blockA">
+						<span class="iconBox">
+							<img src="../images/genzong.png" alt="跟踪指导"/>
+						</span>
+						<strong>跟踪指导</strong>
+					</a>
+				</li>
+				<li id="hwHisBtn"> 
+					<a class="blockA">
+						<span class="iconBox">
+							<img src="../images/zuoyejilu.png" alt="作业记录"/>
+						</span>
+						<strong>作业记录</strong>
+					</a>
+				</li>
+			</ul>
 		</div>
 		<!-- 班级作业 -->
 		<div class="homeWorkList">
@@ -67,6 +85,17 @@
 							var currStatus = userInfo == null ? false : true;
 							if(currStatus){
 								app.openwin('pubHw/selHwType.html');
+							}else{
+								mui.fire(loginView,"noLoginCheck",{opt:'noLogin_user'});//从app内除了人为退出为login页面绑定的opt
+								app.doLogin();
+							}
+						});
+						//跟踪指导
+						app.getId('hwGenzongBtn').addEventListener('tap',function(){
+							var userInfo = JSON.parse(localStorage.getItem('userInfo'));
+							var currStatus = userInfo == null ? false : true;
+							if(currStatus){
+								app.openwin('hwTrackingGuide/hwTrackGuide.html',{userId:userInfo.userId});
 							}else{
 								mui.fire(loginView,"noLoginCheck",{opt:'noLogin_user'});//从app内除了人为退出为login页面绑定的opt
 								app.doLogin();

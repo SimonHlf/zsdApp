@@ -9,7 +9,7 @@ function renderQuesList(list){
 			//currLoreType = list[i].loreType;
 			//创建纠错btn
 			if(currPageType == 'zhenduanPage'){
-				var jiucuo_index = ";"
+				var jiucuo_index = "";
 				if(index == 1){
 					jiucuo_index = "<span id='jiucuoBtn_"+ index +"' lqId='"+ list[i].lqId +"' currIndex='"+ index +"' currLoreName='"+ list[i].currLoreName +"' class='jiucuoBtn' style='display:block;'><i class='iconfont icon-jiucuo'></i></span>";
 				}else{

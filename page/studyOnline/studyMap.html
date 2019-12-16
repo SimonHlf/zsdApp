@@ -107,7 +107,7 @@
 									h('#goldenNum').html(json.coin); 
 									h('#btnVal').html(json.buttonValue);
 									h('.loreName').html(json.loreName);
-									h('.totalLevel').html('共' + json.stepCount + '级');
+									//h('.totalLevel').html('共' + json.stepCount + '级');
 									h('.totalLoreNum').html('共' + json.loreCount + '个知识点');
 									_this.data.loreName = json.loreName;
 									_this.data.loreType = json.loreType;
@@ -234,7 +234,7 @@
 									app.openwin('jietishifan.html',{field:currField,jumpPos:jumpPos});
 								}*/
 							}else{
-								mui.toast('请性详细观看知识清单');
+								mui.toast('请详细观看知识清单');
 							}
 						}); 
 						//查看溯源

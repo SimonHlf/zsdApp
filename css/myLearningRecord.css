@@ -176,3 +176,18 @@ body{
 	height: 1rem;
 	line-height: 1rem;
 }
+.tipsTxt{
+	width: 6rem;
+	height: 5rem;
+	font-size: .45rem;
+	color: #4d47f1;
+	position: absolute;
+	left: 50%;
+	margin-left: -3rem;
+	top: 50%;
+	margin-top: -4rem;
+	text-align: center;
+}
+.tipsTxt p{
+	margin-top: .25rem;
+}

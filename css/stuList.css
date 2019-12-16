@@ -62,6 +62,9 @@ body.hasBg{
 	background: #4d47f1;
 	border-radius: 6px;
 }
+.stuModTit em{
+	font-style: normal;
+}
 .noStuTxt{
 	line-height: 1.2rem;
 	text-align: center;
@@ -70,4 +73,31 @@ body.hasBg{
 }
 #allStuPart{
 	display: none;
+}
+.classList ul{
+	padding-bottom: .25rem;
+}
+.classList li{
+	height:.75rem;
+	line-height: .75rem;
+	padding: 0 .2rem;
+	background: #f5f5f5;
+	color: #666;
+	font-size:.38rem;
+	float: left;
+	margin-right: 10px;
+	margin-bottom: 10px;
+	border-radius: 4px;
+}
+.classList li span{
+	font-size: 10px;
+	color:#f18347 ;
+	font-weight: bold;
+}
+.classList li.active{
+	background: #4d47f1;
+	color: #fff;
+}
+.classList li.active span{
+	color: #fff;
 }

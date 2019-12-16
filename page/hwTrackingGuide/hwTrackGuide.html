@@ -2,22 +2,21 @@
 <html>
 	<head>
 		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
 		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
 		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
 		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
 		<link rel="stylesheet" type="text/css" href="../../css/myLearningRecord.css"/>
 		<link rel="stylesheet" type="text/css" href="../../css/filterNav.css"/>
 		<link rel="stylesheet" type="text/css" href="../../css/common/mobileSelect.css"/>
-		<title>跟踪指导</title>
+		<title>班内老师跟踪指导</title>
 	</head>
 	<body class="paddingTop">
 		<div class="comHeader otherBg">
-			<a id="backBtn" class="posL"><i class="iconfont icon-fanhui"></i></a>
-			<span class="headerTit">跟踪指导</span>
+			<a id="backBtn" class="posL" href="javascript:mui.back();"><i class="iconfont icon-fanhui"></i></a>
+			<span class="headerTit" style="text-align: left;">跟踪指导</span>
 			<input type="hidden" id="stuIdInp" value="0" />
 			<p id="stuBox" class="subject">
-				<span id="stuNameTxt"></span>
+				<span id="stuNameTxt">选择班级</span>
 				<i class="iconfont icon-qiehuan"></i>
 			</p>
 		</div>
@@ -49,13 +48,18 @@
 			<div class="innerMainCon">
 				<!-- 最近时间 -->
 				<div class="currTime">
-					<p class="currDays ellip"></p>
+					<p class="currDays ellip">请选择任教班级</p>
 					<div class="compStaBox">
 						<p><span class="colSpan noCompCol"></span><span>未完成</span></p>
 						<p><span class="colSpan hasComCol"></span><span>已完成</span></p>
 					</div>
 				</div>
-				<div id="listRecord" class="listRecord"></div>
+				<div id="listRecord" class="listRecord"> 
+					<div id="tipsTxt" class="tipsTxt">
+						<img src="../../images/selClass.png" alt="请选择任教班级"/>
+						<p>请选择任教班级</p>
+					</div>
+				</div>
 			</div>
 		</div>
 		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
@@ -64,28 +68,22 @@
 		<script src="../../plugins/getBindStuList.js" type="text/javascript" charset="utf-8"></script>
 		<script src="../../plugins/mobileSelect.min.js" type="text/javascript" charset="utf-8"></script>
 		<script type="text/javascript">
-			var userInfo = JSON.parse(localStorage.getItem('userInfo')),jumpPos = '',stuId = 0,stuName = '';
+			var userInfo = JSON.parse(localStorage.getItem('userInfo')),jumpPos = '',stuId = 0,stuName = '',currCId = 0,currCName='';
 			var guideSta = [
 				{"type":0,"value":"全部"},
 				{"type":1,"value":"未指导"},
 				{"type":2,"value":"已指导"}
 			];
 			mui.plusReady(function(){
-				jumpPos = plus.webview.currentWebview().jumpPos;
-				if(jumpPos == 'byStuList'){
-					stuId = plus.webview.currentWebview().stuId;
-					stuName = plus.webview.currentWebview().stuName;
-					$('#stuIdInp').val(stuId);
-					$('#stuNameTxt').html(stuName);
-				}
 				var page = {
 					init : function(){
-						app.backFun();
 						this.bindEvent();
-						loadStuList('trackGuide');
-					}, 
-					bindEvent : function(){ 
-						var _this = this; 
+						this.initTips();
+					},
+					initTips : function(){
+					},
+					bindEvent : function(){
+						var _this = this;
 						//完成状态select 
 						new MobileSelect({
 							trigger: '#compStaSpan',
@@ -120,7 +118,10 @@
 							loadLearnRecordList();
 						},
 						app.getId('stuBox').ontouchend = function(){
-							app.openwin('stuList.html',{ntStuField:ntStuField});
+							app.openwin('stuList.html',{userId:userInfo.userId,stuId:stuId,currCId:currCId,currCName:currCName});
+						}
+						app.getId('tipsTxt').ontouchend = function(){
+							app.openwin('stuList.html',{userId:userInfo.userId,stuId:stuId,currCId:currCId,currCName:currCName});
 						}
 						//起始日期
 						app.getId('stDate').ontouchend = function(){
@@ -157,8 +158,10 @@
 				page.init();
 				//切换学生加载对应学生的答疑列表
 				document.addEventListener('switchStudent',function(e){
-					var stuId = e.detail.stuField.split(',')[1];
+					stuId = e.detail.stuField.split(',')[1];
 					stuName = e.detail.stuField.split(',')[0];
+					currCName = e.detail.currCName;
+					currCId = e.detail.currCId;
 					app.getId('stuIdInp').value = stuId;
 					loadLearnRecordList();
 				});
@@ -168,7 +171,7 @@
 					stuId = $('#stuIdInp').val(),
 					stDateVal = $('#stDate').val(),
 					edDataVal = $('#edDate').val(),_this = this;
-				var field = {userId:userInfo.userId,stuId:stuId,guideSta:compStaInp,sDate:stDateVal,eDate:edDataVal};
+				var field = {userId:userInfo.userId,stuId:stuId,guideSta:compStaInp,sDate:stDateVal,eDate:edDataVal,userType:1};
 				//console.log(JSON.stringify( field ))
 				$.ajax({
 					url : http_ + '/studyRecord.do?action=getGuideList',
@@ -184,8 +187,8 @@
 						//console.log( JSON.stringify( json ) ) 
 						$('#stDate').val(json.sDate);
 						$('#edDate').val(json.eDate);
-						$('.currDays').html('最近'+ json.diffDay +'天'+ json.stuName +'共学习知识点'+ json.allStudyLog +'个:');
-						$('#stuNameTxt').html(json.stuName);
+						$('.currDays').html('最近'+ json.diffDay +'天'+ stuName +'共学习知识点'+ json.allStudyLog +'个:');
+						$('#stuNameTxt').html(currCName + stuName);
 						if(json.slList.length > 0){
 							renderLearnRecordlist(json.slList);
 						}else{

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/stuList.css"/>
+		<title>学生列表</title>
+	</head>
+	<body class="paddingTop hasBg">
+		<div class="comHeader otherBg">
+			<a id="backBtn" class="posL" href="javascript:mui.back();"><i class="iconfont icon-fanhui"></i></a>
+			<span class="headerTit">学生列表</span>
+		</div>
+		<!-- 班级列表 -->
+		<div class="stuPart">
+			<p class="stuModTit"><span></span>任教班级</p>
+			<div class="classList" style="background: #fff;padding:.2667rem .2667rem 0;">
+				<ul id="classListUl"  class="clearfix"></ul>
+			</div>
+		</div>
+		
+		
+		<div class="stuPart">
+			<p class="stuModTit"><span></span><em></em></p>
+			<div class="stuList" style="background: #fff;padding:.2667rem .2667rem 0;">
+				<ul id="stuListUl" class="clearfix"></ul>
+			</div>
+		</div>
+		<script src="../../plugins/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var userId = 0,stuId = 0,currCName='',currCId=0;
+			mui.plusReady(function(){
+				userId = plus.webview.currentWebview().userId;
+				stuId = plus.webview.currentWebview().stuId;
+				currCId = plus.webview.currentWebview().currCId;
+				currCName = plus.webview.currentWebview().currCName;
+				var page = {
+					init : function(){
+						this.loadClassList();
+					},
+					//加载班级list
+					loadClassList : function(){
+						var _this = this;
+						app.showToast(1);
+						mui.ajax(http_ + '/hw.do?action=getMyClassData',{
+							data:{userId:userId},
+							dataType:'json',
+							type:'post',
+							timeout:10000,
+							success:function(json){ 
+								app.showToast(2);
+								if(json.result == 'success'){
+									//console.log(JSON.stringify( json ))
+									_this.renderClassList(json.cList);
+									if(currCId == 0){
+										currCName = json.cList[0].cName;
+										//currCId = json.cList[0].cId;
+										$('.stuModTit em').html(json.cList[0].cName + '学生');
+										_this.loadCurrClsStu(json.cList[0].cId);
+									}else{
+										$('.stuModTit em').html(currCName + '学生');
+										_this.loadCurrClsStu(currCId);
+									}
+								}else if(json.result == 'noInfo'){
+									app.getId('classListUl').innerHTML = '<p style="color:#999;font-size:.4rem;">暂无任教班级</p>';
+									app.getId('stuListUl').innerHTML = '<p style="color:#999;font-size:.4rem;">暂无学生</p>';
+								}
+							},
+							error:function(xhr,type,errorThrown){
+								app.showToast(2);
+								plus.nativeUI.toast('服务器错误');
+							} 
+						});
+					},
+					renderClassList : function(list){
+						var _this = this;
+						var str = '';
+						for(var i=0;i<list.length;i++){
+							if(currCId == 0){
+								if(i == 0){
+									str += '<li cId="'+ list[i].cId +'" cName="'+ list[i].cName +'" class="active">';
+								}else{
+									str += '<li cId="'+ list[i].cId +'" cName="'+ list[i].cName +'">';
+								}
+							}else{
+								if(currCId == list[i].cId ){
+									str += '<li cId="'+ list[i].cId +'" cName="'+ list[i].cName +'" class="active">';
+								}else{
+									str += '<li cId="'+ list[i].cId +'" cName="'+ list[i].cName +'">';
+								}
+							}
+							str += list[i].cName;
+							if(list[i].status == 1){//临时
+								str += '<span>(临)</span>';
+							}
+						}
+						$('#classListUl').html(str);
+						mui('#classListUl').on('tap','li',function(){
+							var cId = $(this).attr('cId'),
+								cName = $(this).attr('cName');
+							$(this).addClass('active').siblings().removeClass('active');
+							$('.stuModTit em').html(cName + '学生');
+							currCName = cName;
+							currCId = cId;
+							_this.loadCurrClsStu(currCId);
+						});
+					},
+					loadCurrClsStu : function(cId){
+						
+						var _this = this;
+						plus.nativeUI.showWaiting();
+						mui.ajax(http_ + '/common.do?action=getSpecClassStuData',{
+							data:{classId : cId},
+							dataType:'json',
+							type:'post',
+							timeout:10000,  
+							success:function(json){ 
+								app.showToast(2);
+								if(json.result == 'success'){ 
+									//console.log(JSON.stringify( json ))
+									_this.renderStuHtml(json.userList);
+								}else if(json.result == 'noInfo'){
+									app.getId('stuListUl').innerHTML = '<p style="color:#999;font-size:.4rem;">暂无学生</p>';
+								}else if(json.result == 'error'){ 
+									plus.nativeUI.toast('服务器错误');
+								}
+							},
+							error:function(xhr,type,errorThrown){
+								app.showToast(2);
+								plus.nativeUI.toast('服务器错误');
+							} 
+						});
+					},
+					renderStuHtml : function(list){
+					    var str = '';
+					    for(var i=0;i<list.length;i++){
+							if(stuId == list[i].userId){
+								str += '<li class="currSelAct" stuId="'+ list[i].userId +'" stuName="'+ list[i].userName +'">';
+							}else{
+								str += '<li stuId="'+ list[i].userId +'" stuName="'+ list[i].userName +'">';
+							}
+						    str += '<img src="'+ http_ +'/'+ list[i].userPortrait +'"/>';
+						    str += '<p>'+ list[i].userName +'</p>';
+						    str += '</li>';
+					    }
+					    $('#stuListUl').html(str);
+					    mui('#stuListUl').on('tap','li',function(){
+							var stuId = $(this).attr('stuId'),
+								stuName = $(this).attr('stuName');
+							var stuStr = stuName + ',' + stuId;
+							var opener = plus.webview.currentWebview().opener();
+							mui.fire(opener,'switchStudent',{stuField:stuStr,currCName:currCName,currCId:currCId});
+							plus.webview.currentWebview().close();
+					    });
+					}
+				};
+				page.init();
+			});
+		</script>
+	</body>
+</html>
