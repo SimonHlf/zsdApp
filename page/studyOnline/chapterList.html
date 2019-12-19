@@ -187,53 +187,38 @@
 					page.getLoreListAjax(field,currCptId);
 				});
 			}
-			//检测知识点完成次数 一天只能完成一次
-			function checkCurrentLore(studyLogId){
-				var flag = false;
-				mui.ajax(http_ + '/onlineStudy.do?action=checkCurrentLore',{
-					data:{studyLogId:studyLogId}, 
-					dataType:'json',
-					type:'post',
-					async:false,
-					timeout:10000,
-					beforeSend : function(){
-						app.showToast(1);
-					},
-					success:function(json){
-						app.showToast(2);
-						if(json.studyFlag == true){
-							flag = true;
-						}else if(json.studyFlag == false){
-							flag = false;
-						}
-					},
-					error:function(xhr,type,errorThrown){
-						app.showToast(2);
-						plus.nativeUI.toast('服务器异常');
-					}
-				});
-				return flag;
-			}
 			function goToStudyMapPage(obj){
 				var loreId = h(obj).attr('loreId'),
 					loreName = h(obj).attr('loreName'),
 					studyLogId = h(obj).attr('studyLogId'),
 					studyStatus = h(obj).attr('studyStatus'),
-					currCptId = h(obj).attr('currCptId'),
-					flag = false;
+					currCptId = h(obj).attr('currCptId');
 				var userInfo = JSON.parse( localStorage.getItem('userInfo') );
 				//var currStatus = app.checkLoginStatus(userInfo.userId,userInfo.loginStatus);
 				if(studyStatus == 2){//该知识点完成
-					if( !checkCurrentLore(studyLogId) ){//当天已经完成，不能再做
-						plus.nativeUI.toast('一个知识点一天只能完成一次');
-						flag = false;
-					}else{
-						flag = true;
-					}
+					mui.ajax(http_ + '/onlineStudy.do?action=checkCurrentLore',{
+						data:{studyLogId:studyLogId,loreId:loreId,userId:userInfo.userId}, 
+						dataType:'json',
+						type:'post',
+						timeout:10000,
+						beforeSend : function(){
+							app.showToast(1);
+						},
+						success:function(json){
+							app.showToast(2);
+							console.log(JSON.stringify( json ))
+							if(json.studyFlag == true){//可以学习
+								app.openwin('studyMap.html',{loreId:loreId,userId:userInfo.userId,loreName:loreName,studyLogId:studyLogId,currCptId:currCptId,byComPos:'chapList'});
+							}else if(json.studyFlag == false){
+								plus.nativeUI.toast('一个知识点一天只能完成一次');
+							}
+						}, 
+						error:function(xhr,type,errorThrown){
+							app.showToast(2);
+							plus.nativeUI.toast('服务器异常');
+						}
+					});
 				}else{
-					flag = true;	
-				}
-				if(flag){ 
 					app.openwin('studyMap.html',{loreId:loreId,userId:userInfo.userId,loreName:loreName,studyLogId:studyLogId,currCptId:currCptId,byComPos:'chapList'});
 				}
 			}

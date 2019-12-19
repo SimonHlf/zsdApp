@@ -23,14 +23,6 @@
 		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
 		<script type="text/javascript">
 			var player = null;
-			mui.init({
-				beforeback : function(){
-					var currView = plus.webview.currentWebview(),
-						opener = currView.opener();
-					mui.fire(opener,'updateStepNum',{});
-					return true;
-				}
-			});
 			mui.plusReady(function () {
 			    var _self = plus.webview.currentWebview().field,
 					jumpPos = plus.webview.currentWebview().jumpPos;

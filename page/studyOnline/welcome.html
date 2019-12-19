@@ -34,7 +34,7 @@
 			</div>
 		</div>
 		<!-- 科目 -->
-		<div class="subjectList"></div>
+		<div id="subjectList" class="subjectList"></div>
 		<!-- 高三初三复习阶段提示选择年级进行复习 -->
 		<div id="tipInfo" class="tipInfo">
 			<span class="iconSpan">
@@ -184,28 +184,16 @@
 							str += '</div></li>';
 						}
 						str += '</ul>';
-						$('.subjectList').html(str); 
-						this.goToEducEvent();//跳转至教材章节页面
-					},
-					goToEducEvent : function(obj){
-						$('.eduListli').on('touchend',function(){
+						$('#subjectList').html(str);
+						mui('#subjectList').on('tap','li',function(){
 							var educId = $(this).attr('eduId'),
-								eduVol = $(this).attr('eduVol'),
-								gradeTxt = $('#gradeTxt').html(),
-								subTxt = $('#subTxt').html(),
-								editTxt = $('#editTxt').html(),
-								field = {userId:userInfo.userId,educId:educId,eduVol:eduVol,gradeTxt:gradeTxt,subTxt:subTxt,editTxt:editTxt};
-							var chapterView = plus.webview.getWebviewById('chapterList.html');
-							if(!chapterView){
-								chapterView = plus.webview.create(
-									'chapterList.html',
-									'chapterList.html',{},
-									{field:field}
-								);
-								chapterView.show('pop-in');
-							}  
+							 	eduVol = $(this).attr('eduVol'),
+							 	gradeTxt = $('#gradeTxt').html(),
+							 	subTxt = $('#subTxt').html(),
+							 	editTxt = $('#editTxt').html(),
+							 	field = {userId:userInfo.userId,educId:educId,eduVol:eduVol,gradeTxt:gradeTxt,subTxt:subTxt,editTxt:editTxt};
+							app.openwin('chapterList.html',{field:field});
 						});
-					
 					},
 					//创建年级sel
 					createGradeSel : function(list){
@@ -306,6 +294,7 @@
 				document.addEventListener('upDatePageData',function(e){
 					if(e.detail.isLoginFlag){
 						location.reload();
+						plus.webview.getWebviewById('chapterList.html').close();
 					}
 				});
 			});
