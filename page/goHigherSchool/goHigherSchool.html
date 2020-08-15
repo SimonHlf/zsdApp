@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../../plugins/flexible.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/common/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/common.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/login.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/mui.min.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/mui.picker.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/common/mui.poppicker.css"/>
+		
+		<!-- <link rel="stylesheet" type="text/css" href="../../css/goHigherSchool.css"/> -->
+		<title>升学设置</title>
+	</head>
+	<body>
+		<div class="comHeader hasBor">
+			<a id="backBtn" class="posL" href="javascript:mui.back()"><i class="iconfont icon-fanhui"></i></a>
+			<span class="headerTit">升学设置</span>
+		</div> 
+		
+		<div class="contentWrap paddingTop selBox" style="display: block;">
+			<div class="regForm selForm clearfix">
+				<p id="showCityPicker3" class="noSel">
+					<span id="selTxt">请选择省/市/县</span>
+					<i class="iconfont icon-xiala"></i>
+				</p>
+				<span class="mustSpan">*</span>
+			</div>
+			<div class="regForm selForm clearfix">
+				<p id="showTownPicker" class="noSel">
+					<span id="selTownTxt">请选择乡/镇/街道</span>
+					<i class="iconfont icon-xiala"></i>
+				</p>
+				<span class="mustSpan">*</span>
+			</div>
+			<div class="regForm selForm clearfix" >
+				<p id="schTypePicker" class="noSel">
+					<span id="schoolTypeTxt">请选择学段</span>
+					<i class="iconfont icon-xiala"></i>
+				</p>
+				<span class="mustSpan">*</span>
+			</div>
+			<div class="regForm selForm clearfix">
+				<input type="hidden" id="schoolIdInp" />
+				<p id="showSchoolPicker" class="noSel">
+					<span id="selSchoolTxt">请选择学校</span>
+					<i class="iconfont icon-xiala"></i>
+				</p>
+				<span class="mustSpan">*</span>
+			</div>
+			<div class="regForm selForm clearfix">
+				<input type="hidden" id="gradeNum" />
+				<p id="gradePicker" class="noSel">
+					<span id="gradeTxt">请选择年级</span>
+					<i class="iconfont icon-xiala"></i>
+				</p>
+				<span class="mustSpan">*</span>
+			</div>
+			<div class="regForm selForm clearfix">
+				<input type="hidden" id="classInp" />
+				<p id="classPicker" class="noSel">
+					<span id="classTxt">请选择班级</span>
+					<i class="iconfont icon-xiala"></i>
+				</p>
+				<span class="mustSpan">*</span> 
+			</div>
+			<a class="saveBtn" href="javascript:void(0)">保存</a>
+		</div>
+		
+		
+		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../libs/cityData.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/mui.picker.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/mui.poppicker.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/goHighSch.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../plugins/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var isUpFlag = false;
+			var userInfo = JSON.parse(localStorage.getItem('userInfo'));
+			var str_prov='',str_city='',str_county='',str_town='',str_schType='',str_yearSys='',field=null,proveCode=0,cityCode=0;
+			mui.init();
+			mui.plusReady(function(){
+				var page = {
+					init : function(){
+						this.getLocation();
+						this.bindEvent();
+						//$('#selTxt').html("河南省 濮阳市 华龙区")
+						str_prov = '河南省';
+						str_city = '濮阳市';
+						str_county = '华龙区';
+						str_town = '中原路街道';
+						
+					},
+					bindEvent:function(){
+						document.querySelector('.saveBtn').addEventListener('tap',function(){
+							var schoolIdInp = app.getId('schoolIdInp'),
+								gradeNum=app.getId('gradeNum'),
+								classInp=app.getId('classInp');
+							if(str_prov == ''){
+								mui.toast('请选择省市县'); 
+							}else if(isHasTownFalg && str_town == ''){
+								mui.toast('请选择乡/镇/街道');  
+							}else if(str_schType == ''){
+								mui.toast('请选择学段');
+							}else if(schoolIdInp.value == ''){
+								mui.toast('请选择学校');
+							}else if(gradeNum.value == ''){
+								mui.toast('请选择年级');
+							}else if(classInp.value == ''){
+								mui.toast('请选择班级'); 
+							}else{
+								// console.log(str_prov)
+								// console.log(str_town)
+								// console.log(str_schType)
+								// console.log(schoolIdInp.value)
+								// console.log(gradeNum.value)
+								// console.log(classInp.value)
+								mui.toast('设置成功');
+								setTimeout(()=>{
+									plus.webview.currentWebview().hide('pop-out');
+									var opener = plus.webview.currentWebview().opener();
+									mui.fire(opener,'upDateSetSxFun');
+								},1500);
+							}
+						});
+					},
+					getLocation(){
+						mui.ajax(http_ + '/baseInfo.do?action=getAreaJson',{
+							dataType:'json',
+							type:'get',
+							timeout:10000,   
+							beforeSend : function(){ 
+								plus.nativeUI.showWaiting();
+							}, 
+							success:function(json){ 
+								plus.nativeUI.closeWaiting();
+								proveCode = json.provName;
+								cityCode = json.cityName;
+							},  
+							error:function(xhr,type,errorThrown){  
+								plus.nativeUI.closeWaiting();
+								console.log(errorThrown);  
+							}  
+						});
+					}
+				};
+				page.init();
+			});
+		</script>
+	</body>
+</html>

@@ -104,7 +104,7 @@
                         "spotlight-retina7" : "", /*iPhone iOS7高分屏Spotlight搜索程序图标，分辨率：80x80*/
                         "settings-normal" : "", /*iPhone设置页面程序图标，分辨率：29x29*/
                         "settings-retina" : "",
-                        "app@2x" : "F:/myEclipse/zsdAppIcon/ios/120ios.png",
+                        "app@2x" : "con/ios/20 ipad.png",
                         "app@3x" : "F:/myEclipse/zsdAppIcon/ios/180ios.png",
                         "spotlight@2x" : "F:/myEclipse/zsdAppIcon/ios/80ios.png",
                         "spotlight@3x" : "F:/myEclipse/zsdAppIcon/ios/120ios.png",
@@ -138,10 +138,10 @@
                 "android" : {
                     "mdpi" : "", /*普通屏程序图标，分辨率：48x48*/
                     "ldpi" : "", /*大屏程序图标，分辨率：48x48*/
-                    "hdpi" : "F:/myEclipse/zsdAppIcon/Android/72.png", /*高分屏程序图标，分辨率：72x72*/
-                    "xhdpi" : "F:/myEclipse/zsdAppIcon/Android/96.png", /*720P高分屏程序图标，分辨率：96x96*/
-                    "xxhdpi" : "F:/myEclipse/zsdAppIcon/Android/144.png",
-                    "xxxhdpi" : "F:/myEclipse/zsdAppIcon/Android/192.png"
+                    "hdpi" : "con/Android/72.png", /*高分屏程序图标，分辨率：72x72*/
+                    "xhdpi" : "con/Android/96.png", /*720P高分屏程序图标，分辨率：96x96*/
+                    "xxhdpi" : "con/Android/144.png",
+                    "xxxhdpi" : "con/Android/192.png"
                 }
             },
             "splashscreen" : {

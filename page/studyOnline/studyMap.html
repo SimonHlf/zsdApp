@@ -134,7 +134,7 @@
 						app.getId('taskAwardBtn').addEventListener('tap',function(){
 							var userInfo = JSON.parse( localStorage.getItem('userInfo') );
 							var currField = {loreId:_this.data.loreId,studyLogId:_this.data.studyLogId,logType:1,userId:userInfo.userId}
-							app.openwin('taskAward.html',{currField:currField,loreName:_this.data.loreName,});
+							app.openwin('taskAward.html',{currField:currField,loreName:_this.data.loreName});
 						});
 						//视频讲解
 						app.getId('shipinBtn').addEventListener('tap',function(){

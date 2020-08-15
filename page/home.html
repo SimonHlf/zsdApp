@@ -61,20 +61,43 @@
 				<ul id="listRec"></ul>
 			</div>
 		</div>
+		<div id="layer" class="layer"></div>
+		<!-- 学生端检测升学提示及设置 -->
+		<div id="setXdPop" class="setXdPop" style="display: none;">
+			<div class="sxBg">
+				<img src="../images/shengxueBg.png"/>
+			</div>
+			<div class="sxTipsCon">系统检测到您已经小学毕业了，目前已经步入初中阶段，之前绑定的小学的网络导师已经不适合您，系统将取消你之前绑定的网络导师，如过您是付费绑定的网络导师，系统将根据你绑定的天数，返还给您对应的金币。</div>
+			<div class="setSxBtn">
+				<button>去设置</button>
+			</div>
+			<div class="smTips">注:金币可用于绑定网络导师、购买会员时抵消人民币。</div>
+		</div>
 		
 		<script src="../plugins/app.js" type="text/javascript" charset="utf-8"></script>
 		<script src="../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
 		<script type="text/javascript">
 			var userInfo = JSON.parse( localStorage.getItem('userInfo') );
 			mui.plusReady(function () {
+				var opener = plus.webview.currentWebview().opener();
 				var page = {
 					init : function(){
 						this.bindEvent();
 						this.loadTodyHwList();
 						app.checkEmailUnRead();
+						//app.getId('layer').style.display = 'block';
+						//mui.fire(opener,'showIndexLayer',{opt:'open'});
+					},
+					closeSxPopSet(){
+						app.getId('layer').style.display = 'none';
+						app.getId('setXdPop').style.display = 'none';
+						mui.fire(opener,'showIndexLayer',{opt:'close'});
 					},
 					bindEvent : function(){ 
 						var loginView = plus.webview.getWebviewById('login');
+						app.getId('setXdPop').addEventListener('tap',function(){
+							app.openwin('goHigherSchool/goHigherSchool.html');
+						});  
 						app.getId('onlineStudy').addEventListener('tap',function(){ 
 							var userInfo = JSON.parse( localStorage.getItem('userInfo') );
 							var currStatus = userInfo == null ? false : true;
@@ -195,6 +218,10 @@
 				//检测消息/邮件未读条数
 				document.addEventListener('upDateUnReadMsgFun',function(){
 					app.checkEmailUnRead();
+				});
+				document.addEventListener('upDateSetSxFun',function(){
+					console.log('jinlaile')
+					page.closeSxPopSet();
 				});
 			});
 		</script>

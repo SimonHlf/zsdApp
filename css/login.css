@@ -116,7 +116,8 @@ body{
 	margin-top: 1rem;
 }
 .regBtn,
-.regBtn_st{
+.regBtn_st,
+.saveBtn{
 	height: 1rem;
 	line-height: 1rem;
 	text-align: center;
@@ -128,6 +129,12 @@ body{
 	display: block;
 	padding: 0;
 	border:none;
+}
+.saveBtn{
+	width: 80%;
+	height: 1.2rem;
+	line-height: 1.2rem;
+	margin: 1rem auto 0;
 }
 .regBtn{
 	width: 80%;

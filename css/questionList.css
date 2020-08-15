@@ -428,7 +428,8 @@ body{
 	left: 0;
 	bottom: 0;
 }
-.quesCardArea span.comSubBtn{
+.quesCardArea span.comSubBtn,
+.quesCardArea button.comSubBtn{
 	width: 5.8rem;
 	height: 1rem;
 	line-height: 1rem;
@@ -441,6 +442,10 @@ body{
 	margin-left: 1.7rem;
 	border-radius: 4px;
 	display: none;
+}
+.quesCardArea button.comSubBtn{
+	border:none;
+	outline: none;
 }
 .quesNum{
 	max-width: 2.4rem;

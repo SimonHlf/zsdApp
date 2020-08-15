@@ -1,4 +1,5 @@
-var http_ = "http://www.zsddx.cn";
+//var http_ = "http://www.zsddx.cn";
+var http_ = "http:192.168.1.105:8080";
 var stu_role_id = 2,ntTea_role_id = 3,tea_role_id = 4,admin_role_id = 5,stuPar_role_id = 6;
 var app = { 
 	getId : function(id){

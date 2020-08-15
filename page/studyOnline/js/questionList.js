@@ -186,7 +186,8 @@ function renderQuesList(list){
 			//提交动作和显示结果
 			var answer_array = arrayToJson(answerOptionArray);
 			//提交按钮
-			var subMitBtn = "<span id='subQuesBtn_"+ index +"' onclick=submitAnswer('"+ list[i].lqType +"',"+ currentLoreId +","+ index +","+ answerNumber +",'"+ escape(answer_array) +"',"+ list[i].lqId +","+ studyLogId +","+ userId +") class='comSubBtn' style='display:block;'>提交</span>";
+			//var subMitBtn = "<span id='subQuesBtn_"+ index +"' test='haha111' onclick=submitAnswer('"+ list[i].lqType +"',"+ currentLoreId +","+ index +","+ answerNumber +",'"+ escape(answer_array) +"',"+ list[i].lqId +","+ studyLogId +","+ userId +") class='comSubBtn' style='display:block;'>提交</span>";
+			var subMitBtn = "<button id='subQuesBtn_"+ index +"' onclick=submitAnswer('"+ list[i].lqType +"',"+ currentLoreId +","+ index +","+ answerNumber +",'"+ escape(answer_array) +"',"+ list[i].lqId +","+ studyLogId +","+ userId +") class='comSubBtn' style='display:block;'>提交</button>";
 			//创建进入下一题按钮
 			var nextNumber = index+1;
 			var goNextBtn = '<span id="goNextBtn_'+ index +'" onclick=goNextQuestion('+ nextNumber +') class="comSubBtn">进入下一题</span>';
@@ -350,6 +351,8 @@ function submitAnswer(lqType,currentLoreId,value,answerNumber,answerOptionArray,
 		}
 	}
 	if(flag){
+		//$('#subQuesBtn_' + value).css('background','red').attr('disabled',true);
+		
 		selectAnserValue_result = delLastSeparator(selectAnserValue_result);
 		selectAnserLableValue_result = delLastSeparator(selectAnserLableValue_result);	
 		//将答案插入数据库
@@ -382,7 +385,7 @@ function submitAnswer(lqType,currentLoreId,value,answerNumber,answerOptionArray,
 			},
 			success:function(json){
 				app.showToast(2);
-				//console.log(JSON.stringify( json ))
+				console.log(JSON.stringify( json ))
 				if(json.result == 'success'){
 					//json.studyStatus 0错 1对
 					renderNowStudyInfo(json.studyResult,lqType,selectAnserLableValue_result,value);
@@ -401,6 +404,7 @@ function submitAnswer(lqType,currentLoreId,value,answerNumber,answerOptionArray,
 					plus.nativeUI.toast('服务器异常，请稍后重试~');
 				}else if(json.result == 'reSubmit'){
 					plus.nativeUI.toast('当前不能重复提交');
+					//$('#subQuesBtn_' + value).css('background','green').attr('disabled',false);
 				}else if(json.result == 'accountDue'){
 					plus.nativeUI.toast('当前会员已到期，请续费');
 				}
