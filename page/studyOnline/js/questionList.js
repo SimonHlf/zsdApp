@@ -196,7 +196,8 @@ function renderQuesList(list){
 			var doneBtn = '';
 			if(i == questionLength - 1){//最后一题
 				//最后一题 做完了
-				doneBtn = '<span id="doneBtn" onclick=lastSubmitAnswer('+ currentLoreId +',"'+ list[i].loreType +'") class="comSubBtn">做完了</span>';
+				//doneBtn = '<span id="doneBtn" onclick=lastSubmitAnswer('+ currentLoreId +',"'+ list[i].loreType +'") class="comSubBtn">做完了</span>';
+				doneBtn = '<button id="doneBtn" onclick=lastSubmitAnswer('+ currentLoreId +',"'+ list[i].loreType +'") class="comSubBtn">做完了</button>';
 			}
 			//组合提交层 btn group
 			$('#questionSubmit_' + index).append(subMitBtn + goNextBtn + showResBtn + doneBtn);
@@ -351,12 +352,10 @@ function submitAnswer(lqType,currentLoreId,value,answerNumber,answerOptionArray,
 		}
 	}
 	if(flag){
-		//$('#subQuesBtn_' + value).css('background','red').attr('disabled',true);
-		
+		$('#subQuesBtn_' + value).css('background','#eee').attr('disabled',true).html('提交中...');
 		selectAnserValue_result = delLastSeparator(selectAnserValue_result);
 		selectAnserLableValue_result = delLastSeparator(selectAnserLableValue_result);	
 		//将答案插入数据库
-		
 		/*
 			loreId originLoreId
 			studyLogId
@@ -385,7 +384,6 @@ function submitAnswer(lqType,currentLoreId,value,answerNumber,answerOptionArray,
 			},
 			success:function(json){
 				app.showToast(2);
-				console.log(JSON.stringify( json ))
 				if(json.result == 'success'){
 					//json.studyStatus 0错 1对
 					renderNowStudyInfo(json.studyResult,lqType,selectAnserLableValue_result,value);
@@ -397,16 +395,18 @@ function submitAnswer(lqType,currentLoreId,value,answerNumber,answerOptionArray,
 						$("#goNextBtn_"+value).show().css('display','block'); //显示下一题按钮div
 					}
 					lastCommitNumber++;
-					
 				}else if(json.result == 'timeErr'){
 					plus.nativeUI.toast('做题太快,请休息一下再做哦~');
+					$('#subQuesBtn_' + value).css('background','#4d47f1').attr('disabled',false).html('提交');
 				}else if(json.result == 'error'){
 					plus.nativeUI.toast('服务器异常，请稍后重试~');
+					$('#subQuesBtn_' + value).css('background','#4d47f1').attr('disabled',false).html('提交');
 				}else if(json.result == 'reSubmit'){
 					plus.nativeUI.toast('当前不能重复提交');
-					//$('#subQuesBtn_' + value).css('background','green').attr('disabled',false);
+					$('#subQuesBtn_' + value).css('background','#4d47f1').attr('disabled',false).html('提交');
 				}else if(json.result == 'accountDue'){
 					plus.nativeUI.toast('当前会员已到期，请续费');
+					$('#subQuesBtn_' + value).css('background','#4d47f1').attr('disabled',false).html('提交');
 				}
 			},
 			error:function(xhr,type,errorThrown){
@@ -484,6 +484,7 @@ function lastSubmitAnswer(currentLoreId,loreTypeName){
 	var step_new = 0; 
 	if(lastCommitNumber == questionLength){
 		$('.maskLayer').show();
+		$('#doneBtn').css('background','#eee').attr('disabled',true);
 		if(currPageType == 'zhenduanPage'){
 			if(loreTypeName == "再次诊断"){
 				if(currentLoreId == originLoreId){
@@ -552,6 +553,7 @@ function lastSubmitAnswer(currentLoreId,loreTypeName){
 			},500);
 		}
 	}else{
+		$('#doneBtn').css('background','#4d47f1').attr('disabled',false);
 		plus.nativeUI.toast('您还有试题没做完，请做完再提交！');
 	}
 }

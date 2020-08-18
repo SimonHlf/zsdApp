@@ -32,7 +32,6 @@
 		</div>
 		<!-- 我的学习 -->
 		<div class="myLearning hasMargTop">
-			<!-- <p class="accTit"><span></span><strong>我的学习</strong></p> -->
 			<div class="list">
 				<ul>
 					<li id="zhanghu">
@@ -73,6 +72,10 @@
 					</li>
 				</ul>
 			</div>
+			<div id="checkVersion" class="currVersion">
+				<div>检测更新</div>
+				<div>当前版本:<span id="versionSpan"></span></div>
+			</div>
 		</div>
 		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
 		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
@@ -82,6 +85,11 @@
 			var userId = 0,loginStatus=0;
 			mui.plusReady(function () { 
 				set_userinfo();
+				app.getId('versionSpan').innerHTML = plus.storage.getItem('currVersion');
+				//检测更新
+				app.getId('checkVersion').addEventListener('tap',function(){
+					app.checkAppVersion(true);
+				}); 
 				var clipboard = new ClipboardJS('.invite');
 				clipboard.on('success', function(e) {
 					mui.toast("邀请码已复制到剪贴板中！");

@@ -175,7 +175,8 @@ function renderQuesList(list){
 			//提交动作和显示结果
 			var answer_array = arrayToJson(answerOptionArray);
 			//提交按钮
-			var subMitBtn = "<span id='subQuesBtn_"+ index +"' onclick=submitAnswer('"+ list[i].lqType +"',"+ list[i].lqId +","+ index +","+ answerNumber +",'"+ escape(answer_array) +"') class='comSubBtn' style='display:block;'>提交</span>";
+			//var subMitBtn = "<span id='subQuesBtn_"+ index +"' onclick=submitAnswer('"+ list[i].lqType +"',"+ list[i].lqId +","+ index +","+ answerNumber +",'"+ escape(answer_array) +"') class='comSubBtn' style='display:block;'>提交</span>";
+			var subMitBtn = "<button id='subQuesBtn_"+ index +"' onclick=submitAnswer('"+ list[i].lqType +"',"+ list[i].lqId +","+ index +","+ answerNumber +",'"+ escape(answer_array) +"') class='comSubBtn' style='display:block;'>提交</button>";
 			//创建进入下一题按钮
 			var nextNumber = index+1;
 			var goNextBtn = '<span id="goNextBtn_'+ index +'" onclick=goNextQuestion('+ nextNumber +') class="comSubBtn">进入下一题</span>';
@@ -184,7 +185,8 @@ function renderQuesList(list){
 			var doneBtn = '';
 			if(i == questionLength - 1){//最后一题
 				//最后一题 做完了
-				doneBtn = '<span id="doneBtn" onclick=lastSubmitAnswer('+ currentLoreId +',"'+ list[i].loreType +'") class="comSubBtn">做完了</span>';
+				//doneBtn = '<span id="doneBtn" onclick=lastSubmitAnswer('+ currentLoreId +',"'+ list[i].loreType +'") class="comSubBtn">做完了</span>';
+				doneBtn = '<button id="doneBtn" onclick=lastSubmitAnswer('+ currentLoreId +',"'+ list[i].loreType +'") class="comSubBtn">做完了</button>';
 			}
 			//组合提交层 btn group
 			$('#questionSubmit_' + index).append(subMitBtn + goNextBtn + showResBtn + doneBtn);
@@ -337,6 +339,7 @@ function submitAnswer(lqType,lqId,value,answerNumber,answerOptionArray){
 		}
 	}
 	if(flag){
+		$('#subQuesBtn_' + value).css('background','#eee').attr('disabled',true).html('提交中...');
 		selectAnserValue_result = delLastSeparator(selectAnserValue_result);
 		selectAnserLableValue_result = delLastSeparator(selectAnserLableValue_result);
 		if(currPageType == 'zhenduanPage_buff' || currPageType == 'studyPage_buff'){
@@ -375,8 +378,10 @@ function submitAnswer(lqType,lqId,value,answerNumber,answerOptionArray){
 					
 				}else if(json.result == 'error'){
 					plus.nativeUI.toast('服务器异常，请稍后重试~');
+					$('#subQuesBtn_' + value).css('background','#4d47f1').attr('disabled',false).html('提交');
 				}else if(json.result == 'reSubmit'){
 					plus.nativeUI.toast('当前不能重复提交');
+					$('#subQuesBtn_' + value).css('background','#4d47f1').attr('disabled',false).html('提交');
 				}
 			},
 			error:function(xhr,type,errorThrown){

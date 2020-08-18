@@ -80,13 +80,18 @@
 			var userInfo = JSON.parse( localStorage.getItem('userInfo') );
 			mui.plusReady(function () {
 				var opener = plus.webview.currentWebview().opener();
-				var page = {
+				var page = { 
+					data:{
+						currPara : '',
+						currUserGradeName : '',
+						currUserGradeNumber : '',
+						currYearSystem : ''
+					},
 					init : function(){
 						this.bindEvent();
 						this.loadTodyHwList();
 						app.checkEmailUnRead();
-						//app.getId('layer').style.display = 'block';
-						//mui.fire(opener,'showIndexLayer',{opt:'open'});
+						this.getCurrStudyByInfo();
 					},
 					closeSxPopSet(){
 						app.getId('layer').style.display = 'none';
@@ -94,9 +99,10 @@
 						mui.fire(opener,'showIndexLayer',{opt:'close'});
 					},
 					bindEvent : function(){ 
-						var loginView = plus.webview.getWebviewById('login');
+						var loginView = plus.webview.getWebviewById('login'),_this = this;
 						app.getId('setXdPop').addEventListener('tap',function(){
-							app.openwin('goHigherSchool/goHigherSchool.html');
+							var field = {currPara:_this.data.currPara,currUserGradeName:_this.data.currUserGradeName,currUserGradeNumber:_this.data.currUserGradeNumber,currYearSystem:_this.data.currYearSystem};
+							app.openwin('goHigherSchool/goHigherSchool.html',{field:field});
 						});  
 						app.getId('onlineStudy').addEventListener('tap',function(){ 
 							var userInfo = JSON.parse( localStorage.getItem('userInfo') );
@@ -153,6 +159,45 @@
 								app.openwin('stuDoHw/studyMap.html',{field:field,loreName:loreName,currPage:1,currPos:'byHome'});
 							}
 						});
+					},
+					getCurrStudyByInfo(){
+						var field = {userId:userInfo.userId,roleId:userInfo.roleId},_this = this;
+						mui.ajax(http_ + '/user.do?action=getCurrStuByInfo',{
+							data:field,
+							dataType:'json',
+							type:'post',
+							timeout:10000,
+							success:function(json){
+								app.showToast(2);
+								if(json.result == 'success'){ 
+									if(json.gduStatus == 1){//需要升学
+										app.getId('layer').style.display = 'block';
+										app.getId('setXdPop').style.display = 'block';
+										mui.fire(opener,'showIndexLayer',{opt:'open'});
+										_this.data.currPara = json.currPara;
+										_this.data.currUserGradeName = json.currUserGradeName;
+										_this.data.currUserGradeNumber = json.currUserGradeNumber;
+										_this.data.currYearSystem = json.currYearSystem;
+									}
+								}else if(json.result == 'noInfo'){
+									mui.toast('该导师不存在');
+								}else if(json.result == 'noBuy'){
+									mui.toast('选择时长涉及升学，不能购买');
+								}else if(json.result == 'bindExist'){
+									mui.toast('该科目下已存在正在绑定的导师');
+								}else if(json.result == 'checkFail'){
+									mui.toast('该导师审核未通过');
+								}else if(json.result == 'paraDiff'){
+									mui.toast('该导师辅导学段和你目前所处学段不一致');
+								}else if(json.result == 'error'){
+									mui.toast('服务器错误');
+								}
+							},
+							error:function(xhr,type,errorThrown){
+								app.showToast(2);
+								console.log(errorThrown)
+							} 
+						})
 					},
 					//获取今日家庭作业
 					loadTodyHwList : function(){

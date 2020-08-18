@@ -69,6 +69,7 @@
 		};
 		var aniShow = {};
 		mui.plusReady(function () {
+			app.checkAppVersion(false);
 			var self = plus.webview.currentWebview();
 			var wvs = plus.webview.all();
 			var userInfo = JSON.parse(localStorage.getItem('userInfo'));
@@ -182,57 +183,88 @@
 				}else{
 					app.getId('indexLayer').style.display = 'none';
 				}
-				
 			});
-			plus.runtime.getProperty(plus.runtime.appid,function(inf){
-				mui.ajax(http_ + '/baseInfo.do?action=getNewAppVersion',{
-					data:{opt:'new'},
-					dataType:'json',
-					type:'post', 
-					timeout:10000, 
-					success:function(json){
-						if(json.result == 'success'){
-							if(inf.version != json.version){
-								var btnArray = ['确定','取消'];
-								mui.confirm('检查到当前版本有最新更新，下载升级?', '版本更新提示', btnArray, function(e) {
-									if(e.index == 0){
-										mui.toast('正在更新新版本');
-										var dtask = plus.downloader.createDownload(
-											http_ + "/Module/appDown/zsd.apk",
-											{method:"GET"},
-											function(d, status){
-												if(status == 200){
-													plus.nativeUI.showWaiting("安装更新文件...");
-													//plus.runtime.install(d.filename);
-													plus.runtime.install(d.filename,{},function(){
-														plus.nativeUI.closeWaiting();        
-														plus.nativeUI.alert("应用资源更新完成！",function(){
-															plus.runtime.restart();
-														});
-													},function(e){
-														plus.nativeUI.closeWaiting();        
-														plus.nativeUI.alert("安装更新文件失败["+e.code+"]："+e.message);
-													});
-												}else {
-													mui.toast("下载更新失败！");
-													plus.nativeUI.closeWaiting();
-												} 
-											}
-										);
-										dtask.start();
-									}
-								});
-							}
-						}else if(json.result == 'noInfo'){
+			
+			// plus.runtime.getProperty(plus.runtime.appid, function(inf) {
+			// 	mui.ajax(http_ + '/baseInfo.do?action=getNewAppVersion',{
+			// 		data:{opt:'new'},
+			// 		dataType:'json',
+			// 		type:'post', 
+			// 		timeout:10000, 
+			// 		success:function(json){ 
+			// 			if(json.result == 'success'){
+			// 				if(inf.version != json.version){
+			// 					var btnArray = ['确定'];
+			// 					mui.confirm('系统检测到有最新版本,请下载升级', '版本更新提示', btnArray, function(e) {
+			// 						if(e.index == 0){
+			// 							if (plus.os.name.toLowerCase() == 'ios') {
+			// 								// 跳转到下载页面
+			// 								//plus.runtime.openURL(res.data.upgradeUrl)
+			// 								mui.toast({title: 'ios后续开放',icon:'none'});
+			// 							}else{
+			// 								var dtask = plus.downloader.createDownload(
+			// 									http_ + "/Module/appDown/zsd.apk",
+			// 									{method:"get"},
+			// 									function(d, status) {
+			// 										console.log(status)
+			// 										mui.toast('下载完成')
+			// 										// 下载完成
+			// 										if (status == 200) {
+			// 											plus.runtime.install(plus.io.convertLocalFileSystemURL(d.filename), {}, e => e, function(error) {
+			// 												mui.toast('安装失败');
+			// 											})
+			// 										} else {
+			// 											mui.toast('安装失败');
+			// 										}
+			// 									});
+			// 								try {
+			// 									dtask.start(); // 开启下载的任务
+			// 									var prg = 0;
+			// 									var showLoading = plus.nativeUI.showWaiting("正在下载");  //创建一个showWaiting对象 
+			// 									dtask.addEventListener('statechanged', function(
+			// 									  task,
+			// 									  status
+			// 									){
+			// 									  // 给下载任务设置一个监听 并根据状态  做操作
+			// 									  switch (task.state) {
+			// 										case 1:
+			// 										  showLoading.setTitle("正在下载");
+			// 										  break;
+			// 										case 2:
+			// 										  showLoading.setTitle("已连接到服务器");
+			// 										  break;
+			// 										case 3:
+			// 										  prg = parseInt(
+			// 											(parseFloat(task.downloadedSize) /parseFloat(task.totalSize)) *100
+			// 										  );
+			// 										  showLoading.setTitle("  正在下载" + prg + "%  ");
+			// 										  break;
+			// 										case 4:
+			// 										   plus.nativeUI.closeWaiting();
+			// 											//下载完成
+			// 										  break;
+			// 									  }
+			// 									});
+			// 								}catch (err) {
+			// 									plus.nativeUI.closeWaiting();
+			// 									mui.toast('安装失败');
+			// 								}
+			// 							}
+			// 						}
+			// 					});
+			// 				}else{
+			// 					mui.toast('已是最新版本');
+			// 				}
+			// 			}else if(json.result == 'noInfo'){
 							
-						}
-					},
-					error:function(xhr,type,errorThrown){
-						app.showToast(2);
-						console.log(errorThrown)
-					} 
-				});
-			});
+			// 			}
+			// 		},
+			// 		error:function(xhr,type,errorThrown){
+			// 			app.showToast(2);
+			// 			console.log(errorThrown)
+			// 		} 
+			// 	});
+			// });
 		});  
 	</script>
 </body>

@@ -1,5 +1,5 @@
 //var http_ = "http://www.zsddx.cn";
-var http_ = "http:192.168.1.105:8080";
+var http_ = "http://192.168.1.105:8080";
 var stu_role_id = 2,ntTea_role_id = 3,tea_role_id = 4,admin_role_id = 5,stuPar_role_id = 6;
 var app = { 
 	getId : function(id){
@@ -215,5 +215,91 @@ var app = {
 	doLogin : function(){
 		var login = plus.webview.getWebviewById("login");
 		login.show("pop-in");		
+	},
+	checkAppVersion(isClickFlag){
+		plus.runtime.getProperty(plus.runtime.appid, function(inf) {
+			//uni.setStorageSync('currVersion',widgetInfo.version);
+			plus.storage.setItem("currVersion",inf.version);
+			mui.ajax(http_ + '/baseInfo.do?action=getNewAppVersion',{
+				data:{opt:'new'},
+				dataType:'json',
+				type:'post', 
+				timeout:10000, 
+				success:function(json){ 
+					if(json.result == 'success'){
+						if(inf.version != json.version){
+							var btnArray = ['确定'];
+							mui.confirm('系统检测到有最新版本,请下载升级', '版本更新提示', btnArray, function(e) {
+								if(e.index == 0){
+									if (plus.os.name.toLowerCase() == 'ios') {
+										// 跳转到下载页面
+										//plus.runtime.openURL(res.data.upgradeUrl)
+										mui.toast({title: 'ios后续开放',icon:'none'});
+									}else{
+										var dtask = plus.downloader.createDownload(
+											http_ + "/Module/appDown/zsd.apk",
+											{method:"get"},
+											function(d, status) {
+												console.log(status)
+												mui.toast('下载完成')
+												// 下载完成
+												if (status == 200) {
+													plus.runtime.install(plus.io.convertLocalFileSystemURL(d.filename), {}, e => e, function(error) {
+														mui.toast('安装失败');
+													})
+												} else {
+													mui.toast('安装失败');
+												}
+											});
+										try {
+											dtask.start(); // 开启下载的任务
+											var prg = 0;
+											var showLoading = plus.nativeUI.showWaiting("正在下载");  //创建一个showWaiting对象 
+											dtask.addEventListener('statechanged', function(
+											  task,
+											  status
+											){
+											  // 给下载任务设置一个监听 并根据状态  做操作
+											  switch (task.state) {
+												case 1:
+												  showLoading.setTitle("正在下载");
+												  break;
+												case 2:
+												  showLoading.setTitle("已连接到服务器");
+												  break;
+												case 3:
+												  prg = parseInt(
+													(parseFloat(task.downloadedSize) /parseFloat(task.totalSize)) *100
+												  );
+												  showLoading.setTitle("  正在下载" + prg + "%  ");
+												  break;
+												case 4:
+												   plus.nativeUI.closeWaiting();
+													//下载完成
+												  break;
+											  }
+											});
+										}catch (err) {
+											plus.nativeUI.closeWaiting();
+											mui.toast('安装失败');
+										}
+									}
+								}
+							});
+						}else{
+							if(isClickFlag){
+								mui.toast('已是最新版本');
+							}
+						}
+					}else if(json.result == 'noInfo'){
+						
+					}
+				},
+				error:function(xhr,type,errorThrown){
+					app.showToast(2);
+					console.log(errorThrown)
+				} 
+			});
+		});
 	}
 };

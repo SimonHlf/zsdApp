@@ -4,7 +4,7 @@
     "name" : "知识典", /*应用名称，程序桌面图标名称*/
     "version" : {
         "name" : "1.0.0", /*应用版本名称*/
-        "code" : 83
+        "code" : 100
     },
     "description" : "知识典，将课本知识进行了细胞化分解。在知识的源头处打破章节、学科的界线，并通过网络的交互功能实现了知识点之间的互通、互补。学生利用诊断评测进行溯源查找，而后网络导学再帮助学生将查找到了知识漏洞进行有效弥补。让学习过程事半功倍，让查漏补缺轻松简单。", /*应用描述信息*/
     "icons" : {
@@ -88,7 +88,8 @@
                     "<uses-permission android:name=\"android.permission.WRITE_CONTACTS\"/>",
                     "<uses-permission android:name=\"android.permission.WRITE_EXTERNAL_STORAGE\"/>",
                     "<uses-permission android:name=\"android.permission.WRITE_SETTINGS\"/>"
-                ]
+                ],
+                "abiFilters" : [ "armeabi-v7a", "x86" ]
             },
             "orientation" : [ "portrait-primary" ], /*应用支持的方向，portrait-primary：竖屏正方向；portrait-secondary：竖屏反方向；landscape-primary：横屏正方向；landscape-secondary：横屏反方向*/
             "icons" : {
@@ -104,14 +105,14 @@
                         "spotlight-retina7" : "", /*iPhone iOS7高分屏Spotlight搜索程序图标，分辨率：80x80*/
                         "settings-normal" : "", /*iPhone设置页面程序图标，分辨率：29x29*/
                         "settings-retina" : "",
-                        "app@2x" : "con/ios/20 ipad.png",
-                        "app@3x" : "F:/myEclipse/zsdAppIcon/ios/180ios.png",
-                        "spotlight@2x" : "F:/myEclipse/zsdAppIcon/ios/80ios.png",
-                        "spotlight@3x" : "F:/myEclipse/zsdAppIcon/ios/120ios.png",
-                        "settings@2x" : "F:/myEclipse/zsdAppIcon/ios/58ios.png",
-                        "settings@3x" : "F:/myEclipse/zsdAppIcon/ios/87ios.png",
-                        "notification@2x" : "F:/myEclipse/zsdAppIcon/ios/40ios.png",
-                        "notification@3x" : "F:/myEclipse/zsdAppIcon/ios/60ios.png"
+                        "app@2x" : "",
+                        "app@3x" : "",
+                        "spotlight@2x" : "",
+                        "spotlight@3x" : "",
+                        "settings@2x" : "",
+                        "settings@3x" : "",
+                        "notification@2x" : "",
+                        "notification@3x" : ""
                     },
                     "ipad" : {
                         "normal" : "", /*iPad普通屏幕程序图标，分辨率：72x72*/
@@ -124,24 +125,24 @@
                         "spotlight-retina7" : "", /*iPad iOS7高分屏Spotlight搜索程序图标，分辨率：80x80*/
                         "settings-normal" : "", /*iPad设置页面程序图标，分辨率：29x29*/
                         "settings-retina" : "",
-                        "app" : "F:/myEclipse/zsdAppIcon/ios/76ipad.png",
-                        "proapp@2x" : "F:/myEclipse/zsdAppIcon/ios/167ipad.png",
-                        "spotlight" : "F:/myEclipse/zsdAppIcon/ios/40ios.png",
-                        "spotlight@2x" : "F:/myEclipse/zsdAppIcon/ios/80ios.png",
-                        "settings" : "F:/myEclipse/zsdAppIcon/ios/29 ipad.png",
-                        "settings@2x" : "F:/myEclipse/zsdAppIcon/ios/58ios.png",
-                        "notification" : "F:/myEclipse/zsdAppIcon/ios/20 ipad.png",
-                        "notification@2x" : "F:/myEclipse/zsdAppIcon/ios/40ios.png",
-                        "app@2x" : "F:/myEclipse/zsdAppIcon/ios/156ipad.png"
+                        "app" : "",
+                        "proapp@2x" : "",
+                        "spotlight" : "",
+                        "spotlight@2x" : "",
+                        "settings" : "",
+                        "settings@2x" : "",
+                        "notification" : "",
+                        "notification@2x" : "",
+                        "app@2x" : ""
                     }
                 },
                 "android" : {
                     "mdpi" : "", /*普通屏程序图标，分辨率：48x48*/
                     "ldpi" : "", /*大屏程序图标，分辨率：48x48*/
-                    "hdpi" : "con/Android/72.png", /*高分屏程序图标，分辨率：72x72*/
-                    "xhdpi" : "con/Android/96.png", /*720P高分屏程序图标，分辨率：96x96*/
-                    "xxhdpi" : "con/Android/144.png",
-                    "xxxhdpi" : "con/Android/192.png"
+                    "hdpi" : "D:/software/javaPro/zsdIcon/Android/72.png", /*高分屏程序图标，分辨率：72x72*/
+                    "xhdpi" : "D:/software/javaPro/zsdIcon/Android/96.png", /*720P高分屏程序图标，分辨率：96x96*/
+                    "xxhdpi" : "D:/software/javaPro/zsdIcon/Android/144.png",
+                    "xxxhdpi" : "D:/software/javaPro/zsdIcon/Android/192.png"
                 }
             },
             "splashscreen" : {
@@ -376,5 +377,6 @@
                 "page/mine/settingPhone.html"
             ]
         }
-    }
+    },
+    "screenOrientation" : [ "portrait-primary" ]
 }

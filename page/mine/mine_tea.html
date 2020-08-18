@@ -43,8 +43,8 @@
 					</li>
 					<li id="jiaoxuekemu">
 						<span class="iconBox"><i class="iconfont icon-xueke"></i></span>
-						<span class="perCenItemTxt">教学科目</span
-						<p id="subjectName">数学</p>
+						<span class="perCenItemTxt">教学科目</span>
+						<p id="subjectName"></p>
 					</li>
 					<li id="qinfenRep">
 						<span class="iconBox"><i class="iconfont icon-baogao"></i></span>
@@ -58,8 +58,11 @@
 					</li>
 				</ul>
 			</div>
+			<div id="checkVersion" class="currVersion">
+				<div>检测更新</div>
+				<div>当前版本:<span id="versionSpan"></span></div>
+			</div>
 		</div>
-		
 		<script src="../../js/mui.min.js" type="text/javascript" charset="utf-8"></script>
 		<script src="../../plugins/app.js" type="text/javascript" charset="utf-8"></script>
 		<script src="../../plugins/h.min.js" type="text/javascript" charset="utf-8"></script>
@@ -67,6 +70,11 @@
 			var userId = 0,loginStatus=0;
 			mui.plusReady(function () { 
 				set_userinfo();
+				app.getId('versionSpan').innerHTML = plus.storage.getItem('currVersion');
+				//检测更新
+				app.getId('checkVersion').addEventListener('tap',function(){
+					app.checkAppVersion(true);
+				}); 
 				app.getId('userInfo').addEventListener('tap',function(){
 					var loginView = plus.webview.getWebviewById('login');
 					var userInfo = JSON.parse( localStorage.getItem('userInfo') );
@@ -134,11 +142,13 @@
 						var userInfo=JSON.parse(localStorage.getItem("userInfo"));
 						app.getId('account').innerText = userInfo.userName; 
 						app.getId('jzAcc').innerText = '担任科目：' + userInfo.subName;
+						app.getId('subjectName').innerText = userInfo.subName;
 						app.getId('headPic').src = userInfo.portrait;
 					}else{ 
 						document.querySelector('.noLogin').style.display = 'block';
 						document.querySelector('.hasLogin').style.display = 'none';
 						app.getId('headPic_noLog').style.display = 'block';
+						app.getId('subjectName').innerText = '';
 						app.getId('headPic').style.display = 'none';
 					}
 				} 

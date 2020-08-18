@@ -83,7 +83,7 @@
 						app.backFun(); 
 						this.loadUserInfo();
 						this.bindEvent();
-						if(userInfo.roleId == stuPar_role_id){//家长身份下增加修改真实姓名
+						if(userInfo.roleId == stuPar_role_id || userInfo.roleId == tea_role_id){//家长身份下增加修改真实姓名
 							app.getId('parMoreIcon').style.display = 'block';
 						}
 					}, 
@@ -142,7 +142,7 @@
 					},
 					bindEvent : function(){ 
 						var _this = this;
-						if(userInfo.roleId == stuPar_role_id){
+						if(userInfo.roleId == stuPar_role_id || userInfo.roleId == tea_role_id){
 							//家长身份下修改更新真实姓名
 							app.getId('realNamePar').addEventListener('tap',function(){
 								var currRealName = app.getId('realName').innerText;

@@ -224,7 +224,7 @@ function resetInfo(){
 		},false);
 		
 		//选择学段
-		schTypePickerBtn.addEventListener('tap', function(event) {
+		/*schTypePickerBtn.addEventListener('tap', function(event) {
 			schTypePicker.show(function(items) {
 				schoolTypeTxt.innerText = _getParam(items[0], 'name');
 				str_schType = _getParam(items[0], 'value').split(',')[0];
@@ -235,7 +235,7 @@ function resetInfo(){
 				//返回 false 可以阻止选择框的关闭
 				//return false;
 			});
-		}, false);
+		}, false);*/
 		 
 		
 		//学校选择
@@ -294,7 +294,7 @@ function resetInfo(){
 			
 		});
 		//年级选择
-		app.getId('gradePicker').addEventListener('tap',function(){
+		/*app.getId('gradePicker').addEventListener('tap',function(){
 			var schoolIdInp = app.getId('schoolIdInp'),gradeTxt = app.getId('gradeTxt'),gradeNum=app.getId('gradeNum');
 			if(schoolIdInp.value == ''){
 				mui.toast('请选择学校');
@@ -323,7 +323,7 @@ function resetInfo(){
 				gradeNum.value = _getParam(items[0], 'value');
 				app.getId('gradePicker').className = 'hasSel';
 			});
-		});
+		});*/
 		//班级选择
 		app.getId('classPicker').addEventListener('tap',function(){
 			var classTxt = app.getId('classTxt'),classInp = app.getId('classInp'),gradeNum = app.getId('gradeNum');

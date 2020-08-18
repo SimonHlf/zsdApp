@@ -4,6 +4,7 @@ function lastSubmitAnswer(currentLoreId,loreTypeName){
 	var userInfo = JSON.parse( localStorage.getItem('userInfo') );
 	if(lastCommitNumber == questionLength){
 		$('.maskLayer').show();
+		$('#doneBtn').css('background','#eee').attr('disabled',true);
 		if(currPageType == 'zhenduanPage_hw'){
 			if(loreTypeName == "再次诊断"){
 				step_new = 3;
@@ -58,6 +59,7 @@ function lastSubmitAnswer(currentLoreId,loreTypeName){
 		}
 		
 	}else{
+		$('#doneBtn').css('background','#4d47f1').attr('disabled',false);
 		plus.nativeUI.toast('您还有试题没做完，请做完再提交！');
 	}
 }

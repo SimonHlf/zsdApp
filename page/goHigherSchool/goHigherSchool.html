@@ -10,8 +10,6 @@
 		<link rel="stylesheet" type="text/css" href="../../css/mui.min.css"/>
 		<link rel="stylesheet" type="text/css" href="../../css/common/mui.picker.css"/>
 		<link rel="stylesheet" type="text/css" href="../../css/common/mui.poppicker.css"/>
-		
-		<!-- <link rel="stylesheet" type="text/css" href="../../css/goHigherSchool.css"/> -->
 		<title>升学设置</title>
 	</head>
 	<body>
@@ -36,9 +34,9 @@
 				<span class="mustSpan">*</span>
 			</div>
 			<div class="regForm selForm clearfix" >
-				<p id="schTypePicker" class="noSel">
-					<span id="schoolTypeTxt">请选择学段</span>
-					<i class="iconfont icon-xiala"></i>
+				<p>
+					<span id="schoolTypeTxt"></span> 
+					<i class="iconfont icon-xiala" style="color: #eee;"></i>
 				</p>
 				<span class="mustSpan">*</span>
 			</div>
@@ -52,9 +50,9 @@
 			</div>
 			<div class="regForm selForm clearfix">
 				<input type="hidden" id="gradeNum" />
-				<p id="gradePicker" class="noSel">
-					<span id="gradeTxt">请选择年级</span>
-					<i class="iconfont icon-xiala"></i>
+				<p>
+					<span id="gradeTxt"></span>
+					<i class="iconfont icon-xiala" style="color: #eee;"></i>
 				</p>
 				<span class="mustSpan">*</span>
 			</div>
@@ -83,16 +81,25 @@
 			var str_prov='',str_city='',str_county='',str_town='',str_schType='',str_yearSys='',field=null,proveCode=0,cityCode=0;
 			mui.init();
 			mui.plusReady(function(){
+				var field = plus.webview.currentWebview().field;
 				var page = {
 					init : function(){
 						this.getLocation();
 						this.bindEvent();
-						//$('#selTxt').html("河南省 濮阳市 华龙区")
-						str_prov = '河南省';
-						str_city = '濮阳市';
-						str_county = '华龙区';
-						str_town = '中原路街道';
-						
+						if(field.currPara == '初中'){
+							str_schType = 2;
+							if(field.currYearSystem == 3){
+								$('#schoolTypeTxt').html('初中(三年制)');
+							}else if(field.currYearSystem == 4){
+								$('#schoolTypeTxt').html('初中(四年制)');
+							}
+						}else if(field.currPara == '高中'){
+							str_schType = 3;
+							$('#schoolTypeTxt').html('高中');
+						} 
+						str_yearSys = field.currYearSystem;
+						$('#gradeNum').val(field.currUserGradeNumber);
+						$('#gradeTxt').html(field.currUserGradeName);
 					},
 					bindEvent:function(){
 						document.querySelector('.saveBtn').addEventListener('tap',function(){
@@ -112,18 +119,30 @@
 							}else if(classInp.value == ''){
 								mui.toast('请选择班级'); 
 							}else{
-								// console.log(str_prov)
-								// console.log(str_town)
-								// console.log(str_schType)
-								// console.log(schoolIdInp.value)
-								// console.log(gradeNum.value)
-								// console.log(classInp.value)
-								mui.toast('设置成功');
-								setTimeout(()=>{
-									plus.webview.currentWebview().hide('pop-out');
-									var opener = plus.webview.currentWebview().opener();
-									mui.fire(opener,'upDateSetSxFun');
-								},1500);
+								plus.nativeUI.showWaiting("设置中...",{size:"12px",background:"rgba(0,0,0,0.6)",back:"none"});
+								var field = {userId:userInfo.userId,roleId:userInfo.roleId,yearSystem:str_yearSys,schoolId:schoolIdInp.value,className:escape( classInp.value )};
+								mui.ajax(http_ + '/user.do?action=updateStuClassInfo',{
+									dataType:'json',
+									data:field,
+									type:'get',
+									timeout:10000,  
+									success:function(json){ 
+										plus.nativeUI.closeWaiting();
+										if(json.result == 'success'){
+											mui.toast('设置成功');
+											setTimeout(()=>{
+												plus.webview.currentWebview().hide('pop-out');
+												var opener = plus.webview.currentWebview().opener();
+												mui.fire(opener,'upDateSetSxFun');
+											},1500);
+										}
+									},  
+									error:function(xhr,type,errorThrown){  
+										plus.nativeUI.closeWaiting();
+										console.log(errorThrown);  
+									}  
+								});
+								
 							}
 						});
 					},
@@ -142,7 +161,6 @@
 							},  
 							error:function(xhr,type,errorThrown){  
 								plus.nativeUI.closeWaiting();
-								console.log(errorThrown);  
 							}  
 						});
 					}
